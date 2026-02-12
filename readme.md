@@ -35,7 +35,8 @@ Inspired by games like **Wordle** and **Stumple**, CrickSolve adds a cricket twi
 - HTML  
 - CSS  
 - Vanilla JavaScript  
-- Dataset-driven gameplay (423 players)  
+- Custom dataset-driven gameplay 
 - Deployed on GitHub Pages  
 
 If you enjoyed the game, feel free to share it or suggest features!
+
