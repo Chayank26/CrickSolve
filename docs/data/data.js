@@ -4416,9 +4416,9 @@ const players=[
     "bowling_type": "legbreak",
     "role": "Middle Order Batter",
     "birth_year": 1974,
-    "test": 0,
-    "odi": 0,
-    "t20": 5,
+    "test": 75,
+    "odi": 162,
+    "t20": 39,
     "ipl_team": "RCB",
     "retired": true,
     "image": "https://upload.wikimedia.org/wikipedia/commons/6/69/Misbah-ul-Haq.png"
