@@ -7,6 +7,9 @@ let hintUsed=false
 let hintMode=false
 let gameStatus="playing"
 
+let timerStartMs=null
+let timerEndMs=null
+
 const guessed=new Set()
 
 const input=document.getElementById("guessInput")
@@ -37,12 +40,19 @@ const resultMeta=document.getElementById("resultMeta")
 const shareBtn=document.getElementById("shareBtn")
 const closeResult=document.getElementById("closeResult")
 
+const leaderboardTop=document.getElementById("leaderboardTop")
+const leaderboardYou=document.getElementById("leaderboardYou")
+const leaderboardCount=document.getElementById("leaderboardCount")
+
 const welcomeModal=document.getElementById("welcomeModal")
 const howModal=document.getElementById("howModal")
 const playNowBtn=document.getElementById("playNowBtn")
 const howToBtn=document.getElementById("howToBtn")
 const howBackBtn=document.getElementById("howBackBtn")
 const howPlayBtn=document.getElementById("howPlayBtn")
+
+const uidKey="cricksolve_uid"
+const nameKey="cricksolve_name"
 
 let revealed={
 country:false,
@@ -78,6 +88,27 @@ endGame("Game over! Mystery player: "+answer.name)
 
 closeResult.onclick=()=>resultModal.classList.remove("show")
 
+shareBtn.onclick=async()=>{
+const status=gameStatus==="ended"&&message.innerText.includes("solved")?"Solved":"Unsolved"
+const grid=buildShareGrid()
+const timeText=timerStartMs&&timerEndMs?formatTime(timerEndMs-timerStartMs):"NA"
+const text=`CrickSolve ${todayKey}\n${status} in ${attempts}/${maxGuesses}\n⏱ ${timeText}\n🔥 Streak: ${getStreak()}\n\n${grid}`
+
+try{
+if(navigator.share){
+await navigator.share({text})
+}else{
+await navigator.clipboard.writeText(text)
+shareBtn.innerText="✅ Copied"
+setTimeout(()=>shareBtn.innerText="📋 Copy",1200)
+}
+}catch{
+await navigator.clipboard.writeText(text)
+shareBtn.innerText="✅ Copied"
+setTimeout(()=>shareBtn.innerText="📋 Copy",1200)
+}
+}
+
 playNowBtn.onclick=()=>{
 welcomeModal.classList.remove("show")
 enableGameInput()
@@ -97,26 +128,6 @@ disableGameInput()
 howPlayBtn.onclick=()=>{
 howModal.classList.remove("show")
 enableGameInput()
-}
-
-shareBtn.onclick=async()=>{
-const status=gameStatus==="ended"&&message.innerText.includes("solved")?"Solved":"Unsolved"
-const grid=buildShareGrid()
-const text=`CrickSolve ${todayKey}\n${status} in ${attempts}/${maxGuesses}\n🔥 Streak: ${getStreak()}\n\n${grid}`
-
-try{
-if(navigator.share){
-await navigator.share({text})
-}else{
-await navigator.clipboard.writeText(text)
-shareBtn.innerText="✅ Copied"
-setTimeout(()=>shareBtn.innerText="📋 Copy",1200)
-}
-}catch{
-await navigator.clipboard.writeText(text)
-shareBtn.innerText="✅ Copied"
-setTimeout(()=>shareBtn.innerText="📋 Copy",1200)
-}
 }
 
 input.addEventListener("input",()=>{
@@ -168,7 +179,7 @@ hintNote.innerText="Click one locked box to break it open."
 renderAttrCard()
 }
 
-function handleGuess(){
+async function handleGuess(){
 if(attempts>=maxGuesses||gameStatus==="ended")return
 
 hintMode=false
@@ -188,6 +199,12 @@ message.innerText="Already guessed"
 return
 }
 
+if(attempts===0&&!timerStartMs){
+timerStartMs=Date.now()
+persist()
+await trackPlayOnce()
+}
+
 guessed.add(player.name)
 attempts++
 
@@ -195,11 +212,13 @@ message.innerText=""
 updateGuessesText()
 
 if(player.name===answer.name){
+timerEndMs=Date.now()
 revealAll()
 renderAttrCard()
 addNumericRow(player)
 setStreak(getStreak()+1)
 updateStreakUI()
+await submitWin()
 endGame("🎉 You solved CrickSolve!")
 return
 }
@@ -223,6 +242,7 @@ return
 }
 
 if(attempts===maxGuesses){
+timerEndMs=Date.now()
 setStreak(0)
 updateStreakUI()
 endGame("Game over! Mystery player: "+answer.name)
@@ -322,7 +342,9 @@ guessed:[...guessed],
 rows:[...board.querySelectorAll("tr")].map(tr=>[...tr.children].map(td=>td.innerText)),
 status:gameStatus,
 message:message.innerText,
-hintNote:hintNote.innerText
+hintNote:hintNote.innerText,
+timerStartMs,
+timerEndMs
 })
 }
 
@@ -335,6 +357,8 @@ maxGuesses=state.maxGuesses||maxBaseGuesses
 hintUsed=!!state.hintUsed
 revealed=state.revealed||revealed
 gameStatus=state.status||"playing"
+timerStartMs=state.timerStartMs||null
+timerEndMs=state.timerEndMs||null
 
 guessed.clear()
 ;(state.guessed||[]).forEach(x=>guessed.add(x))
@@ -368,11 +392,13 @@ updateGuessesText()
 renderAttrCard()
 }
 
-function showResultModal(){
+async function showResultModal(){
 const won=message.innerText.includes("solved")
 resultTitle.innerText=won?"🎉 You solved CrickSolve!":"😔 You didn’t solve it"
 resultPlayer.innerText="Mystery Player: "+answer.name
-resultMeta.innerText=`Guesses: ${attempts}/${maxGuesses}   •   🔥 Streak: ${getStreak()}`
+
+const timeText=timerStartMs&&timerEndMs?formatTime(timerEndMs-timerStartMs):"NA"
+resultMeta.innerText=`Guesses: ${attempts}/${maxGuesses}   •   ⏱ ${timeText}   •   🔥 Streak: ${getStreak()}`
 
 if(answer.image&&answer.image.trim()!==""){
 resultImg.src=answer.image
@@ -381,6 +407,13 @@ resultImg.src="https://ui-avatars.com/api/?name="+encodeURIComponent(answer.name
 }
 
 resultModal.classList.add("show")
+
+if(won)await loadLeaderboard()
+else{
+leaderboardTop.innerHTML=""
+leaderboardYou.innerText=""
+leaderboardCount.innerText=""
+}
 }
 
 function saveState(state){
@@ -433,12 +466,12 @@ return players.find(p=>p.name===chosenName)
 
 function buildShareGrid(){
 const attrLine=[
-revealed.country?"🟦":"⬛",
-revealed.batting_hand?"🟦":"⬛",
-revealed.bowling_type?"🟦":"⬛",
-revealed.role?"🟦":"⬛",
-revealed.ipl_team?"🟦":"⬛",
-revealed.retired?"🟦":"⬛"
+revealed.country?"🟩":"⬛",
+revealed.batting_hand?"🟩":"⬛",
+revealed.bowling_type?"🟩":"⬛",
+revealed.role?"🟩":"⬛",
+revealed.ipl_team?"🟩":"⬛",
+revealed.retired?"🟩":"⬛"
 ].join("")
 
 const numLines=[...board.querySelectorAll("tr")].map(tr=>{
@@ -481,4 +514,148 @@ function enableGameInput(){
 button.disabled=false
 input.disabled=false
 hintBtn.disabled=hintUsed||attempts<4||gameStatus==="ended"
+}
+
+function getUid(){
+let uid=localStorage.getItem(uidKey)
+if(uid)return uid
+uid=crypto.randomUUID()
+localStorage.setItem(uidKey,uid)
+return uid
+}
+
+function getNickname(){
+return (localStorage.getItem(nameKey)||"").trim()
+}
+
+function askNicknameOnce(){
+let name=getNickname()
+if(name)return name
+name=prompt("Enter a nickname for the leaderboard (optional):")||""
+name=name.trim().slice(0,16)
+if(name==="")name="Anonymous"
+localStorage.setItem(nameKey,name)
+return name
+}
+
+function formatTime(ms){
+const total=Math.max(0,Math.floor(ms/1000))
+const m=Math.floor(total/60)
+const s=total%60
+return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
+}
+
+async function trackPlayOnce(){
+if(!window.db)return
+try{
+const { doc,setDoc,serverTimestamp }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
+const uid=getUid()
+const id=todayKey+"_"+uid
+await setDoc(doc(window.db,"plays",id),{
+date:todayKey,
+uid,
+createdAt:serverTimestamp()
+},{merge:true})
+}catch{}
+}
+
+async function submitWin(){
+if(!window.db)return
+try{
+const { doc,setDoc,serverTimestamp }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
+const uid=getUid()
+const nickname=askNicknameOnce()
+const timeMs=(timerEndMs||Date.now())-(timerStartMs||Date.now())
+const id=todayKey+"_"+uid
+
+await setDoc(doc(window.db,"leaderboard",id),{
+date:todayKey,
+uid,
+nickname,
+timeMs,
+attempts,
+createdAt:serverTimestamp()
+},{merge:true})
+}catch{}
+}
+
+async function loadLeaderboard(){
+if(!window.db)return
+try{
+const { collection,getDocs,query,where,orderBy,limit }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
+
+leaderboardTop.innerHTML="Loading..."
+leaderboardYou.innerText=""
+leaderboardCount.innerText=""
+
+const qTop=query(
+collection(window.db,"leaderboard"),
+where("date","==",todayKey),
+orderBy("timeMs","asc"),
+limit(3)
+)
+
+const snapTop=await getDocs(qTop)
+const top=[]
+snapTop.forEach(d=>top.push(d.data()))
+
+leaderboardTop.innerHTML=""
+if(top.length===0){
+leaderboardTop.innerHTML="<p style='opacity:.7'>No winners yet today.</p>"
+}else{
+top.forEach((x,i)=>{
+const div=document.createElement("div")
+div.className="lb-row"
+div.innerHTML=`
+  <div class="lb-left">
+    <div class="lb-rank">${i===0?"🥇":i===1?"🥈":"🥉"}</div>
+    <div>${escapeHtml(x.nickname||"Anonymous")}</div>
+  </div>
+  <div class="lb-time">${formatTime(x.timeMs||0)}</div>
+`
+leaderboardTop.appendChild(div)
+})
+}
+
+const qAll=query(
+collection(window.db,"leaderboard"),
+where("date","==",todayKey),
+orderBy("timeMs","asc")
+)
+
+const snapAll=await getDocs(qAll)
+const all=[]
+snapAll.forEach(d=>all.push(d.data()))
+
+const uid=getUid()
+const myIndex=all.findIndex(x=>x.uid===uid)
+
+if(myIndex!==-1){
+leaderboardYou.innerText=`You: #${myIndex+1} • ${formatTime(all[myIndex].timeMs)}`
+}else{
+leaderboardYou.innerText="You are not ranked today."
+}
+
+const qPlays=query(
+collection(window.db,"plays"),
+where("date","==",todayKey)
+)
+
+const snapPlays=await getDocs(qPlays)
+leaderboardCount.innerText=`Players today: ${snapPlays.size}`
+}catch{
+leaderboardTop.innerHTML=""
+leaderboardYou.innerText=""
+leaderboardCount.innerText=""
+}
+}
+
+function escapeHtml(s){
+return String(s).replace(/[&<>"']/g,m=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m]))
 }

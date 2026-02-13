@@ -147,6 +147,13 @@
       <h2 id="resultTitle"></h2>
       <p id="resultPlayer"></p>
       <p id="resultMeta"></p>
+      <div id="leaderboardBox" class="leaderboard">
+        <h3>🏆 Today’s Leaderboard</h3>
+        <div id="leaderboardTop"></div>
+        <p id="leaderboardYou"></p>
+        <p id="leaderboardCount"></p>
+    </div>
+
       <div class="modal-actions">
         <button id="shareBtn" class="btn primary">📋 Copy</button>
         <button id="closeResult" class="btn ghost">✖ Close</button>
@@ -186,6 +193,7 @@
 </div>
 
 <script src="./data/data.js"></script>
+<script type="module" src="./src/firebase.js"></script>
 <script src="./src/game.js"></script>
 
 </body>
