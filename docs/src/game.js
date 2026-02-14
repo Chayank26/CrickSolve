@@ -551,12 +551,15 @@ try{
 const { doc,setDoc,serverTimestamp }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
 const uid=getUid()
 const id=todayKey+"_"+uid
+
 await setDoc(doc(window.db,"plays",id),{
 date:todayKey,
 uid,
 createdAt:serverTimestamp()
 },{merge:true})
-}catch{}
+}catch(e){
+console.log("trackPlayOnce error:",e)
+}
 }
 
 async function submitWin(){
@@ -576,7 +579,9 @@ timeMs,
 attempts,
 createdAt:serverTimestamp()
 },{merge:true})
-}catch{}
+}catch(e){
+console.log("submitWin error:",e)
+}
 }
 
 async function loadLeaderboard(){
@@ -584,7 +589,7 @@ if(!window.db)return
 try{
 const { collection,getDocs,query,where,orderBy,limit }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
 
-leaderboardTop.innerHTML="Loading..."
+leaderboardTop.innerHTML="<p style='opacity:.7'>Loading...</p>"
 leaderboardYou.innerText=""
 leaderboardCount.innerText=""
 
@@ -631,7 +636,7 @@ const uid=getUid()
 const myIndex=all.findIndex(x=>x.uid===uid)
 
 if(myIndex!==-1){
-leaderboardYou.innerText=`You: #${myIndex+1} • ${formatTime(all[myIndex].timeMs)}`
+leaderboardYou.innerText=`You: #${myIndex+1} • ${formatTime(all[myIndex].timeMs||0)}`
 }else{
 leaderboardYou.innerText="You are not ranked today."
 }
@@ -643,8 +648,10 @@ where("date","==",todayKey)
 
 const snapPlays=await getDocs(qPlays)
 leaderboardCount.innerText=`Players today: ${snapPlays.size}`
-}catch{
-leaderboardTop.innerHTML=""
+
+}catch(e){
+console.log("loadLeaderboard error:",e)
+leaderboardTop.innerHTML="<p style='opacity:.7'>Leaderboard unavailable.</p>"
 leaderboardYou.innerText=""
 leaderboardCount.innerText=""
 }
