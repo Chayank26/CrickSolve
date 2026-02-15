@@ -3696,6 +3696,20 @@ const players=[
     "image": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Suyash_Sharma.png"
   },
   {
+    "name": "Washington Sundar",
+    "country": "India",
+    "batting_hand": "left-hand-bat",
+    "bowling_type": "right-arm-offbreak",
+    "role": "Bowling Allrounder",
+    "birth_year": 0,
+    "test": 17,
+    "odi": 29,
+    "t20": 58,
+    "ipl_team": "GT",
+    "retired": false,
+    "image": ""
+  },
+  {
     "name": "Harshit Rana",
     "country": "India",
     "batting_hand": "right-hand-bat",
@@ -5792,7 +5806,7 @@ const players=[
     "odi": 68,
     "t20": 68,
     "ipl_team": "MI",
-    "retired": false,
+    "retired": true,
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Lendl_Simmons.jpg/500px-Lendl_Simmons.jpg"
   },
   {
