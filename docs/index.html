@@ -1,205 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CrickSolve</title>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="icon" href="data:,">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrickSolve</title>
+<link rel="stylesheet" href="./style.css">
+<link rel="icon" href="data:,">
 </head>
-
 <body>
-  <div class="container">
-    <header class="header">
-      <div class="brand">
-        <div class="logo">🏏</div>
-        <div>
-          <h1>CrickSolve</h1>
-          <p class="tagline">Guess the mystery cricketer in 7 tries.</p>
-        </div>
-      </div>
-      <div class="header-right">
-        <p id="streak" class="streak"></p>
-      </div>
-    </header>
 
-    <main class="layout">
-      <section class="left">
-        <div class="card">
-          <div class="card-head">
-            <h2>Mystery Player</h2>
-            <p class="sub">Attributes unlock when your guess matches.</p>
-          </div>
-
-          <div class="attrs" id="attrs">
-            <button class="attr" data-key="country">
-              <span class="label">Country</span>
-              <span class="value masked">🔒</span>
-              <span class="lid"></span>
-              <span class="lock">🔒</span>
-              <span class="break">💥</span>
-            </button>
-
-            <button class="attr" data-key="batting_hand">
-              <span class="label">Batting Hand</span>
-              <span class="value masked">🔒</span>
-              <span class="lid"></span>
-              <span class="lock">🔒</span>
-              <span class="break">💥</span>
-            </button>
-
-            <button class="attr" data-key="bowling_type">
-              <span class="label">Bowling Type</span>
-              <span class="value masked">🔒</span>
-              <span class="lid"></span>
-              <span class="lock">🔒</span>
-              <span class="break">💥</span>
-            </button>
-
-            <button class="attr" data-key="role">
-              <span class="label">Role</span>
-              <span class="value masked">🔒</span>
-              <span class="lid"></span>
-              <span class="lock">🔒</span>
-              <span class="break">💥</span>
-            </button>
-
-            <button class="attr" data-key="ipl_team">
-              <span class="label">IPL Team</span>
-              <span class="value masked">🔒</span>
-              <span class="lid"></span>
-              <span class="lock">🔒</span>
-              <span class="break">💥</span>
-            </button>
-
-            <button class="attr" data-key="retired">
-              <span class="label">Retired</span>
-              <span class="value masked">🔒</span>
-              <span class="lid"></span>
-              <span class="lock">🔒</span>
-              <span class="break">💥</span>
-            </button>
-          </div>
-
-          <p class="hint-note" id="hintNote">Hint unlock available after 4 guesses.</p>
-        </div>
-      </section>
-
-      <section class="right">
-        <div class="card">
-          <div class="card-head">
-            <h2>Guess</h2>
-            <p class="sub">Search and select a player.</p>
-          </div>
-
-          <div class="search-box">
-            <input id="guessInput" placeholder="Enter player name" autocomplete="off">
-            <div id="suggestions"></div>
-          </div>
-
-          <div class="actions">
-            <button id="guessBtn" class="btn primary">Guess</button>
-            <button id="hintBtn" class="btn ghost" disabled>Use Hint (1)</button>
-          </div>
-
-          <p id="message" class="message"></p>
-          <p id="guessesLeft" class="meta"></p>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <h2>Numeric Hints</h2>
-            <p class="sub">↑ means mystery is higher. ↓ means lower.</p>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Guess</th>
-                  <th>Birth Year</th>
-                  <th>Tests</th>
-                  <th>ODIs</th>
-                  <th>T20Is</th>
-                </tr>
-              </thead>
-              <tbody id="board"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Continue Modal -->
-    <div class="modal" id="continueModal">
-      <div class="modal-card">
-        <h2>One more chance?</h2>
-        <p>7 guesses over. Do you still want to continue?</p>
-        <div class="modal-actions">
-          <button id="continueYes" class="btn primary">Yes (1 more)</button>
-          <button id="continueNo" class="btn ghost">No</button>
-        </div>
+<div class="container">
+  <header class="header">
+    <div class="brand">
+      <div class="logo">🏏</div>
+      <div>
+        <h1>CrickSolve</h1>
+        <p class="tagline">Guess the mystery cricketer in 7 tries.</p>
       </div>
     </div>
 
-    <!-- Result Modal -->
-    <div class="modal" id="resultModal">
-      <div class="modal-card result-card">
-        <img id="resultImg" class="result-img" src="" alt="player">
-        <h2 id="resultTitle"></h2>
-        <p id="resultPlayer"></p>
-        <p id="resultMeta"></p>
+    <div class="header-right">
+      <p id="streak" class="streak"></p>
 
-        <div id="leaderboardBox" class="leaderboard">
-          <h3>🏆 Today’s Leaderboard</h3>
-          <div id="leaderboardTop"></div>
-          <p id="leaderboardYou"></p>
-          <p id="leaderboardCount"></p>
+      <button id="switchModeBtn" class="toggle-btn">
+        <span id="switchModeText">Switch Mode</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 74 74" height="34" width="34">
+          <circle stroke-width="3" stroke="black" r="35.5" cy="37" cx="37"></circle>
+          <path fill="black"
+            d="M25 35.5C24.1716 35.5 23.5 36.1716 23.5 37C23.5 37.8284 24.1716 38.5 25 38.5V35.5ZM49.0607 38.0607C49.6464 37.4749 49.6464 36.5251 49.0607 35.9393L39.5147 26.3934C38.9289 25.8076 37.9792 25.8076 37.3934 26.3934C36.8076 26.9792 36.8076 27.9289 37.3934 28.5147L45.8787 37L37.3934 45.4853C36.8076 46.0711 36.8076 47.0208 37.3934 47.6066C37.9792 48.1924 38.9289 48.1924 39.5147 47.6066L49.0607 38.0607ZM25 38.5L48 38.5V35.5L25 35.5V38.5Z">
+          </path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="left">
+      <div class="card">
+        <div class="card-head">
+          <h2>Mystery Player</h2>
+          <p class="sub">Attributes unlock when your guess matches.</p>
         </div>
 
-        <div class="modal-actions">
-          <button id="shareBtn" class="btn primary">📋 Copy</button>
-          <button id="closeResult" class="btn ghost">✖ Close</button>
+        <div class="attrs" id="attrs">
+          <button class="attr" data-key="country">
+            <span class="label">Country</span>
+            <span class="value masked"></span>
+            <span class="lid"></span>
+            <span class="lock">🔒</span>
+            <span class="break">💥</span>
+          </button>
+
+          <button class="attr" data-key="batting_hand">
+            <span class="label">Batting Hand</span>
+            <span class="value masked"></span>
+            <span class="lid"></span>
+            <span class="lock">🔒</span>
+            <span class="break">💥</span>
+          </button>
+
+          <button class="attr" data-key="bowling_type">
+            <span class="label">Bowling Type</span>
+            <span class="value masked"></span>
+            <span class="lid"></span>
+            <span class="lock">🔒</span>
+            <span class="break">💥</span>
+          </button>
+
+          <button class="attr" data-key="role">
+            <span class="label">Role</span>
+            <span class="value masked"></span>
+            <span class="lid"></span>
+            <span class="lock">🔒</span>
+            <span class="break">💥</span>
+          </button>
+
+          <button class="attr" data-key="ipl_team">
+            <span class="label">IPL Team</span>
+            <span class="value masked"></span>
+            <span class="lid"></span>
+            <span class="lock">🔒</span>
+            <span class="break">💥</span>
+          </button>
+
+          <button class="attr" data-key="retired">
+            <span class="label">Retired</span>
+            <span class="value masked"></span>
+            <span class="lid"></span>
+            <span class="lock">🔒</span>
+            <span class="break">💥</span>
+          </button>
+        </div>
+
+        <p class="hint-note" id="hintNote">Hint unlock available after 4 guesses.</p>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="card">
+        <div class="card-head">
+          <h2>Guess</h2>
+          <p class="sub">Search and select a player.</p>
+        </div>
+
+        <div class="search-box">
+          <input id="guessInput" placeholder="Enter player name" autocomplete="off">
+          <div id="suggestions"></div>
+        </div>
+
+        <div class="actions">
+          <button id="guessBtn" class="btn primary">Guess</button>
+          <button id="hintBtn" class="btn ghost" disabled>Use Hint (1)</button>
+        </div>
+
+        <p id="message" class="message"></p>
+        <p id="guessesLeft" class="meta"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Numeric Hints</h2>
+          <p class="sub">↑ means mystery is higher. ↓ means lower.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Guess</th>
+                <th>Birth Year</th>
+                <th>Tests</th>
+                <th>ODIs</th>
+                <th>T20Is</th>
+              </tr>
+            </thead>
+            <tbody id="board"></tbody>
+          </table>
         </div>
       </div>
-    </div>
+    </section>
+  </main>
 
-    <!-- Welcome Modal -->
-    <div class="modal" id="welcomeModal">
-      <div class="modal-card">
-        <h2>Welcome to CrickSolve 🏏</h2>
-        <p>Guess the mystery cricketer using attributes and numeric hints. You get 7 guesses (and a bonus chance).</p>
-        <div class="modal-actions">
-          <button id="playNowBtn" class="btn primary">Play Now</button>
-          <button id="howToBtn" class="btn ghost">How to Play</button>
-        </div>
+  <div class="modal" id="continueModal">
+    <div class="modal-card">
+      <h2>One more chance?</h2>
+      <p>7 guesses over. Do you still want to continue?</p>
+      <div class="modal-actions">
+        <button id="continueYes" class="btn primary">Yes (1 more)</button>
+        <button id="continueNo" class="btn ghost">No</button>
       </div>
     </div>
-
-    <!-- How Modal -->
-    <div class="modal" id="howModal">
-      <div class="modal-card">
-        <h2>How to Play</h2>
-        <p>
-          • Type a player name and guess.<br>
-          • Matching attributes unlock (Country, Role, etc.).<br>
-          • Numeric hints show ↑ if the mystery player is higher and ↓ if lower.<br>
-          • After 4 guesses, you unlock 1 hint to reveal an attribute.<br>
-          • You get 7 guesses. After that, you can take 1 extra chance.
-        </p>
-        <div class="modal-actions">
-          <button id="howBackBtn" class="btn ghost">Back</button>
-          <button id="howPlayBtn" class="btn primary">Play Now</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 
-  <!-- Scripts -->
-  <script src="./data/data.js"></script>
-  <script type="module" src="./src/firebase.js"></script>
-  <script src="./src/game.js"></script>
+  <div class="modal" id="resultModal">
+    <div class="modal-card result-card">
+      <img id="resultImg" class="result-img" src="" alt="player">
+      <h2 id="resultTitle"></h2>
+      <p id="resultPlayer"></p>
+      <p id="resultMeta"></p>
+
+      <div id="leaderboardBox" class="leaderboard">
+        <h3>🏆 Today’s Leaderboard</h3>
+        <div id="leaderboardTop"></div>
+        <p id="leaderboardYou"></p>
+        <p id="leaderboardCount"></p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="shareBtn" class="btn primary">📋 Copy</button>
+        <button id="closeResult" class="btn ghost">✖ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modeModal">
+    <div class="modal-card">
+      <h2>Welcome to CrickSolve 🏏</h2>
+      <p>Choose a mode to start playing.</p>
+      <div class="modal-actions">
+        <button id="dailyModeBtn" class="btn primary">Daily Puzzle</button>
+        <button id="unlimitedModeBtn" class="btn ghost">Unlimited Mode</button>
+        <button id="howToBtn" class="btn ghost">How to Play</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="howModal">
+    <div class="modal-card">
+      <h2>How to Play</h2>
+      <p>
+        • Type a player name and guess.<br>
+        • Matching attributes unlock (Country, Role, etc.).<br>
+        • Numeric hints show ↑ if the mystery player is higher and ↓ if lower.<br>
+        • After 4 guesses, you unlock 1 hint to reveal an attribute.<br>
+        • You get 7 guesses. After that, you can take 1 extra chance.
+      </p>
+      <div class="modal-actions">
+        <button id="howBackBtn" class="btn ghost">Back</button>
+        <button id="howCloseBtn" class="btn primary">Play</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="./data/data.js"></script>
+<script type="module" src="./src/firebase.js"></script>
+<script src="./src/game.js"></script>
 
 </body>
 </html>
