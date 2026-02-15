@@ -494,7 +494,8 @@ status:gameStatus,
 message:message.innerText,
 hintNote:hintNote.innerText,
 timerStartMs,
-timerEndMs
+timerEndMs,
+answerName:answer?answer.name:null
 })
 }
 
@@ -513,6 +514,11 @@ revealed=state.revealed||revealed
 gameStatus=state.status||"playing"
 timerStartMs=state.timerStartMs||null
 timerEndMs=state.timerEndMs||null
+
+if(mode==="unlimited"&&state.answerName){
+const found=players.find(p=>p.name===state.answerName)
+if(found)answer=found
+}
 
 guessed.clear()
 ;(state.guessed||[]).forEach(x=>guessed.add(x))
@@ -723,8 +729,20 @@ const s=total%60
 return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
 }
 
+async function waitForDb(timeoutMs=2000){
+const start=Date.now()
+while(Date.now()-start<timeoutMs){
+if(window.db)return true
+await new Promise(r=>setTimeout(r,50))
+}
+return false
+}
+
 async function trackPlayOnce(){
-if(!window.db)return
+if(!window.db){
+const ok=await waitForDb(2000)
+if(!ok)return
+}
 try{
 const { doc,setDoc,serverTimestamp }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
 const uid=getUid()
@@ -738,7 +756,10 @@ createdAt:serverTimestamp()
 }
 
 async function submitWin(){
-if(!window.db)return
+if(!window.db){
+const ok=await waitForDb(2000)
+if(!ok)return
+}
 try{
 const { doc,setDoc,serverTimestamp }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
 const uid=getUid()
@@ -766,7 +787,6 @@ leaderboardCount.innerText=""
 return
 }
 }
-
 try{
 const { collection,getDocs,query,where,orderBy,limit }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
 
@@ -855,13 +875,4 @@ return String(s).replace(/[&<>"']/g,m=>({
 function applyModeTheme(){
 document.body.classList.toggle("mode-unlimited",mode==="unlimited")
 document.body.classList.toggle("mode-daily",mode==="daily")
-}
-
-async function waitForDb(timeoutMs=2000){
-const start=Date.now()
-while(Date.now()-start<timeoutMs){
-if(window.db)return true
-await new Promise(r=>setTimeout(r,50))
-}
-return false
 }
