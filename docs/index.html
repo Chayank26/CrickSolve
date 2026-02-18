@@ -22,6 +22,10 @@
     <div class="header-right">
       <p id="streak" class="streak"></p>
 
+      <button id="howHeaderBtn" class="comic-button">How to Play</button>
+
+      <button id="pastGamesBtn" class="past-btn">Play Past Games</button>
+
       <button id="switchModeBtn" class="toggle-btn">
         <span id="switchModeText">Switch Mode</span>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 74 74" height="34" width="34">
@@ -38,7 +42,10 @@
     <section class="left">
       <div class="card">
         <div class="card-head">
-          <h2>Mystery Player</h2>
+          <div class="card-title-row">
+            <h2>Mystery Player</h2>
+            <span id="practiceBadge" class="practice-badge" style="display:none"></span>
+          </div>
           <p class="sub">Attributes unlock when your guess matches.</p>
         </div>
 
@@ -158,6 +165,7 @@
       <h2 id="resultTitle"></h2>
       <p id="resultPlayer"></p>
       <p id="resultMeta"></p>
+      <p id="nextPuzzleTimer" class="next-timer" style="display:none"></p>
 
       <div id="leaderboardBox" class="leaderboard">
         <h3>🏆 Today’s Leaderboard</h3>
@@ -197,7 +205,36 @@
       </p>
       <div class="modal-actions">
         <button id="howBackBtn" class="btn ghost">Back</button>
-        <button id="howCloseBtn" class="btn primary">Play</button>
+        <button id="howCloseBtn" class="btn primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="calendarModal">
+    <div class="modal-card calendar-card">
+      <h2 class="cal-title">Past Days’ Games</h2>
+
+      <div class="cal-head">
+        <button id="calPrev" class="cal-nav">◀</button>
+        <div id="calMonthLabel" class="cal-month"></div>
+        <button id="calNext" class="cal-nav">▶</button>
+      </div>
+
+      <div class="cal-weekdays">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+
+      <div id="calGrid" class="cal-grid"></div>
+
+      <div class="cal-legend">
+        <div class="legend-row"><span class="dot won"></span> Game played and won!</div>
+        <div class="legend-row"><span class="dot lost"></span> Game played but not won!</div>
+        <div class="legend-row"><span class="dot progress"></span> Game played but not completed!</div>
+        <div class="legend-row"><span class="dot none"></span> Game not played!</div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="calClose" class="btn ghost">Close</button>
       </div>
     </div>
   </div>

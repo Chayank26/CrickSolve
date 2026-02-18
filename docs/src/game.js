@@ -1,9 +1,12 @@
 const maxBaseGuesses=7
 const streakKeyDaily="cricksolve_streak"
+const streakLastSolvedKey="cricksolve_streak_last_solved"
 const uidKey="cricksolve_uid"
 const nameKey="cricksolve_name"
 const modeKey="cricksolve_mode"
 const unlimitedCycleKey="cricksolve_unlimited_cycle"
+
+const practiceDateKeyKey="cricksolve_practice_date"
 
 let mode="daily"
 let answer=null
@@ -18,6 +21,11 @@ let timerStartMs=null
 let timerEndMs=null
 
 let unlimitedStreak=0
+
+let dailyDateKey=getTodayKey()
+let isPracticeDaily=false
+
+let nextPuzzleInterval=null
 
 const guessed=new Set()
 
@@ -39,9 +47,7 @@ const streakEl=document.getElementById("streak")
 const switchModeBtn=document.getElementById("switchModeBtn")
 const switchModeText=document.getElementById("switchModeText")
 
-const todayKey=getTodayKey()
-let storageKeyDaily="cricksolve_"+todayKey
-let storageKeyUnlimited="cricksolve_unlimited"
+const practiceBadge=document.getElementById("practiceBadge")
 
 const resultModal=document.getElementById("resultModal")
 const resultImg=document.getElementById("resultImg")
@@ -50,6 +56,7 @@ const resultPlayer=document.getElementById("resultPlayer")
 const resultMeta=document.getElementById("resultMeta")
 const shareBtn=document.getElementById("shareBtn")
 const closeResult=document.getElementById("closeResult")
+const nextPuzzleTimer=document.getElementById("nextPuzzleTimer")
 
 const leaderboardBox=document.getElementById("leaderboardBox")
 const leaderboardTop=document.getElementById("leaderboardTop")
@@ -60,10 +67,24 @@ const modeModal=document.getElementById("modeModal")
 const dailyModeBtn=document.getElementById("dailyModeBtn")
 const unlimitedModeBtn=document.getElementById("unlimitedModeBtn")
 
+const howHeaderBtn=document.getElementById("howHeaderBtn")
 const howModal=document.getElementById("howModal")
 const howToBtn=document.getElementById("howToBtn")
 const howBackBtn=document.getElementById("howBackBtn")
 const howCloseBtn=document.getElementById("howCloseBtn")
+
+const pastGamesBtn=document.getElementById("pastGamesBtn")
+const calendarModal=document.getElementById("calendarModal")
+const calPrev=document.getElementById("calPrev")
+const calNext=document.getElementById("calNext")
+const calMonthLabel=document.getElementById("calMonthLabel")
+const calGrid=document.getElementById("calGrid")
+const calClose=document.getElementById("calClose")
+
+let calendarViewYear=null
+let calendarViewMonth=null
+
+let howOpenedFrom="mode"
 
 let revealed={
 country:false,
@@ -82,11 +103,18 @@ mode=localStorage.getItem(modeKey)||"daily"
 unlimitedStreak=sessionStorage.getItem("cricksolve_unlimited_streak")
 unlimitedStreak=parseInt(unlimitedStreak)||0
 
+validateDailyStreak()
+
+dailyDateKey=getTodayKey()
+localStorage.removeItem(practiceDateKeyKey)
+isPracticeDaily=false
+
 answer=getAnswerForMode()
 
 updateSwitchBtn()
 applyModeTheme()
 updateStreakUI()
+updatePracticeBadge()
 restoreIfExists()
 updateGuessesText()
 renderAttrCard()
@@ -106,8 +134,9 @@ persist()
 
 continueNo.onclick=()=>{
 modal.classList.remove("show")
-if(mode==="daily"){
+if(mode==="daily"&&!isPracticeDaily){
 setDailyStreak(0)
+localStorage.removeItem(streakLastSolvedKey)
 updateStreakUI()
 }
 endGame("Game over! Mystery player: "+answer.name)
@@ -115,6 +144,7 @@ endGame("Game over! Mystery player: "+answer.name)
 
 closeResult.onclick=()=>{
 resultModal.classList.remove("show")
+stopNextPuzzleTimer()
 if(mode==="unlimited"){
 resetGameState(true)
 enableGameInput()
@@ -130,6 +160,9 @@ enableGameInput()
 }else{
 mode="daily"
 localStorage.setItem(modeKey,"daily")
+dailyDateKey=getTodayKey()
+localStorage.removeItem(practiceDateKeyKey)
+isPracticeDaily=false
 resetGameState(true)
 enableGameInput()
 }
@@ -138,6 +171,9 @@ enableGameInput()
 dailyModeBtn.onclick=()=>{
 mode="daily"
 localStorage.setItem(modeKey,"daily")
+dailyDateKey=getTodayKey()
+localStorage.removeItem(practiceDateKeyKey)
+isPracticeDaily=false
 resetGameState(true)
 modeModal.classList.remove("show")
 enableGameInput()
@@ -151,29 +187,66 @@ modeModal.classList.remove("show")
 enableGameInput()
 }
 
+howHeaderBtn.onclick=()=>{
+howOpenedFrom="header"
+howModal.classList.add("show")
+}
+
 howToBtn.onclick=()=>{
+howOpenedFrom="mode"
 modeModal.classList.remove("show")
 howModal.classList.add("show")
 }
 
 howBackBtn.onclick=()=>{
 howModal.classList.remove("show")
-modeModal.classList.add("show")
+if(howOpenedFrom==="mode")modeModal.classList.add("show")
 }
 
 howCloseBtn.onclick=()=>{
 howModal.classList.remove("show")
+if(howOpenedFrom==="mode"){
 modeModal.classList.remove("show")
 enableGameInput()
+}
+}
+
+pastGamesBtn.onclick=()=>{
+openCalendar()
+}
+
+calClose.onclick=()=>{
+calendarModal.classList.remove("show")
+}
+
+calPrev.onclick=()=>{
+if(calendarViewYear===null)return
+const d=new Date(calendarViewYear,calendarViewMonth,1)
+d.setMonth(d.getMonth()-1)
+calendarViewYear=d.getFullYear()
+calendarViewMonth=d.getMonth()
+renderCalendar()
+}
+
+calNext.onclick=()=>{
+if(calendarViewYear===null)return
+const d=new Date(calendarViewYear,calendarViewMonth,1)
+d.setMonth(d.getMonth()+1)
+calendarViewYear=d.getFullYear()
+calendarViewMonth=d.getMonth()
+renderCalendar()
 }
 
 shareBtn.onclick=async()=>{
 const status=gameStatus==="ended"&&message.innerText.includes("solved")?"Solved":"Unsolved"
 const grid=buildShareGrid()
 const timeText=timerStartMs&&timerEndMs?formatTime(timerEndMs-timerStartMs):"NA"
-const label=mode==="daily"?"Daily":"Unlimited"
-const streakText=mode==="daily"?"🔥 Streak: "+getDailyStreak():"⚡ Streak: "+unlimitedStreak
-const text=`CrickSolve (${label}) ${todayKey}\n${status} in ${attempts}/${maxGuesses}\n⏱ ${timeText}\n${streakText}\n\n${grid}`
+const label=mode==="daily"?(isPracticeDaily?`Daily Practice`:`Daily`):"Unlimited"
+const dateText=mode==="daily"?dailyDateKey:getTodayKey()
+const streakText=mode==="daily"
+?(isPracticeDaily?`🧪 Practice (no streak)`:`🔥 Streak: ${getDailyStreak()}`)
+:`⚡ Streak: ${unlimitedStreak}`
+const text=`CrickSolve (${label}) ${dateText}\n${status} in ${attempts}/${maxGuesses}\n⏱ ${timeText}\n${streakText}\n\n${grid}`
 
 try{
 if(navigator.share){
@@ -241,8 +314,22 @@ switchModeText.innerText="Daily Puzzle"
 }
 }
 
+function updatePracticeBadge(){
+if(mode!=="daily"){
+practiceBadge.style.display="none"
+return
+}
+if(isPracticeDaily){
+practiceBadge.style.display="inline-block"
+practiceBadge.innerText="Practice • "+dailyDateKey
+}else{
+practiceBadge.style.display="none"
+practiceBadge.innerText=""
+}
+}
+
 function getAnswerForMode(){
-if(mode==="daily")return getDailyAnswer(players)
+if(mode==="daily")return getDailyAnswer(players,dailyDateKey)
 return getUnlimitedAnswer(players)
 }
 
@@ -293,12 +380,14 @@ if(repickAnswer)answer=getAnswerForMode()
 updateSwitchBtn()
 applyModeTheme()
 updateStreakUI()
+updatePracticeBadge()
 updateGuessesText()
 renderAttrCard()
 
 saveState(null,true)
 resultModal.classList.remove("show")
 modal.classList.remove("show")
+stopNextPuzzleTimer()
 }
 
 function enableHintMode(){
@@ -332,7 +421,7 @@ return
 if(attempts===0&&!timerStartMs){
 timerStartMs=Date.now()
 persist()
-if(mode==="daily")await trackPlayOnce()
+if(mode==="daily"&&!isPracticeDaily)await trackPlayOnce()
 }
 
 guessed.add(player.name)
@@ -349,9 +438,13 @@ renderAttrCard()
 addNumericRow(player)
 
 if(mode==="daily"){
-setDailyStreak(getDailyStreak()+1)
+if(!isPracticeDaily){
+applyDailyWinStreak()
 updateStreakUI()
 await submitWin()
+}else{
+updateStreakUI()
+}
 }else{
 unlimitedStreak++
 sessionStorage.setItem("cricksolve_unlimited_streak",String(unlimitedStreak))
@@ -385,8 +478,11 @@ timerEndMs=Date.now()
 input.value=""
 
 if(mode==="daily"){
+if(!isPracticeDaily){
 setDailyStreak(0)
+localStorage.removeItem(streakLastSolvedKey)
 updateStreakUI()
+}
 }else{
 unlimitedStreak=0
 sessionStorage.setItem("cricksolve_unlimited_streak","0")
@@ -495,13 +591,16 @@ message:message.innerText,
 hintNote:hintNote.innerText,
 timerStartMs,
 timerEndMs,
-answerName:answer?answer.name:null
+answerName:answer?answer.name:null,
+dailyDateKey,
+isPracticeDaily
 })
 }
 
 function restoreIfExists(){
 const state=loadState()
 if(!state)return
+
 if(state.mode&&state.mode!==mode){
 resetGameState(true)
 return
@@ -515,10 +614,20 @@ gameStatus=state.status||"playing"
 timerStartMs=state.timerStartMs||null
 timerEndMs=state.timerEndMs||null
 
-if(mode==="unlimited"&&state.answerName){
+if(mode==="daily"){
+dailyDateKey=state.dailyDateKey||getTodayKey()
+isPracticeDaily=!!state.isPracticeDaily
+answer=getDailyAnswer(players,dailyDateKey)
+}else{
+isPracticeDaily=false
+dailyDateKey=getTodayKey()
+if(state.answerName){
 const found=players.find(p=>p.name===state.answerName)
 if(found)answer=found
 }
+}
+
+updatePracticeBadge()
 
 guessed.clear()
 ;(state.guessed||[]).forEach(x=>guessed.add(x))
@@ -558,8 +667,10 @@ resultTitle.innerText=won?"🎉 You solved CrickSolve!":"😔 You didn’t solve
 resultPlayer.innerText="Mystery Player: "+answer.name
 
 const timeText=timerStartMs&&timerEndMs?formatTime(timerEndMs-timerStartMs):"NA"
+
 if(mode==="daily"){
-resultMeta.innerText=`Guesses: ${attempts}/${maxGuesses}   •   ⏱ ${timeText}   •   🔥 Streak: ${getDailyStreak()}`
+const streakText=isPracticeDaily?"🧪 Practice (no streak)":"🔥 Streak: "+getDailyStreak()
+resultMeta.innerText=`Guesses: ${attempts}/${maxGuesses}   •   ⏱ ${timeText}   •   ${streakText}`
 }else{
 resultMeta.innerText=`Guesses: ${attempts}/${maxGuesses}   •   ⏱ ${timeText}   •   ⚡ Streak: ${unlimitedStreak}`
 }
@@ -570,7 +681,7 @@ resultImg.src=answer.image
 resultImg.src="https://ui-avatars.com/api/?name="+encodeURIComponent(answer.name)+"&background=111827&color=ffffff"
 }
 
-if(mode==="daily"){
+if(mode==="daily"&&!isPracticeDaily){
 leaderboardBox.style.display="block"
 await loadLeaderboard(won)
 }else{
@@ -580,7 +691,40 @@ leaderboardYou.innerText=""
 leaderboardCount.innerText=""
 }
 
+if(mode==="daily"&&!isPracticeDaily){
+nextPuzzleTimer.style.display="block"
+startNextPuzzleTimer()
+}else{
+nextPuzzleTimer.style.display="none"
+stopNextPuzzleTimer()
+}
+
 resultModal.classList.add("show")
+}
+
+function startNextPuzzleTimer(){
+stopNextPuzzleTimer()
+updateNextPuzzleTimer()
+nextPuzzleInterval=setInterval(updateNextPuzzleTimer,1000)
+}
+
+function stopNextPuzzleTimer(){
+if(nextPuzzleInterval){
+clearInterval(nextPuzzleInterval)
+nextPuzzleInterval=null
+}
+}
+
+function updateNextPuzzleTimer(){
+const now=new Date()
+const next=new Date(now)
+next.setHours(24,0,0,0)
+const ms=next-now
+const total=Math.max(0,Math.floor(ms/1000))
+const h=Math.floor(total/3600)
+const m=Math.floor((total%3600)/60)
+const s=total%60
+nextPuzzleTimer.innerText=`Next puzzle in ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
 }
 
 function disableGameInput(){
@@ -596,7 +740,7 @@ hintBtn.disabled=hintUsed||attempts<4||gameStatus==="ended"
 }
 
 function saveState(state,clear){
-const key=mode==="daily"?storageKeyDaily:storageKeyUnlimited
+const key=mode==="daily"?"cricksolve_"+dailyDateKey:"cricksolve_unlimited"
 if(clear){
 localStorage.removeItem(key)
 return
@@ -605,7 +749,7 @@ localStorage.setItem(key,JSON.stringify(state))
 }
 
 function loadState(){
-const key=mode==="daily"?storageKeyDaily:storageKeyUnlimited
+const key=mode==="daily"?"cricksolve_"+dailyDateKey:"cricksolve_unlimited"
 const raw=localStorage.getItem(key)
 if(!raw)return null
 try{return JSON.parse(raw)}catch{return null}
@@ -620,6 +764,37 @@ const raw=localStorage.getItem(streakKeyDaily)
 return parseInt(raw)||0
 }
 
+function validateDailyStreak(){
+const last=localStorage.getItem(streakLastSolvedKey)||""
+if(!last)return
+const today=getTodayKey()
+if(last===today)return
+const y=getYesterdayKey()
+if(last!==y){
+setDailyStreak(0)
+localStorage.removeItem(streakLastSolvedKey)
+}
+}
+
+function applyDailyWinStreak(){
+const today=getTodayKey()
+const last=localStorage.getItem(streakLastSolvedKey)||""
+if(last===today)return
+const y=getYesterdayKey()
+if(last===y){
+setDailyStreak(getDailyStreak()+1)
+}else{
+setDailyStreak(1)
+}
+localStorage.setItem(streakLastSolvedKey,today)
+}
+
+function getYesterdayKey(){
+const d=new Date()
+d.setDate(d.getDate()-1)
+return toKey(d)
+}
+
 function updateStreakUI(){
 if(mode==="daily"){
 streakEl.innerText="🔥 Daily Streak: "+getDailyStreak()
@@ -629,7 +804,10 @@ streakEl.innerText="⚡ Unlimited Streak: "+unlimitedStreak
 }
 
 function getTodayKey(){
-const d=new Date()
+return toKey(new Date())
+}
+
+function toKey(d){
 const y=d.getFullYear()
 const m=String(d.getMonth()+1).padStart(2,"0")
 const day=String(d.getDate()).padStart(2,"0")
@@ -645,10 +823,9 @@ h=Math.imul(h,16777619)
 return h>>>0
 }
 
-function getDailyAnswer(players){
-const key=getTodayKey()
+function getDailyAnswer(players,dateKey){
 const ids=players.map(p=>p.name).sort()
-const idx=hashString(key+"|"+ids.length)%ids.length
+const idx=hashString(dateKey+"|"+ids.length)%ids.length
 const chosenName=ids[idx]
 return players.find(p=>p.name===chosenName)
 }
@@ -746,9 +923,9 @@ if(!ok)return
 try{
 const { doc,setDoc,serverTimestamp }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
 const uid=getUid()
-const id=todayKey+"_"+uid
+const id=getTodayKey()+"_"+uid
 await setDoc(doc(window.db,"plays",id),{
-date:todayKey,
+date:getTodayKey(),
 uid,
 createdAt:serverTimestamp()
 },{merge:true})
@@ -765,9 +942,9 @@ const { doc,setDoc,serverTimestamp }=await import("https://www.gstatic.com/fireb
 const uid=getUid()
 const nickname=askNicknameOnce()
 const timeMs=(timerEndMs||Date.now())-(timerStartMs||Date.now())
-const id=todayKey+"_"+uid
+const id=getTodayKey()+"_"+uid
 await setDoc(doc(window.db,"leaderboard",id),{
-date:todayKey,
+date:getTodayKey(),
 uid,
 nickname,
 timeMs,
@@ -790,13 +967,15 @@ return
 try{
 const { collection,getDocs,query,where,orderBy,limit }=await import("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js")
 
+const today=getTodayKey()
+
 leaderboardTop.innerHTML="Loading..."
 leaderboardYou.innerText=""
 leaderboardCount.innerText=""
 
 const qTop=query(
 collection(window.db,"leaderboard"),
-where("date","==",todayKey),
+where("date","==",today),
 orderBy("timeMs","asc"),
 limit(3)
 )
@@ -825,7 +1004,7 @@ leaderboardTop.appendChild(div)
 
 const qPlays=query(
 collection(window.db,"plays"),
-where("date","==",todayKey)
+where("date","==",today)
 )
 
 const snapPlays=await getDocs(qPlays)
@@ -838,7 +1017,7 @@ return
 
 const qAll=query(
 collection(window.db,"leaderboard"),
-where("date","==",todayKey),
+where("date","==",today),
 orderBy("timeMs","asc")
 )
 
@@ -875,4 +1054,106 @@ return String(s).replace(/[&<>"']/g,m=>({
 function applyModeTheme(){
 document.body.classList.toggle("mode-unlimited",mode==="unlimited")
 document.body.classList.toggle("mode-daily",mode==="daily")
+}
+
+/* Calendar */
+
+function openCalendar(){
+const today=new Date()
+calendarViewYear=today.getFullYear()
+calendarViewMonth=today.getMonth()
+renderCalendar()
+calendarModal.classList.add("show")
+}
+
+function renderCalendar(){
+calGrid.innerHTML=""
+
+const viewDate=new Date(calendarViewYear,calendarViewMonth,1)
+const monthName=viewDate.toLocaleString("en-US",{month:"long"})
+calMonthLabel.innerText=`${monthName} ${calendarViewYear}`
+
+const firstDayIndex=viewDate.getDay()
+const daysInMonth=new Date(calendarViewYear,calendarViewMonth+1,0).getDate()
+
+for(let i=0;i<firstDayIndex;i++){
+const div=document.createElement("div")
+div.className="cal-day muted"
+div.innerText=""
+calGrid.appendChild(div)
+}
+
+for(let day=1;day<=daysInMonth;day++){
+const d=new Date(calendarViewYear,calendarViewMonth,day)
+const key=toKey(d)
+
+const div=document.createElement("div")
+div.className="cal-day"
+div.innerText=String(day)
+
+const todayKey=getTodayKey()
+if(key===todayKey)div.classList.add("today")
+
+const status=getDayStatus(key)
+div.classList.add(status)
+
+const clickable=isKeyWithinLastNDays(key,90)
+if(!clickable){
+div.classList.add("muted")
+div.onclick=null
+}else{
+div.onclick=()=>{
+calendarModal.classList.remove("show")
+startPracticeDaily(key)
+}
+}
+
+calGrid.appendChild(div)
+}
+}
+
+function isKeyWithinLastNDays(key,n){
+const today=new Date()
+today.setHours(0,0,0,0)
+const d=fromKey(key)
+if(!d)return false
+d.setHours(0,0,0,0)
+const diffDays=Math.floor((today-d)/(1000*60*60*24))
+return diffDays>=0&&diffDays<=n
+}
+
+function fromKey(key){
+const parts=key.split("-")
+if(parts.length!==3)return null
+const y=parseInt(parts[0])
+const m=parseInt(parts[1])
+const d=parseInt(parts[2])
+if(!y||!m||!d)return null
+return new Date(y,m-1,d)
+}
+
+function getDayStatus(dateKey){
+const raw=localStorage.getItem("cricksolve_"+dateKey)
+if(!raw)return "none"
+let st=null
+try{st=JSON.parse(raw)}catch{return "none"}
+if(!st)return "none"
+if(st.status==="ended"){
+if((st.message||"").includes("solved"))return "won"
+return "lost"
+}
+if((st.attempts||0)>0)return "progress"
+return "none"
+}
+
+function startPracticeDaily(dateKey){
+mode="daily"
+localStorage.setItem(modeKey,"daily")
+
+dailyDateKey=dateKey
+isPracticeDaily=dateKey!==getTodayKey()
+localStorage.setItem(practiceDateKeyKey,dateKey)
+
+resetGameState(true)
+enableGameInput()
 }

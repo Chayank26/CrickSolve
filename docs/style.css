@@ -12,6 +12,49 @@ body.mode-unlimited{background:radial-gradient(1200px 600px at 20% 10%,#0b1b3a 0
 .header-right{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .streak{font-weight:700;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:10px 14px;border-radius:16px}
 
+/* From Uiverse.io by Gautammsharma (scaled for your header) */
+.comic-button{
+display:inline-block;
+padding:10px 14px;
+font-size:14px;
+font-weight:900;
+text-align:center;
+text-decoration:none;
+color:#fff;
+background-color:#ff5252;
+border:2px solid #000;
+border-radius:12px;
+box-shadow:4px 4px 0px #000;
+transition:all .18s ease;
+cursor:pointer
+}
+.comic-button:hover{
+background-color:#fff;
+color:#ff5252;
+border:2px solid #ff5252;
+box-shadow:4px 4px 0px #ff5252
+}
+.comic-button:active{
+background-color:#fcf414;
+box-shadow:none;
+transform:translateY(3px)
+}
+
+/* Past games button */
+.past-btn{
+cursor:pointer;
+font-weight:900;
+transition:all .2s;
+padding:10px 14px;
+border-radius:16px;
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.10);
+color:#e5e7eb;
+font-size:14px
+}
+.past-btn:hover{background:rgba(255,255,255,.09)}
+.past-btn:active{transform:scale(.98)}
+
 /* Toggle button (Uiverse-inspired) */
 .toggle-btn{
 cursor:pointer;
@@ -35,7 +78,6 @@ box-shadow:0 14px 30px rgba(34,197,94,.15)
 .toggle-btn svg circle{stroke:#07140b}
 .toggle-btn svg path{fill:#07140b}
 
-/* Make unlimited mode toggle look different */
 body.mode-unlimited .toggle-btn{
 background:linear-gradient(135deg,#60a5fa,#2563eb);
 color:#061025;
@@ -51,6 +93,18 @@ body.mode-unlimited .toggle-btn svg path{fill:#061025}
 .card-head{margin-bottom:12px}
 .card h2{font-size:18px}
 .sub{opacity:.7;font-size:13px;margin-top:4px}
+
+.card-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.practice-badge{
+font-size:12px;
+font-weight:900;
+padding:6px 10px;
+border-radius:999px;
+background:rgba(96,165,250,.12);
+border:1px solid rgba(96,165,250,.28);
+color:#bfdbfe;
+white-space:nowrap
+}
 
 .search-box{position:relative;margin-top:10px}
 #guessInput{width:100%;padding:12px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);color:#e5e7eb;font-size:14px;outline:none}
@@ -119,6 +173,13 @@ tr:last-child td{border-bottom:none}
 .result-card{text-align:center}
 .result-img{width:92px;height:92px;border-radius:22px;object-fit:cover;border:1px solid rgba(255,255,255,.12);box-shadow:0 16px 40px rgba(0,0,0,.45);margin-bottom:10px}
 
+.next-timer{
+margin-top:8px;
+font-weight:900;
+opacity:.85;
+font-size:13px
+}
+
 .leaderboard{margin-top:14px;text-align:left;border-top:1px solid rgba(255,255,255,.08);padding-top:12px}
 .leaderboard h3{font-size:14px;margin-bottom:10px}
 .lb-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);margin-bottom:8px}
@@ -126,3 +187,88 @@ tr:last-child td{border-bottom:none}
 .lb-rank{font-size:18px}
 .lb-time{font-weight:900}
 #leaderboardYou,#leaderboardCount{opacity:.75;margin-top:6px;font-size:13px}
+
+/* Calendar modal */
+.calendar-card{max-width:620px}
+.cal-title{text-align:center;font-size:26px;font-weight:900;margin-bottom:12px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-top:6px;margin-bottom:14px}
+.cal-month{font-size:18px;font-weight:900}
+.cal-nav{
+background:transparent;
+border:none;
+font-size:22px;
+font-weight:900;
+cursor:pointer;
+color:#ef4444;
+padding:8px 12px;
+border-radius:14px
+}
+.cal-nav:hover{background:rgba(255,255,255,.06)}
+.cal-weekdays{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:8px;
+margin-bottom:10px;
+opacity:.85;
+font-weight:800;
+text-align:center
+}
+.cal-grid{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:10px;
+justify-items:center
+}
+.cal-day{
+width:46px;
+height:38px;
+border-radius:999px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:900;
+border:1px solid rgba(255,255,255,.10);
+background:rgba(255,255,255,.06);
+cursor:pointer;
+user-select:none
+}
+.cal-day.muted{
+opacity:.25;
+cursor:default
+}
+.cal-day:hover{filter:brightness(1.08)}
+.cal-day:active{transform:scale(.97)}
+.cal-day.today{
+border-color:rgba(34,197,94,.35);
+box-shadow:0 0 0 4px rgba(34,197,94,.08)
+}
+
+.cal-day.none{background:rgba(255,255,255,.06)}
+.cal-day.progress{background:rgba(96,165,250,.20);border-color:rgba(96,165,250,.28)}
+.cal-day.lost{background:rgba(239,68,68,.20);border-color:rgba(239,68,68,.28)}
+.cal-day.won{background:rgba(34,197,94,.20);border-color:rgba(34,197,94,.28)}
+
+.cal-legend{
+margin-top:18px;
+display:flex;
+flex-direction:column;
+gap:12px;
+align-items:flex-start
+}
+.legend-row{
+display:flex;
+align-items:center;
+gap:12px;
+font-weight:800
+}
+.dot{
+width:34px;
+height:24px;
+border-radius:999px;
+display:inline-block;
+border:1px solid rgba(255,255,255,.10)
+}
+.dot.won{background:rgba(34,197,94,.20);border-color:rgba(34,197,94,.28)}
+.dot.lost{background:rgba(239,68,68,.20);border-color:rgba(239,68,68,.28)}
+.dot.progress{background:rgba(96,165,250,.20);border-color:rgba(96,165,250,.28)}
+.dot.none{background:rgba(255,255,255,.06)}
