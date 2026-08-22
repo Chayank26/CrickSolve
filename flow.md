@@ -4,34 +4,36 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 5 (Silhouette Reveal, Tactical Hints & Audio FX)
+## Current Status: Phase 6 (Game Modes & Past Games Calendar)
 
 ### 1. Code Entry Point
-- **Page Layout (`src/app/page.tsx`)**: Integrates `SilhouetteReveal` and `HowToModal`.
-- **Audio Engine (`src/lib/audio.ts`)**: Initializes Howler sound buffers for flip and victory chimes.
+- **Page Layout (`src/app/page.tsx`)**: Renders `CategorySelector` and `CalendarModal`.
+- **Game State Store (`src/store/useGameStore.ts`)**: Handles `syncDailyDate` and `setCategory` state updates.
 
 ---
 
-### 2. Execution Order & Audio / Visual Pipeline
-1. **Silhouette Image Computation (`SilhouetteReveal.tsx`)**:
-   - Reads `guesses.length` from `useGameStore`.
-   - Computes `blurAmount = Math.max(0, 24 - attemptCount * 4)`.
-   - Passes CSS blur filter to Framer Motion animated `<img>`.
-2. **Audio Playback (`src/lib/audio.ts`)**:
-   - On valid guess evaluation, checks `soundEnabled`.
-   - Calls `playFlipSound()` on incorrect guess; calls `playWinSound()` on correct guess.
-3. **Tactical Hint Unlock (`PlayerSearch.tsx`)**:
-   - When attempt >= 4, enables tactical hint button (*Jersey Number, Famous Teammate, Signature Performance*).
+### 2. Execution Order & Category / Calendar Flow
+1. **Category Switch (`CategorySelector.tsx`)**:
+   - User clicks category pill (*IPL Stars, Legends, Women's Cricket*).
+   - Calls `setCategory(cat.id)` on Zustand store.
+   - Resets guess history and updates Fuse.js autocomplete pool dynamically.
+2. **Past Puzzle Selection (`CalendarModal.tsx`)**:
+   - User clicks `Past Games` in header.
+   - Selects a past date (e.g. `2026-08-15`).
+   - Calls `syncDailyDate('2026-08-15')`.
+   - `useGameStore` updates `currentDate` and loads corresponding puzzle seed.
 
 ---
 
-### 3. Component Hierarchy & Data Flow (Phase 5)
+### 3. Component Hierarchy & Data Flow (Phase 6)
 ```
 src/app/page.tsx
        │
-       ├──> SilhouetteReveal.tsx (Calculates blur filter dynamically)
+       ├──> CategorySelector.tsx ──> Updates useGameStore (category)
+       ├──> SilhouetteReveal.tsx
        ├──> AttributeCards.tsx
-       ├──> PlayerSearch.tsx ──> Triggers playFlipSound() / playWinSound() (src/lib/audio.ts)
+       ├──> PlayerSearch.tsx
        ├──> NumericHintsTable.tsx
-       └──> HowToModal.tsx (Renders when activeModal === 'howTo')
+       ├──> HowToModal.tsx
+       └──> CalendarModal.tsx ──> Updates useGameStore (currentDate via syncDailyDate)
 ```

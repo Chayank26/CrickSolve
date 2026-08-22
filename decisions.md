@@ -151,6 +151,25 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Native HTML5 `<audio>` tags*: High latency and autoplay blocking on Safari iOS.
 
+---
+
+## Phase 6: Game Modes & Past Games Calendar
+
+### Decision 16: Category & Era Filtering Architecture
+- **Approach Chosen:** Category selector bar (`CategorySelector.tsx`) allowing users to target specific subsets (*International, IPL, Legend, Womens*).
+- **Why this approach?**
+  - Keeps gameplay fresh for different user audiences (e.g. users who follow IPL or Women's Cricket specifically).
+- **Alternatives Considered:**
+  - *Single monolithic player pool*: Dilutes player density when guessing specific niche leagues.
+
+### Decision 17: Interactive Past Games Calendar Grid
+- **Approach Chosen:** Custom month-grid calendar modal (`CalendarModal.tsx`) computing days in month and disabling future dates.
+- **Why this approach?**
+  - Allows players to catch up on missed daily puzzles from previous calendar dates.
+- **Alternatives Considered:**
+  - *Simple date input text box*: High user error and bad mobile UI keyboard experience.
+
+
 
 
 
