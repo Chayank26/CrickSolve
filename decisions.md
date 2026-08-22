@@ -133,5 +133,24 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Native `<datalist>` HTML element*: Cannot customize avatar photos, country badges, or custom highlight styling inside the dropdown options.
 
+---
+
+## Phase 5: Silhouette Reveal, Tactical Hints & Audio FX
+
+### Decision 14: Progressive Image Unblur for Photo Silhouette
+- **Approach Chosen:** CSS `filter: blur()` algorithm reducing blur intensity linearly from `24px` down to `0px` based on attempt count.
+- **Why this approach?**
+  - Provides a visual progression reward as players accumulate guesses without leaking facial features prematurely on guess 1.
+- **Alternatives Considered:**
+  - *Pixelation matrix*: Requires heavy HTML5 canvas image processing; CSS `blur()` is GPU-accelerated and natively smooth.
+
+### Decision 15: Howler.js Web Audio Web Synthesizer
+- **Approach Chosen:** Howler.js audio manager initialized on user interaction (`playFlipSound`, `playWinSound`).
+- **Why this approach?**
+  - Web Audio API buffers sounds in memory, eliminating delay when cards flip or puzzles are solved.
+- **Alternatives Considered:**
+  - *Native HTML5 `<audio>` tags*: High latency and autoplay blocking on Safari iOS.
+
+
 
 

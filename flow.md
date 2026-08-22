@@ -4,50 +4,34 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 4 (Modern Glassmorphic UI & Game Components)
+## Current Status: Phase 5 (Silhouette Reveal, Tactical Hints & Audio FX)
 
 ### 1. Code Entry Point
-- **Root Page (`src/app/page.tsx`)**: Assembles header and core interactive grid layout.
-- **Component Sub-tree**:
-  - `Header.tsx`: Responsive navigation bar, streak counter, sound control, modal triggers.
-  - `AttributeCards.tsx`: Render engine for Country, Batting Hand, Bowling Type, Role, IPL Team, and Retired cards.
-  - `PlayerSearch.tsx`: Fuzzy search input box with dropdown autocomplete and keyboard event handlers.
-  - `NumericHintsTable.tsx`: Tabular output for Birth Year, Tests, ODIs, T20Is numeric stat comparisons.
+- **Page Layout (`src/app/page.tsx`)**: Integrates `SilhouetteReveal` and `HowToModal`.
+- **Audio Engine (`src/lib/audio.ts`)**: Initializes Howler sound buffers for flip and victory chimes.
 
 ---
 
-### 2. Execution Order & Component Lifecycle
-1. **Root Page Hydration (`src/app/page.tsx`)**:
-   - Page mounts and connects to `useGameStore`.
-2. **`AttributeCards` Render**:
-   - Reads `guesses` array from `useGameStore`.
-   - Maps over 6 attribute keys, checking for correct attribute matches.
-   - Triggers Framer Motion 3D card flips (`rotateY`) on newly discovered attributes.
-3. **`PlayerSearch` Autocomplete**:
-   - Initializes Fuse.js index over `PLAYERS` dataset (filtered by active category).
-   - On user input, computes fuzzy matches, excluding previously guessed player IDs.
-   - On item click or Enter key, sends POST to `/api/puzzle/guess`.
-4. **`NumericHintsTable` Render**:
-   - Maps over `guesses` log in chronological order.
-   - Evaluates `birthYear`, `tests`, `odis`, `t20is` comparisons and renders directional indicators (`↑`, `↓`, `✓`).
+### 2. Execution Order & Audio / Visual Pipeline
+1. **Silhouette Image Computation (`SilhouetteReveal.tsx`)**:
+   - Reads `guesses.length` from `useGameStore`.
+   - Computes `blurAmount = Math.max(0, 24 - attemptCount * 4)`.
+   - Passes CSS blur filter to Framer Motion animated `<img>`.
+2. **Audio Playback (`src/lib/audio.ts`)**:
+   - On valid guess evaluation, checks `soundEnabled`.
+   - Calls `playFlipSound()` on incorrect guess; calls `playWinSound()` on correct guess.
+3. **Tactical Hint Unlock (`PlayerSearch.tsx`)**:
+   - When attempt >= 4, enables tactical hint button (*Jersey Number, Famous Teammate, Signature Performance*).
 
 ---
 
-### 3. Component Hierarchy & Data Flow (Phase 4)
+### 3. Component Hierarchy & Data Flow (Phase 5)
 ```
-src/app/page.tsx (Main Layout Container)
+src/app/page.tsx
        │
-       ├──> Header.tsx (Navbar, Streak Badge, Mode Controls)
-       │      └──> Reads & Updates useGameStore (gameMode, soundEnabled, activeModal)
-       │
-       ├──> AttributeCards.tsx (6 Attribute Unlock Tiles)
-       │      └──> Reads useGameStore (guesses) -> Triggers Framer Motion flip
-       │
-       ├──> PlayerSearch.tsx (Fuzzy Autocomplete Input)
-       │      ├──> Uses Fuse.js fuzzy index
-       │      ├──> Posts guess to /api/puzzle/guess
-       │      └──> Calls addGuess() on useGameStore
-       │
-       └──> NumericHintsTable.tsx (Numeric Stat Comparison Log)
-              └──> Renders stat direction indicators (Higher/Lower/Match)
+       ├──> SilhouetteReveal.tsx (Calculates blur filter dynamically)
+       ├──> AttributeCards.tsx
+       ├──> PlayerSearch.tsx ──> Triggers playFlipSound() / playWinSound() (src/lib/audio.ts)
+       ├──> NumericHintsTable.tsx
+       └──> HowToModal.tsx (Renders when activeModal === 'howTo')
 ```

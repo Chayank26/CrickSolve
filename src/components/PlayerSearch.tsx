@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { PLAYERS } from '@/data/players';
 import { Player } from '@/types/game';
 import { useGameStore } from '@/store/useGameStore';
+import { playFlipSound, playWinSound, playUnlockSound } from '@/lib/audio';
 import Fuse from 'fuse.js';
 import { Search, Send, Lightbulb, Loader2 } from 'lucide-react';
 
@@ -13,7 +14,7 @@ export function PlayerSearch() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { guesses, gameStatus, gameMode, category, currentDate, unlimitedTargetId, addGuess, unlockHintManually, unlockedHint } = useGameStore();
+  const { guesses, gameStatus, gameMode, category, currentDate, unlimitedTargetId, addGuess, unlockHintManually, unlockedHint, soundEnabled } = useGameStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -77,6 +78,11 @@ export function PlayerSearch() {
       const data = await res.json();
       if (data.evaluation) {
         addGuess(data.evaluation);
+        if (data.evaluation.isCorrect) {
+          playWinSound(soundEnabled);
+        } else {
+          playFlipSound(soundEnabled);
+        }
       }
     } catch (err) {
       console.error('Failed to evaluate guess', err);
