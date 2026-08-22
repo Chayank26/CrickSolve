@@ -4,54 +4,50 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 3 (Core Anti-Cheat Game Engine & Server API Routes)
+## Current Status: Phase 4 (Modern Glassmorphic UI & Game Components)
 
 ### 1. Code Entry Point
-- **Root Layout & Page (`src/app/layout.tsx`, `src/app/page.tsx`)**: Entry point for UI shell.
-- **Server API Routes**:
-  - `GET /api/puzzle/daily`: Daily puzzle metadata endpoint.
-  - `POST /api/puzzle/guess`: Server-side guess evaluation endpoint.
-  - `GET /api/puzzle/unlimited`: Random practice player endpoint.
-- **Client State Store (`src/store/useGameStore.ts`)**: Zustand store managing state, streaks, and guess history.
-- **Game Engine (`src/lib/game-engine.ts`)**: Pure logic engine for date hashing, stat comparison, and tactical hints.
+- **Root Page (`src/app/page.tsx`)**: Assembles header and core interactive grid layout.
+- **Component Sub-tree**:
+  - `Header.tsx`: Responsive navigation bar, streak counter, sound control, modal triggers.
+  - `AttributeCards.tsx`: Render engine for Country, Batting Hand, Bowling Type, Role, IPL Team, and Retired cards.
+  - `PlayerSearch.tsx`: Fuzzy search input box with dropdown autocomplete and keyboard event handlers.
+  - `NumericHintsTable.tsx`: Tabular output for Birth Year, Tests, ODIs, T20Is numeric stat comparisons.
 
 ---
 
-### 2. Execution Order
-1. **User Selects Player Guess**:
-   - User searches player via autocomplete dropdown and submits guess.
-2. **API Call (`POST /api/puzzle/guess`)**:
-   - Client sends `{ guessedPlayerId, date, category, mode }` to server.
-3. **Server Evaluation (`src/lib/game-engine.ts`)**:
-   - Server resolves daily mystery player target via `getDailyTargetPlayer(date, category)`.
-   - Runs `evaluatePlayerGuess()` to compare attributes (`country`, `battingHand`, `bowlingType`, `role`, `iplTeam`, `retired`) and numeric stats (`birthYear`, `tests`, `odis`, `t20is`).
-4. **State Dispatch & Persistence (`src/store/useGameStore.ts`)**:
-   - API returns `GuessEvaluation` payload.
-   - Client calls `addGuess(evaluation)` on Zustand store.
-   - Zustand recalculates streak, win/loss status, and syncs to `localStorage`.
+### 2. Execution Order & Component Lifecycle
+1. **Root Page Hydration (`src/app/page.tsx`)**:
+   - Page mounts and connects to `useGameStore`.
+2. **`AttributeCards` Render**:
+   - Reads `guesses` array from `useGameStore`.
+   - Maps over 6 attribute keys, checking for correct attribute matches.
+   - Triggers Framer Motion 3D card flips (`rotateY`) on newly discovered attributes.
+3. **`PlayerSearch` Autocomplete**:
+   - Initializes Fuse.js index over `PLAYERS` dataset (filtered by active category).
+   - On user input, computes fuzzy matches, excluding previously guessed player IDs.
+   - On item click or Enter key, sends POST to `/api/puzzle/guess`.
+4. **`NumericHintsTable` Render**:
+   - Maps over `guesses` log in chronological order.
+   - Evaluates `birthYear`, `tests`, `odis`, `t20is` comparisons and renders directional indicators (`↑`, `↓`, `✓`).
 
 ---
 
-### 3. Function & Module Call Graph (Phase 3)
+### 3. Component Hierarchy & Data Flow (Phase 4)
 ```
-[User Action: Submit Guess]
+src/app/page.tsx (Main Layout Container)
        │
-       ▼
-Client Store: addGuess() (src/store/useGameStore.ts)
+       ├──> Header.tsx (Navbar, Streak Badge, Mode Controls)
+       │      └──> Reads & Updates useGameStore (gameMode, soundEnabled, activeModal)
        │
-       ▼
-Fetch HTTP: POST /api/puzzle/guess (src/app/api/puzzle/guess/route.ts)
+       ├──> AttributeCards.tsx (6 Attribute Unlock Tiles)
+       │      └──> Reads useGameStore (guesses) -> Triggers Framer Motion flip
        │
-       ├──> Calls getDailyTargetPlayer() (src/lib/game-engine.ts)
-       │      └──> Runs deterministic date hash algorithm
+       ├──> PlayerSearch.tsx (Fuzzy Autocomplete Input)
+       │      ├──> Uses Fuse.js fuzzy index
+       │      ├──> Posts guess to /api/puzzle/guess
+       │      └──> Calls addGuess() on useGameStore
        │
-       ├──> Calls evaluatePlayerGuess() (src/lib/game-engine.ts)
-       │      ├──> Runs compareNumeric() for Birth Year, Tests, ODIs, T20Is
-       │      └──> Checks attempt number >= 4 for tactical hint unlock
-       │
-       ▼
-Returns GuessEvaluation JSON
-       │
-       ▼
-Updates Zustand Store State + localstorage
+       └──> NumericHintsTable.tsx (Numeric Stat Comparison Log)
+              └──> Renders stat direction indicators (Higher/Lower/Match)
 ```

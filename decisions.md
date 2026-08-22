@@ -115,4 +115,23 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Manual `localStorage.getItem/setItem`*: Verbose, error-prone synchronization code scattered across components.
 
+---
+
+## Phase 4: Modern Glassmorphic UI & Game Components
+
+### Decision 12: Split Column Responsive Layout with Glassmorphism
+- **Approach Chosen:** Two-column grid (`lg:grid-cols-12`) with glassmorphic cards (`bg-slate-900/60 backdrop-blur-md border border-slate-800`).
+- **Why this approach?**
+  - Separates attribute discovery from numeric stat hinting visually, reducing mental clutter for players on both mobile and desktop screens.
+- **Alternatives Considered:**
+  - *Single dense vertical list*: High scrolling friction on mobile devices.
+
+### Decision 13: Fuse.js Instant Client Autocomplete with Keyboard Controls
+- **Approach Chosen:** Fuse.js fuzzy engine combined with `useRef` event listeners for ArrowUp / ArrowDown / Enter keyboard navigation.
+- **Why this approach?**
+  - Enables desktop players to guess rapidly without reaching for the mouse, while fuzzy search ensures typo resilience.
+- **Alternatives Considered:**
+  - *Native `<datalist>` HTML element*: Cannot customize avatar photos, country badges, or custom highlight styling inside the dropdown options.
+
+
 
