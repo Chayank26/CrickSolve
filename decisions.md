@@ -187,6 +187,18 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Plain text score share*: Lacks visual pop and social engagement.
 
+---
+
+## Phase 8: PWA, Final Polish & Verification
+
+### Decision 20: Progressive Web App Manifest & Viewport Meta Configuration
+- **Approach Chosen:** Web App Manifest (`public/manifest.json`) + Next.js `Viewport` API setting theme color `#020617` and `display: standalone`.
+- **Why this approach?**
+  - Enables users to install CrickSolve as a native-feeling app on mobile home screens (iOS Safari and Android Chrome) without app store friction.
+- **Alternatives Considered:**
+  - *Browser tab-only site*: No home screen launcher, status bar color adaptation, or offline fallback shell.
+
+
 
 
 
