@@ -96,3 +96,23 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Fetching player list on every keypress*: High server traffic and poor UX on slow mobile connections.
 
+---
+
+## Phase 3: Core Anti-Cheat Game Engine & Server API Routes
+
+### Decision 10: Server-Side Anti-Cheat Mystery Player Hashing & Guess Evaluation
+- **Approach Chosen:** Server-side deterministic date hashing algorithm in `/api/puzzle/daily` and `/api/puzzle/guess`.
+- **Why this approach?**
+  - Prevents players from inspecting network payloads, JavaScript bundles, or browser memory to discover today's mystery player.
+  - The client only receives match flags (`country: true`, `birthYear: "higher"`) per guess, keeping the secret answer fully protected until won or lost.
+- **Alternatives Considered:**
+  - *Client-side calculation*: Exposed target player IDs directly in DOM inspect / DevTools.
+
+### Decision 11: Persistent Client Zustand Store with `partialize` Storage
+- **Approach Chosen:** Zustand store with `persist` middleware configured with `partialize` filter.
+- **Why this approach?**
+  - Persists game stats, streaks, sound preferences, and active daily guesses across browser reloads while keeping transient UI state (modal open/close flags) clean on new sessions.
+- **Alternatives Considered:**
+  - *Manual `localStorage.getItem/setItem`*: Verbose, error-prone synchronization code scattered across components.
+
+

@@ -4,34 +4,54 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 2 (Database Schema, Seeding & Client Setup)
+## Current Status: Phase 3 (Core Anti-Cheat Game Engine & Server API Routes)
 
 ### 1. Code Entry Point
-- **Root Layout (`src/app/layout.tsx`)**: Global wrapper.
-- **Main Page (`src/app/page.tsx`)**: Entry point for UI rendering.
-- **Supabase Client (`src/lib/supabase.ts`)**: Singleton initialization point for database queries.
-- **Player Registry (`src/data/players.ts`)**: Authoritative dataset for player records and stat lookup.
+- **Root Layout & Page (`src/app/layout.tsx`, `src/app/page.tsx`)**: Entry point for UI shell.
+- **Server API Routes**:
+  - `GET /api/puzzle/daily`: Daily puzzle metadata endpoint.
+  - `POST /api/puzzle/guess`: Server-side guess evaluation endpoint.
+  - `GET /api/puzzle/unlimited`: Random practice player endpoint.
+- **Client State Store (`src/store/useGameStore.ts`)**: Zustand store managing state, streaks, and guess history.
+- **Game Engine (`src/lib/game-engine.ts`)**: Pure logic engine for date hashing, stat comparison, and tactical hints.
 
 ---
 
 ### 2. Execution Order
-1. **Application Launch**:
-   - `src/lib/supabase.ts` initializes connection pool with `NEXT_PUBLIC_SUPABASE_URL` and anon key.
-2. **Type Safety Engine**:
-   - `src/types/game.ts` validates data structures across database models (`Player`, `DailyPuzzle`, `LeaderboardEntry`, `UserStats`) and evaluation models (`GuessEvaluation`).
-3. **Data Pre-loading**:
-   - Static player data from `src/data/players.ts` is ready for instant fuzzy matching and server-side puzzle calculations.
+1. **User Selects Player Guess**:
+   - User searches player via autocomplete dropdown and submits guess.
+2. **API Call (`POST /api/puzzle/guess`)**:
+   - Client sends `{ guessedPlayerId, date, category, mode }` to server.
+3. **Server Evaluation (`src/lib/game-engine.ts`)**:
+   - Server resolves daily mystery player target via `getDailyTargetPlayer(date, category)`.
+   - Runs `evaluatePlayerGuess()` to compare attributes (`country`, `battingHand`, `bowlingType`, `role`, `iplTeam`, `retired`) and numeric stats (`birthYear`, `tests`, `odis`, `t20is`).
+4. **State Dispatch & Persistence (`src/store/useGameStore.ts`)**:
+   - API returns `GuessEvaluation` payload.
+   - Client calls `addGuess(evaluation)` on Zustand store.
+   - Zustand recalculates streak, win/loss status, and syncs to `localStorage`.
 
 ---
 
-### 3. Function & Module Dependency Graph (Phase 2)
+### 3. Function & Module Call Graph (Phase 3)
 ```
-src/types/game.ts (Core Interfaces)
+[User Action: Submit Guess]
        │
-       ├──> Implemented by src/data/players.ts (Seed Dataset)
-       ├──> Implemented by supabase/schema.sql (Database Tables)
+       ▼
+Client Store: addGuess() (src/store/useGameStore.ts)
        │
-src/lib/supabase.ts (Supabase Client Singleton)
+       ▼
+Fetch HTTP: POST /api/puzzle/guess (src/app/api/puzzle/guess/route.ts)
        │
-       └──> Consumed by API Routes and Database Hooks
+       ├──> Calls getDailyTargetPlayer() (src/lib/game-engine.ts)
+       │      └──> Runs deterministic date hash algorithm
+       │
+       ├──> Calls evaluatePlayerGuess() (src/lib/game-engine.ts)
+       │      ├──> Runs compareNumeric() for Birth Year, Tests, ODIs, T20Is
+       │      └──> Checks attempt number >= 4 for tactical hint unlock
+       │
+       ▼
+Returns GuessEvaluation JSON
+       │
+       ▼
+Updates Zustand Store State + localstorage
 ```
