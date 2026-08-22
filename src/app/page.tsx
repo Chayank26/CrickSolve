@@ -8,6 +8,9 @@ import { NumericHintsTable } from '@/components/NumericHintsTable';
 import { SilhouetteReveal } from '@/components/SilhouetteReveal';
 import { HowToModal } from '@/components/TacticalHintModal';
 import { CalendarModal } from '@/components/CalendarModal';
+import { ResultModal } from '@/components/ResultModal';
+import { StatsModal } from '@/components/StatsModal';
+import { ShareGridModal } from '@/components/ShareGridModal';
 
 export default function Home() {
   return (
@@ -36,6 +39,9 @@ export default function Home() {
       {/* Modals */}
       <HowToModal />
       <CalendarModal />
+      <ResultModal />
+      <StatsModal />
+      <ShareGridModal />
     </div>
   );
 }

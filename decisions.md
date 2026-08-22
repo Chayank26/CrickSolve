@@ -169,6 +169,25 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Simple date input text box*: High user error and bad mobile UI keyboard experience.
 
+---
+
+## Phase 7: Supabase Leaderboard, User Analytics & Dynamic Score Share
+
+### Decision 18: Supabase Leaderboard Persistence (`/api/leaderboard`)
+- **Approach Chosen:** Server API endpoint saving daily finishes (`date`, `user_id`, `nickname`, `attempts`, `time_ms`) into Supabase `leaderboard` PostgreSQL table with upsert logic (`id = date_user_id`).
+- **Why this approach?**
+  - Prevents duplicate leaderboard entries per user per calendar day while ordering top scores by least attempts and fastest solve time.
+- **Alternatives Considered:**
+  - *Client-side direct insert*: Exposes database table write rules to bypass score validation.
+
+### Decision 19: Canvas Confetti & Wordle Emoji Scorecard Format
+- **Approach Chosen:** `canvas-confetti` explosion on victory + Wordle emoji string builder (`🟩`, `🟨`, `⬛`, `⬆️`, `⬇️`).
+- **Why this approach?**
+  - Instant viral social sharing on Twitter, WhatsApp, and Telegram without spoiling the mystery player identity for friends.
+- **Alternatives Considered:**
+  - *Plain text score share*: Lacks visual pop and social engagement.
+
+
 
 
 

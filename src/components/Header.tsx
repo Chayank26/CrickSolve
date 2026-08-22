@@ -33,6 +33,15 @@ export function Header() {
             <span>Streak: {streak}</span>
           </div>
 
+          {/* Stats Button */}
+          <button
+            onClick={() => setActiveModal('stats')}
+            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-all"
+            title="User Analytics"
+          >
+            <Trophy className="w-4 h-4 text-amber-400" />
+          </button>
+
           {/* Mode Switcher */}
           <button
             onClick={() => setGameMode(gameMode === 'daily' ? 'unlimited' : 'daily')}

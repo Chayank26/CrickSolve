@@ -4,36 +4,35 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 6 (Game Modes & Past Games Calendar)
+## Current Status: Phase 7 (Supabase Leaderboard, User Analytics & Dynamic Score Share)
 
 ### 1. Code Entry Point
-- **Page Layout (`src/app/page.tsx`)**: Renders `CategorySelector` and `CalendarModal`.
-- **Game State Store (`src/store/useGameStore.ts`)**: Handles `syncDailyDate` and `setCategory` state updates.
+- **Page Layout (`src/app/page.tsx`)**: Integrates `ResultModal`, `StatsModal`, `ShareGridModal`.
+- **Leaderboard API (`src/app/api/leaderboard/route.ts`)**: GET/POST endpoints interfacing with Supabase PostgreSQL `leaderboard` table.
 
 ---
 
-### 2. Execution Order & Category / Calendar Flow
-1. **Category Switch (`CategorySelector.tsx`)**:
-   - User clicks category pill (*IPL Stars, Legends, Women's Cricket*).
-   - Calls `setCategory(cat.id)` on Zustand store.
-   - Resets guess history and updates Fuse.js autocomplete pool dynamically.
-2. **Past Puzzle Selection (`CalendarModal.tsx`)**:
-   - User clicks `Past Games` in header.
-   - Selects a past date (e.g. `2026-08-15`).
-   - Calls `syncDailyDate('2026-08-15')`.
-   - `useGameStore` updates `currentDate` and loads corresponding puzzle seed.
+### 2. Execution Order & Score Submission Flow
+1. **Game Completion (`useGameStore.ts`)**:
+   - When last guess is submitted, `addGuess()` checks if correct or attempts limit reached.
+   - Sets `gameStatus` to `'WON'` or `'LOST'`.
+   - Opens `ResultModal` (`activeModal = 'result'`).
+2. **Victory Celebration & Leaderboard Push (`ResultModal.tsx`)**:
+   - Triggers `canvas-confetti` particle animation on win.
+   - Posts score `{ date, userId, nickname, attempts, timeMs }` to `/api/leaderboard`.
+   - `/api/leaderboard` upserts entry into Supabase PostgreSQL table.
+3. **Social Sharing (`ShareGridModal.tsx`)**:
+   - Maps player's guess history into emoji scorecard grid (`🟩`, `🟨`, `⬛`, `⬆️`, `⬇️`).
+   - Copies text block to user's system clipboard via `navigator.clipboard.writeText()`.
 
 ---
 
-### 3. Component Hierarchy & Data Flow (Phase 6)
+### 3. Component Hierarchy & Data Flow (Phase 7)
 ```
 src/app/page.tsx
        │
-       ├──> CategorySelector.tsx ──> Updates useGameStore (category)
-       ├──> SilhouetteReveal.tsx
-       ├──> AttributeCards.tsx
-       ├──> PlayerSearch.tsx
-       ├──> NumericHintsTable.tsx
-       ├──> HowToModal.tsx
-       └──> CalendarModal.tsx ──> Updates useGameStore (currentDate via syncDailyDate)
+       ├──> ResultModal.tsx ──> Posts score to /api/leaderboard -> Supabase DB
+       │      └──> Fires canvas-confetti particle engine
+       ├──> StatsModal.tsx (Renders win rate % and streak metrics)
+       └──> ShareGridModal.tsx (Formats & copies emoji scorecard to clipboard)
 ```
