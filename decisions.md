@@ -76,3 +76,23 @@ This document logs all key technical and architectural decisions taken during th
 - **Why this approach?**
   - Framer Motion handles tile flip, lock shatter, and layout transitions seamlessly with declarative React props.
   - Howler.js abstracts browser audio quirks across iOS Safari and desktop Chrome for sound FX.
+
+---
+
+## Phase 2: Supabase Database Schema, Seeding & Client Configuration
+
+### Decision 8: Relational Database Schema Design over NoSQL
+- **Approach Chosen:** Relational schema (`players`, `daily_puzzles`, `leaderboard`, `user_stats`) with foreign keys and RLS policies.
+- **Why this approach?**
+  - Direct foreign key relationship (`daily_puzzles.player_id` -> `players.id`) enforces data integrity across game seeds.
+  - Indexed compound queries (`date`, `time_ms ASC`) on the `leaderboard` table allow instantaneous daily ranking extraction.
+- **Alternatives Considered:**
+  - *NoSQL document store*: Document duplication between daily puzzles and player objects leads to data drift when stats are updated.
+
+### Decision 9: Embedded Rich Player Seed Dataset (`src/data/players.ts`)
+- **Approach Chosen:** Embedded TypeScript seed dataset with structured player statistics, high-resolution photo URLs, jersey numbers, famous teammates, and signature performances.
+- **Why this approach?**
+  - Serves dual-purpose: populates the Supabase database via seed script and powers instant client-side autocomplete / fuzzy search without roundtrip network delays.
+- **Alternatives Considered:**
+  - *Fetching player list on every keypress*: High server traffic and poor UX on slow mobile connections.
+
