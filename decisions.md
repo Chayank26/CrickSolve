@@ -198,6 +198,14 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Browser tab-only site*: No home screen launcher, status bar color adaptation, or offline fallback shell.
 
+### Decision 21: Full 424-Player CSV Dataset Conversion Pipeline (`scripts/convert-csv.js`)
+- **Approach Chosen:** Restored original `players_with_stats.csv` from git commit history and wrote automated Node.js converter script (`scripts/convert-csv.js`) to generate typed TypeScript dataset (`src/data/players.ts`).
+- **Why this approach?**
+  - Expands mystery player depth from 18 to **424 international and domestic cricketers** complete with birth dates, stats, roles, bowling types, IPL team assignments, and photo URLs.
+- **Alternatives Considered:**
+  - *Hand-keying 400+ players*: Extremely slow and prone to human stat entry errors.
+
+
 
 
 
