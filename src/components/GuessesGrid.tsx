@@ -13,25 +13,33 @@ interface FlipTileProps {
 }
 
 function FlipTile({ delay, colSpan, isMatched, isIpl = false, isNumeric = false, children }: FlipTileProps) {
-  let bgColorClass = 'bg-[#CBD5E1] text-slate-500';
+  let bgColorClass = 'bg-[#CBD5E1] text-slate-500 border-2 border-black';
 
   if (isMatched) {
-    bgColorClass = isIpl ? 'bg-[#FF5500] text-white' : 'bg-[#CCFF00] text-black';
+    bgColorClass = isIpl
+      ? 'bg-[#FF5500] text-white border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ring-2 ring-black'
+      : 'bg-[#CCFF00] text-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ring-2 ring-black';
   } else if (isNumeric) {
-    bgColorClass = 'bg-white text-black';
+    bgColorClass = 'bg-white text-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]';
+  } else {
+    bgColorClass = 'bg-[#CBD5E1] text-slate-500 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]';
   }
 
   return (
     <motion.div
-      initial={{ rotateY: 90, opacity: 0 }}
-      animate={{ rotateY: 0, opacity: 1 }}
+      initial={{ rotateY: 90, scale: 0.7, opacity: 0 }}
+      animate={{
+        rotateY: 0,
+        scale: isMatched ? [0.7, 1.18, 1] : [0.7, 1.05, 1],
+        opacity: 1,
+      }}
       transition={{
-        duration: 0.45,
+        duration: 0.5,
         delay,
         ease: [0.23, 1, 0.32, 1],
       }}
       style={{ transformStyle: 'preserve-3d' }}
-      className={`${colSpan} border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center font-black text-xs p-1 transition-all ${bgColorClass}`}
+      className={`${colSpan} flex flex-col items-center justify-center font-black text-xs p-1 transition-all ${bgColorClass}`}
     >
       {children}
     </motion.div>
@@ -47,9 +55,9 @@ export function GuessesGrid() {
     <div className="w-full flex flex-col gap-6 my-2">
       {/* Guesses Table Container */}
       <div className="w-full overflow-x-auto">
-        <div className="min-w-[760px] flex flex-col gap-3">
+        <div className="min-w-[840px] flex flex-col gap-3">
           {/* Column Header Titles */}
-          <div className="grid grid-cols-12 gap-2 text-center text-xs font-black uppercase text-slate-600 px-1">
+          <div className="grid grid-cols-12 gap-2 text-center text-[11px] font-black uppercase text-slate-600 px-1">
             <div className="col-span-3 text-left pl-3" />
             <div className="col-span-1">COUNTRY</div>
             <div className="col-span-1">ROLE</div>
@@ -57,7 +65,8 @@ export function GuessesGrid() {
             <div className="col-span-1">BIRTH</div>
             <div className="col-span-1">TESTS</div>
             <div className="col-span-1">ODIS</div>
-            <div className="col-span-2">IPL TEAM</div>
+            <div className="col-span-1">T20IS</div>
+            <div className="col-span-1">IPL TEAM</div>
             <div className="col-span-1">RETIRED?</div>
           </div>
 
@@ -100,23 +109,23 @@ export function GuessesGrid() {
                     </div>
 
                     {/* Tile 1: Country */}
-                    <FlipTile delay={0.1} colSpan="col-span-1" isMatched={g.attributeMatches.country}>
+                    <FlipTile delay={0.08} colSpan="col-span-1" isMatched={g.attributeMatches.country}>
                       <span>{countryCode}</span>
                     </FlipTile>
 
                     {/* Tile 2: Role */}
-                    <FlipTile delay={0.2} colSpan="col-span-1" isMatched={g.attributeMatches.role}>
+                    <FlipTile delay={0.16} colSpan="col-span-1" isMatched={g.attributeMatches.role}>
                       <span>{roleCode}</span>
                     </FlipTile>
 
                     {/* Tile 3: Batting Hand */}
-                    <FlipTile delay={0.3} colSpan="col-span-1" isMatched={g.attributeMatches.battingHand}>
+                    <FlipTile delay={0.24} colSpan="col-span-1" isMatched={g.attributeMatches.battingHand}>
                       <span className="text-[11px]">{battingCode}</span>
                     </FlipTile>
 
                     {/* Tile 4: Birth Year */}
                     <FlipTile
-                      delay={0.4}
+                      delay={0.32}
                       colSpan="col-span-1"
                       isMatched={g.numericMatches.birthYear === 'match'}
                       isNumeric={g.numericMatches.birthYear !== 'match'}
@@ -128,7 +137,7 @@ export function GuessesGrid() {
 
                     {/* Tile 5: Tests */}
                     <FlipTile
-                      delay={0.5}
+                      delay={0.4}
                       colSpan="col-span-1"
                       isMatched={g.numericMatches.tests === 'match'}
                       isNumeric={g.numericMatches.tests !== 'match'}
@@ -140,7 +149,7 @@ export function GuessesGrid() {
 
                     {/* Tile 6: ODIs */}
                     <FlipTile
-                      delay={0.6}
+                      delay={0.48}
                       colSpan="col-span-1"
                       isMatched={g.numericMatches.odis === 'match'}
                       isNumeric={g.numericMatches.odis !== 'match'}
@@ -150,13 +159,25 @@ export function GuessesGrid() {
                       {g.numericMatches.odis === 'lower' && <span className="text-xs">↓</span>}
                     </FlipTile>
 
-                    {/* Tile 7: IPL Team */}
-                    <FlipTile delay={0.7} colSpan="col-span-2" isMatched={g.attributeMatches.iplTeam} isIpl={true}>
+                    {/* Tile 7: T20Is (Brought back!) */}
+                    <FlipTile
+                      delay={0.56}
+                      colSpan="col-span-1"
+                      isMatched={g.numericMatches.t20is === 'match'}
+                      isNumeric={g.numericMatches.t20is !== 'match'}
+                    >
+                      <span>{g.guessedPlayer.t20is}</span>
+                      {g.numericMatches.t20is === 'higher' && <span className="text-xs">↑</span>}
+                      {g.numericMatches.t20is === 'lower' && <span className="text-xs">↓</span>}
+                    </FlipTile>
+
+                    {/* Tile 8: IPL Team */}
+                    <FlipTile delay={0.64} colSpan="col-span-1" isMatched={g.attributeMatches.iplTeam} isIpl={true}>
                       <span>{iplCode}</span>
                     </FlipTile>
 
-                    {/* Tile 8: Retired Status (New Column) */}
-                    <FlipTile delay={0.8} colSpan="col-span-1" isMatched={g.attributeMatches.retired}>
+                    {/* Tile 9: Retired Status */}
+                    <FlipTile delay={0.72} colSpan="col-span-1" isMatched={g.attributeMatches.retired}>
                       <span>{retiredCode}</span>
                     </FlipTile>
                   </motion.div>

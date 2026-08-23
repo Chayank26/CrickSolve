@@ -8,6 +8,8 @@ This document lists every technology, library, database, and tool used in the Cr
 
 | Technology | Category | Role in Project | Alternative Considered | Justification for Selection |
 | :--- | :--- | :--- | :--- | :--- |
+| **Spring Scale Match Reveal (`FlipTile`)** | Animation FX | Triggers a 3D flip + spring scale pop (`scale: [0.7, 1.18, 1.0]`) with black outline ring whenever an attribute turns Neon Lime (`#CCFF00`). | **Flat color swap** | Gives high-tactile visual reward and arcade delight on correct attribute unlocks. |
+| **T20IS Stat Comparison Engine (`GuessesGrid.tsx`)** | Numeric Comparison | Evaluates T20 international appearance count comparison (`higher`, `lower`, `match`) alongside Tests and ODIs. | **Omitting T20Is** | Completes all 3 formats of international cricket statistics for comprehensive player matching. |
 | **Staggered 3D Tile Flip Engine (`FlipTile`)** | Animation Pipeline | Animates 3D card flips (`rotateY: 90` -> `0`) with incremental delays (`0.1s` to `0.8s`) across all attribute tiles. | **Instant text rendering** | Creates Wordle-style reveal satisfaction with smooth 60fps GPU acceleration. |
 | **Retired Status Matching Engine (`GuessesGrid.tsx`)** | Attribute Evaluator | Evaluates cricketer retirement status (`YES`/`NO`) against target player. | **Omitting retirement status** | Adds crucial tactical clue for distinguishing active stars from retired legends. |
 | **Fastest Solve-Time Ranking Engine** | Leaderboard Algorithm | Computes exact duration (`endTimeMs - startTimeMs`) in seconds and sorts Supabase queries by `time_ms ASC, attempts ASC`. | **Sorting by attempt count only** | Differentiates top players and eliminates leaderboard ties by prioritizing faster solve speeds. |

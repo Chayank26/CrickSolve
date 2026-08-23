@@ -254,6 +254,20 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Instant static appearance*: Feels flat and lacks arcade animation delight.
 
+---
+
+## Phase 12: `T20IS` Column Restoration & Attribute Match Celebration Pop Animation
+
+### Decision 26: T20IS Column Restoration & Spring Scale Match Reveal Animation
+- **Approach Chosen:**
+  1. Restored **`T20IS`** stat column alongside `TESTS` and `ODIS` inside `GuessesGrid.tsx`, complete with numeric directional indicators (`↑`, `↓`, `✓`).
+  2. Upgraded `FlipTile` animation so that when an attribute is guessed correctly (Neon Lime `#CCFF00` or High-Vis Orange `#FF5500`), it triggers a 3D rotation flip + spring scale pop (`scale: [0.7, 1.18, 1.0]`) with a black ring outline.
+- **Why this approach?**
+  - Restores full 3-format international stat comparison (Tests, ODIs, T20Is) while giving tactile visual reward whenever an attribute turns green/lime.
+- **Alternatives Considered:**
+  - *Flat color swap*: Lacks game satisfaction feedback.
+
+
 
 
 

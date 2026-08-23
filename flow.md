@@ -4,39 +4,34 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 11 (`RETIRED?` Attribute Column & Staggered 3D Card Flip Animation)
+## Current Status: Phase 12 (`T20IS` Column Restoration & Attribute Match Celebration Pop Animation)
 
 ### 1. Code Entry Point
-- **Guesses Grid (`src/components/GuessesGrid.tsx`)**: Renders row layout containing 9 attribute columns (`COUNTRY`, `ROLE`, `BATTING`, `BIRTH`, `TESTS`, `ODIS`, `IPL TEAM`, `RETIRED?`).
+- **Guesses Grid (`src/components/GuessesGrid.tsx`)**: Renders row layout containing all 10 attribute columns (`COUNTRY`, `ROLE`, `BATTING`, `BIRTH`, `TESTS`, `ODIS`, `T20IS`, `IPL TEAM`, `RETIRED?`).
 
 ---
 
-### 2. Execution Order & Tile Flip Animation Flow
+### 2. Execution Order & Staggered Reveal Animation
 1. **Guess Submission**:
-   - Player selects cricketer -> submits guess.
-2. **Staggered 3D Card Flip (`FlipTile`)**:
-   - Tile 1 (`COUNTRY`): Flips at `delay: 0.1s` (`rotateY: 90` -> `0`).
-   - Tile 2 (`ROLE`): Flips at `delay: 0.2s`.
-   - Tile 3 (`BATTING`): Flips at `delay: 0.3s`.
-   - Tile 4 (`BIRTH`): Flips at `delay: 0.4s`.
-   - Tile 5 (`TESTS`): Flips at `delay: 0.5s`.
-   - Tile 6 (`ODIS`): Flips at `delay: 0.6s`.
-   - Tile 7 (`IPL TEAM`): Flips at `delay: 0.7s`.
-   - Tile 8 (`RETIRED?`): Flips at `delay: 0.8s` (displaying `YES` or `NO` with match color).
+   - Player submits cricketer -> evaluates against daily mystery target.
+2. **Spring Flip Reveal (`FlipTile`)**:
+   - `COUNTRY` (delay 0.08s) ──> `ROLE` (delay 0.16s) ──> `BATTING` (delay 0.24s) ──> `BIRTH` (delay 0.32s) ──> `TESTS` (delay 0.40s) ──> `ODIS` (delay 0.48s) ──> `T20IS` (delay 0.56s) ──> `IPL TEAM` (delay 0.64s) ──> `RETIRED?` (delay 0.72s).
+   - Attribute Match (`isMatched === true`) triggers celebratory `scale: [0.7, 1.18, 1.0]` pop animation turning Neon Lime (`#CCFF00`).
 
 ---
 
-### 3. Final Master Architecture & Dependency Graph (Phase 11)
+### 3. Component Layout (Phase 12)
 ```
 GuessesGrid.tsx (12-column grid layout)
        │
-       ├──> Player Name Block (Black background box, GUESS # label)
-       ├──> FlipTile (Country - 0.1s stagger delay)
-       ├──> FlipTile (Role - 0.2s stagger delay)
-       ├──> FlipTile (Batting - 0.3s stagger delay)
-       ├──> FlipTile (Birth Year - 0.4s stagger delay)
-       ├──> FlipTile (Tests - 0.5s stagger delay)
-       ├──> FlipTile (ODIs - 0.6s stagger delay)
-       ├──> FlipTile (IPL Team - 0.7s stagger delay)
-       └──> FlipTile (Retired? YES/NO - 0.8s stagger delay)
+       ├──> Player Name Block (Black box, GUESS # label)
+       ├──> FlipTile (Country - 0.08s delay)
+       ├──> FlipTile (Role - 0.16s delay)
+       ├──> FlipTile (Batting - 0.24s delay)
+       ├──> FlipTile (Birth Year - 0.32s delay)
+       ├──> FlipTile (Tests - 0.40s delay)
+       ├──> FlipTile (ODIs - 0.48s delay)
+       ├──> FlipTile (T20Is - 0.56s delay) [Brought Back!]
+       ├──> FlipTile (IPL Team - 0.64s delay)
+       └──> FlipTile (Retired? - 0.72s delay)
 ```
