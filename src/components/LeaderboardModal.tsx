@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useGameStore } from '@/store/useGameStore';
-import { X, Trophy, Flame, Timer, UserCheck, Loader2 } from 'lucide-react';
+import { X, Trophy, Flame, Timer, Loader2 } from 'lucide-react';
 import { LeaderboardEntry } from '@/types/game';
 
 export function LeaderboardModal() {
@@ -14,22 +14,66 @@ export function LeaderboardModal() {
 
   useEffect(() => {
     if (activeModal === 'leaderboard') {
-      fetchLeaderboard();
+      fetchAndMergeLeaderboard();
     }
   }, [activeModal, currentDate, category]);
 
-  async function fetchLeaderboard() {
+  async function fetchAndMergeLeaderboard() {
     setIsLoading(true);
+
+    let remoteEntries: LeaderboardEntry[] = [];
+    let fetchedTodayPlayer = null;
+
+    // 1. Fetch remote Supabase entries
     try {
       const res = await fetch(`/api/leaderboard?date=${currentDate}&category=${category}`);
       const data = await res.json();
-      setLeaderboard(data.leaderboard || []);
-      setTodayPlayer(data.todayPlayer || null);
+      remoteEntries = data.leaderboard || [];
+      fetchedTodayPlayer = data.todayPlayer || null;
     } catch (err) {
-      console.error('Failed to load leaderboard', err);
-    } finally {
-      setIsLoading(false);
+      console.error('Failed to fetch remote leaderboard', err);
     }
+
+    // 2. Read local entries from localStorage
+    let localEntries: LeaderboardEntry[] = [];
+    try {
+      const raw = localStorage.getItem('cricksolve_leaderboard_v1');
+      if (raw) {
+        const parsed: LeaderboardEntry[] = JSON.parse(raw);
+        localEntries = parsed.filter((e) => e.date === currentDate);
+      }
+    } catch (err) {
+      console.error('Failed to read local leaderboard entries', err);
+    }
+
+    // 3. Merge & Deduplicate entries by nickname
+    const entryMap = new Map<string, LeaderboardEntry>();
+
+    // Put remote entries first
+    remoteEntries.forEach((entry) => {
+      entryMap.set(entry.nickname.toLowerCase(), entry);
+    });
+
+    // Put/override with local entries
+    localEntries.forEach((entry) => {
+      entryMap.set(entry.nickname.toLowerCase(), entry);
+    });
+
+    const combined = Array.from(entryMap.values());
+
+    // 4. Sort strictly by fastest solve time (time_ms / timeMs ASC) then attempts ASC
+    combined.sort((a, b) => {
+      const timeA = a.time_ms ?? a.timeMs ?? 999999;
+      const timeB = b.time_ms ?? b.timeMs ?? 999999;
+      if (timeA !== timeB) {
+        return timeA - timeB;
+      }
+      return a.attempts - b.attempts;
+    });
+
+    setLeaderboard(combined);
+    setTodayPlayer(fetchedTodayPlayer);
+    setIsLoading(false);
   }
 
   if (activeModal !== 'leaderboard') return null;
@@ -99,7 +143,7 @@ export function LeaderboardModal() {
           {isLoading ? (
             <div className="p-8 text-center flex flex-col items-center justify-center gap-2">
               <Loader2 className="w-6 h-6 animate-spin text-black" />
-              <span className="text-xs font-bold uppercase">Loading Scores...</span>
+              <span className="text-xs font-bold uppercase">Loading Leaderboard...</span>
             </div>
           ) : leaderboard.length === 0 ? (
             <div className="p-8 text-center text-xs font-bold text-slate-500 uppercase">
@@ -112,17 +156,17 @@ export function LeaderboardModal() {
                 const solveSecs = Math.max(1, Math.round(rawTimeMs / 1000));
                 const rankColor =
                   idx === 0
-                    ? 'bg-[#CCFF00] text-black'
+                    ? 'bg-[#CCFF00] text-black font-black'
                     : idx === 1
-                    ? 'bg-slate-300 text-black'
+                    ? 'bg-slate-300 text-black font-black'
                     : idx === 2
-                    ? 'bg-amber-400 text-black'
-                    : 'bg-white text-black';
+                    ? 'bg-amber-400 text-black font-black'
+                    : 'bg-white text-black font-bold';
 
                 return (
                   <div
-                    key={entry.id}
-                    className={`grid grid-cols-12 gap-1 p-2.5 items-center text-xs font-extrabold ${
+                    key={entry.id || idx}
+                    className={`grid grid-cols-12 gap-1 p-2.5 items-center text-xs ${
                       idx === 0 ? 'bg-[#CCFF00]/20' : 'hover:bg-slate-100'
                     }`}
                   >

@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '@/store/useGameStore';
 import confetti from 'canvas-confetti';
-import { Trophy, Share2, RotateCcw, X, AlertCircle, Timer, Send } from 'lucide-react';
+import { Trophy, Share2, RotateCcw, AlertCircle, Timer } from 'lucide-react';
+import { LeaderboardEntry } from '@/types/game';
 
 export function ResultModal() {
   const {
@@ -27,7 +28,7 @@ export function ResultModal() {
   const isWon = gameStatus === 'WON';
   const isLost = gameStatus === 'LOST';
 
-  // Calculate solve time in seconds
+  // Calculate solve time in seconds from first guess to winning guess
   const start = startTimeMs || Date.now();
   const end = endTimeMs || Date.now();
   const solveTimeSecs = Math.max(1, Math.round((end - start) / 1000));
@@ -49,29 +50,55 @@ export function ResultModal() {
 
   async function handleSubmitLeaderboard(e: React.FormEvent) {
     e.preventDefault();
-    if (!inputName.trim() || isSubmitting) return;
+    const cleanName = inputName.trim() || 'Cricketer';
+    if (isSubmitting) return;
 
     setIsSubmitting(true);
-    setNickname(inputName);
+    setNickname(cleanName);
 
+    const uid = `user_${cleanName.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Date.now()}`;
+    const newEntry: LeaderboardEntry = {
+      id: `${currentDate}_${uid}`,
+      date: currentDate,
+      userId: uid,
+      nickname: cleanName,
+      attempts: guesses.length,
+      timeMs: solveTimeMs,
+      time_ms: solveTimeMs,
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. Save locally in localStorage for instant 100% reliable display
+    try {
+      const existingRaw = localStorage.getItem('cricksolve_leaderboard_v1');
+      const existing: LeaderboardEntry[] = existingRaw ? JSON.parse(existingRaw) : [];
+      // Remove previous entry for same date & nickname if exists
+      const filtered = existing.filter((e) => !(e.date === currentDate && e.nickname === cleanName));
+      const updated = [...filtered, newEntry];
+      localStorage.setItem('cricksolve_leaderboard_v1', JSON.stringify(updated));
+    } catch (err) {
+      console.error('Failed to save score to localStorage', err);
+    }
+
+    // 2. Post to Supabase API
     try {
       await fetch('/api/leaderboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           date: currentDate,
-          userId: `user_${inputName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
-          nickname: inputName.trim(),
+          userId: uid,
+          nickname: cleanName,
           attempts: guesses.length,
           timeMs: solveTimeMs,
         }),
       });
-      setIsSubmitted(true);
-      setActiveModal('leaderboard');
     } catch (err) {
-      console.error('Failed to submit score', err);
+      console.error('Failed to push score to backend API', err);
     } finally {
       setIsSubmitting(false);
+      setIsSubmitted(true);
+      setActiveModal('leaderboard');
     }
   }
 
@@ -123,10 +150,10 @@ export function ResultModal() {
           <div className="bg-[#CCFF00] border-3 border-black p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-around font-black text-xs uppercase text-black">
             <div className="flex items-center gap-1.5">
               <Timer className="w-4 h-4" />
-              <span>TIME: {solveTimeSecs} SECONDS</span>
+              <span>SOLVE TIME: {solveTimeSecs} SECONDS</span>
             </div>
             <div>|</div>
-            <div>ATTEMPTS: {guesses.length}/7</div>
+            <div>TRIES: {guesses.length}/7</div>
           </div>
         )}
 

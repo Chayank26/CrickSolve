@@ -232,6 +232,16 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Sorting by attempts only*: Produces massive ties on the leaderboard.
 
+---
+
+### Decision 24: Hybrid Local Storage + Remote API Leaderboard Persistence
+- **Approach Chosen:** Saved submitted leaderboard scores directly to `localStorage` (`cricksolve_leaderboard_v1`) in `ResultModal.tsx` while simultaneously dispatching a `POST` request to `/api/leaderboard`. In `LeaderboardModal.tsx`, merged both local and remote entries, deduplicated by name, and sorted strictly by **`time_ms ASC`**.
+- **Why this approach?**
+  - Guarantees 100% reliable instant leaderboard score and solve-time display even when offline or running in standalone offline client mode.
+- **Alternatives Considered:**
+  - *Relying solely on remote database*: Caused blank leaderboard display when remote backend database credentials were absent or delayed.
+
+
 
 
 
