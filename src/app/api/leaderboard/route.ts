@@ -1,27 +1,56 @@
 import { supabase } from '@/lib/supabase';
+import { getDailyTargetPlayer } from '@/lib/game-engine';
+import { PlayerCategory } from '@/types/game';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const dateStr = searchParams.get('date') || new Date().toISOString().split('T')[0];
+  const category = (searchParams.get('category') as PlayerCategory) || 'International';
+
+  // Resolve today's mystery player
+  const todayPlayer = getDailyTargetPlayer(dateStr, category);
 
   try {
     const { data, error } = await supabase
       .from('leaderboard')
       .select('id, date, user_id, nickname, attempts, time_ms, created_at')
       .eq('date', dateStr)
-      .order('attempts', { ascending: true })
       .order('time_ms', { ascending: true })
-      .limit(10);
+      .order('attempts', { ascending: true })
+      .limit(15);
 
     if (error) {
-      // Return empty array fallback if table is not provisioned on live DB yet
-      return NextResponse.json({ leaderboard: [] });
+      return NextResponse.json({
+        leaderboard: [],
+        todayPlayer: {
+          name: todayPlayer.name,
+          country: todayPlayer.country,
+          role: todayPlayer.role,
+          photoUrl: todayPlayer.photoUrl,
+        },
+      });
     }
 
-    return NextResponse.json({ leaderboard: data || [] });
+    return NextResponse.json({
+      leaderboard: data || [],
+      todayPlayer: {
+        name: todayPlayer.name,
+        country: todayPlayer.country,
+        role: todayPlayer.role,
+        photoUrl: todayPlayer.photoUrl,
+      },
+    });
   } catch (err) {
-    return NextResponse.json({ leaderboard: [] });
+    return NextResponse.json({
+      leaderboard: [],
+      todayPlayer: {
+        name: todayPlayer.name,
+        country: todayPlayer.country,
+        role: todayPlayer.role,
+        photoUrl: todayPlayer.photoUrl,
+      },
+    });
   }
 }
 
@@ -30,20 +59,21 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { date, userId, nickname, attempts, timeMs } = body;
 
-    if (!userId || !nickname || !attempts) {
+    if (!nickname || !attempts) {
       return NextResponse.json({ error: 'Missing required leaderboard parameters' }, { status: 400 });
     }
 
     const todayStr = date || new Date().toISOString().split('T')[0];
-    const entryId = `${todayStr}_${userId}`;
+    const uid = userId || `user_${Math.floor(Math.random() * 1000000)}`;
+    const entryId = `${todayStr}_${uid}`;
 
     const { data, error } = await supabase.from('leaderboard').upsert({
       id: entryId,
       date: todayStr,
-      user_id: userId,
-      nickname,
+      user_id: uid,
+      nickname: nickname.trim(),
       attempts,
-      time_ms: timeMs || 0,
+      time_ms: Math.max(1000, timeMs || 15000),
       created_at: new Date().toISOString(),
     });
 

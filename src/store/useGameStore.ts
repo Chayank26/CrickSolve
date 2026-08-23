@@ -21,6 +21,11 @@ interface GameState {
   startTimeMs: number | null;
   endTimeMs: number | null;
 
+  // Player Profile
+  nickname: string;
+  lastSolvedDate: string | null;
+  hasSeenHowTo: boolean;
+
   // Sound & Preferences
   soundEnabled: boolean;
 
@@ -31,16 +36,18 @@ interface GameState {
   gamesWon: number;
 
   // Modals
-  activeModal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | null;
+  activeModal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | null;
 
   // Actions
   setGameMode: (mode: GameMode) => void;
   setCategory: (category: PlayerCategory) => void;
   addGuess: (evaluation: GuessEvaluation) => void;
+  setNickname: (name: string) => void;
   enableBonusChance: () => void;
   unlockHintManually: () => void;
   toggleSound: () => void;
-  setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | null) => void;
+  setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | null) => void;
+  closeHowTo: () => void;
   resetGame: (newTargetId?: string) => void;
   syncDailyDate: (dateStr: string) => void;
 }
@@ -60,6 +67,10 @@ export const useGameStore = create<GameState>()(
       startTimeMs: null,
       endTimeMs: null,
 
+      nickname: 'Cricketer',
+      lastSolvedDate: null,
+      hasSeenHowTo: false,
+
       soundEnabled: true,
 
       streak: 0,
@@ -67,36 +78,63 @@ export const useGameStore = create<GameState>()(
       gamesPlayed: 0,
       gamesWon: 0,
 
-      activeModal: null,
+      // Default activeModal is 'howTo' on first land
+      activeModal: 'howTo',
 
       setGameMode: (mode) => {
-        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, startTimeMs: Date.now() });
+        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, startTimeMs: null, endTimeMs: null });
       },
 
       setCategory: (category) => {
-        set({ category, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, startTimeMs: Date.now() });
+        set({ category, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, startTimeMs: null, endTimeMs: null });
+      },
+
+      setNickname: (nickname) => {
+        set({ nickname: nickname.trim() || 'Cricketer' });
+      },
+
+      closeHowTo: () => {
+        set({ hasSeenHowTo: true, activeModal: null });
       },
 
       addGuess: (evaluation) => {
-        const { guesses, gameStatus, streak, maxStreak, gamesPlayed, gamesWon, startTimeMs } = get();
+        const { guesses, gameStatus, streak, maxStreak, gamesPlayed, gamesWon, startTimeMs, lastSolvedDate, currentDate } = get();
         if (gameStatus !== 'IN_PROGRESS') return;
 
-        const updatedGuesses = [...guesses, evaluation];
         const now = Date.now();
+        // Record start time on first guess
         const start = startTimeMs || now;
+
+        const updatedGuesses = [...guesses, evaluation];
 
         let newStatus: GameStatus = 'IN_PROGRESS';
         let newStreak = streak;
         let newMaxStreak = maxStreak;
         let newGamesPlayed = gamesPlayed;
         let newGamesWon = gamesWon;
+        let newLastSolvedDate = lastSolvedDate;
 
         if (evaluation.isCorrect) {
           newStatus = 'WON';
-          newStreak = streak + 1;
-          newMaxStreak = Math.max(newStreak, maxStreak);
           newGamesPlayed = gamesPlayed + 1;
           newGamesWon = gamesWon + 1;
+
+          // Streak Logic
+          const todayStr = currentDate || new Date().toISOString().split('T')[0];
+          const y = new Date();
+          y.setDate(y.getDate() - 1);
+          const yesterdayStr = y.toISOString().split('T')[0];
+
+          if (lastSolvedDate === yesterdayStr) {
+            newStreak = streak + 1;
+          } else if (lastSolvedDate === todayStr) {
+            newStreak = streak; // already solved today
+          } else {
+            newStreak = 1; // streak reset or first solve
+          }
+
+          newMaxStreak = Math.max(newStreak, maxStreak);
+          newLastSolvedDate = todayStr;
         } else if (updatedGuesses.length >= (get().bonusChanceTaken ? 8 : 7)) {
           newStatus = 'LOST';
           newStreak = 0;
@@ -112,6 +150,7 @@ export const useGameStore = create<GameState>()(
           maxStreak: newMaxStreak,
           gamesPlayed: newGamesPlayed,
           gamesWon: newGamesWon,
+          lastSolvedDate: newLastSolvedDate,
           activeModal: newStatus !== 'IN_PROGRESS' ? 'result' : get().activeModal,
         });
       },
@@ -123,7 +162,6 @@ export const useGameStore = create<GameState>()(
       unlockHintManually: () => {
         const { guesses, unlockedHint } = get();
         if (unlockedHint || guesses.length < 4) return;
-        // Take the latest evaluation hint if available
         const lastWithHint = guesses.slice().reverse().find((g) => g.unlockedHint);
         if (lastWithHint?.unlockedHint) {
           set({ unlockedHint: String(lastWithHint.unlockedHint.value) });
@@ -146,7 +184,7 @@ export const useGameStore = create<GameState>()(
           gameStatus: 'IN_PROGRESS',
           bonusChanceTaken: false,
           unlockedHint: null,
-          startTimeMs: Date.now(),
+          startTimeMs: null,
           endTimeMs: null,
           unlimitedTargetId: newTargetId || null,
         });
@@ -161,7 +199,7 @@ export const useGameStore = create<GameState>()(
             gameStatus: 'IN_PROGRESS',
             bonusChanceTaken: false,
             unlockedHint: null,
-            startTimeMs: Date.now(),
+            startTimeMs: null,
             endTimeMs: null,
           });
         }
@@ -179,6 +217,9 @@ export const useGameStore = create<GameState>()(
         maxStreak: state.maxStreak,
         gamesPlayed: state.gamesPlayed,
         gamesWon: state.gamesWon,
+        nickname: state.nickname,
+        lastSolvedDate: state.lastSolvedDate,
+        hasSeenHowTo: state.hasSeenHowTo,
         soundEnabled: state.soundEnabled,
       }),
     }

@@ -216,6 +216,23 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Generic dark-mode glassmorphism*: Lacks retro arcade brand identity.
 
+---
+
+## Phase 10: Fastest Solve-Time Leaderboard, First-Land How-To & Streak Persistence
+
+### Decision 23: Fastest Solve-Time Leaderboard & Initial How-To Modal Flow
+- **Approach Chosen:** 
+  1. Record precise solve time (timestamp of guess #1 to winning guess timestamp) and sort leaderboard by `time_ms ASC, attempts ASC`.
+  2. Display today's mystery player photo, name, country, and role in Neubrutalist Leaderboard Modal.
+  3. Enforce streak incrementing (`lastSolvedDate` date comparison for yesterday & today).
+  4. Display `HowToModal` automatically when a user lands on the website for the first time.
+  5. Apply unified Neubrutalism design system across all modal cards (`LeaderboardModal`, `ResultModal`, `StatsModal`, `CalendarModal`, `ShareGridModal`).
+- **Why this approach?**
+  - Rewards player speed and skill on the leaderboard, onboard new users with clear rules upon landing, and keeps visual theme consistent across all modals.
+- **Alternatives Considered:**
+  - *Sorting by attempts only*: Produces massive ties on the leaderboard.
+
+
 
 
 

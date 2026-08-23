@@ -3,24 +3,43 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '@/store/useGameStore';
 import confetti from 'canvas-confetti';
-import { Trophy, Share2, RotateCcw, X, Sparkles, AlertCircle } from 'lucide-react';
+import { Trophy, Share2, RotateCcw, X, AlertCircle, Timer, Send } from 'lucide-react';
 
 export function ResultModal() {
-  const { activeModal, setActiveModal, gameStatus, guesses, streak, gameMode, resetGame, currentDate } = useGameStore();
-  const [nickname, setNickname] = useState('CricketFan');
+  const {
+    activeModal,
+    setActiveModal,
+    gameStatus,
+    guesses,
+    gameMode,
+    resetGame,
+    currentDate,
+    startTimeMs,
+    endTimeMs,
+    nickname,
+    setNickname,
+  } = useGameStore();
+
+  const [inputName, setInputName] = useState(nickname || 'Cricketer');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isWon = gameStatus === 'WON';
   const isLost = gameStatus === 'LOST';
 
+  // Calculate solve time in seconds
+  const start = startTimeMs || Date.now();
+  const end = endTimeMs || Date.now();
+  const solveTimeSecs = Math.max(1, Math.round((end - start) / 1000));
+  const solveTimeMs = Math.max(1000, end - start);
+
   useEffect(() => {
     if (activeModal === 'result' && isWon) {
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 120,
+        spread: 80,
         origin: { y: 0.6 },
       });
-      submitScore();
     }
   }, [activeModal, isWon]);
 
@@ -28,72 +47,124 @@ export function ResultModal() {
 
   const targetPlayer = guesses.length > 0 ? guesses[guesses.length - 1].guessedPlayer : null;
 
-  async function submitScore() {
-    if (isSubmitted) return;
+  async function handleSubmitLeaderboard(e: React.FormEvent) {
+    e.preventDefault();
+    if (!inputName.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setNickname(inputName);
+
     try {
       await fetch('/api/leaderboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           date: currentDate,
-          userId: `user_${Math.floor(Math.random() * 100000)}`,
-          nickname,
+          userId: `user_${inputName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+          nickname: inputName.trim(),
           attempts: guesses.length,
-          timeMs: 12000,
+          timeMs: solveTimeMs,
         }),
       });
       setIsSubmitted(true);
-    } catch (e) {
-      console.error(e);
+      setActiveModal('leaderboard');
+    } catch (err) {
+      console.error('Failed to submit score', err);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col gap-5 text-slate-200 text-center animate-in fade-in zoom-in-95 duration-200">
-        {/* Banner Status */}
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col gap-5 text-black animate-in fade-in zoom-in-95 duration-150 text-center">
+        {/* Banner Status Header */}
         <div className="flex flex-col items-center gap-2">
           {isWon ? (
-            <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400">
-              <Trophy className="w-6 h-6 animate-bounce" />
+            <div className="bg-[#CCFF00] border-3 border-black p-3 text-black">
+              <Trophy className="w-8 h-8 animate-bounce" />
             </div>
           ) : (
-            <div className="w-12 h-12 rounded-full bg-rose-500/20 border border-rose-500/50 flex items-center justify-center text-rose-400">
-              <AlertCircle className="w-6 h-6" />
+            <div className="bg-rose-500 border-3 border-black p-3 text-white">
+              <AlertCircle className="w-8 h-8" />
             </div>
           )}
-          <h2 className="text-xl font-extrabold text-slate-100">{isWon ? 'Spectacular Win! 🏆' : 'Game Over'}</h2>
-          <p className="text-xs text-slate-400">
-            {isWon ? `You identified the mystery cricketer in ${guesses.length} tries!` : 'You ran out of guess attempts for today.'}
+
+          <h2 className="text-2xl font-black uppercase tracking-tight text-black">
+            {isWon ? 'SPECTACULAR WIN! 🏆' : 'GAME OVER'}
+          </h2>
+          <p className="text-xs font-bold text-slate-600">
+            {isWon
+              ? `You solved the puzzle in ${guesses.length} tries!`
+              : 'You ran out of guess attempts for today.'}
           </p>
         </div>
 
-        {/* Player Card reveal */}
+        {/* Player Reveal Card */}
         {targetPlayer && (
-          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-4 text-left">
-            <img src={targetPlayer.photoUrl} alt={targetPlayer.name} className="w-14 h-14 rounded-xl object-cover border border-slate-700" />
+          <div className="bg-[#7E22CE] text-white border-3 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4 text-left">
+            <img
+              src={targetPlayer.photoUrl}
+              alt={targetPlayer.name}
+              className="w-14 h-14 border-2 border-black object-cover bg-slate-200"
+            />
             <div>
-              <div className="text-base font-extrabold text-slate-100">{targetPlayer.name}</div>
-              <div className="text-xs text-emerald-400 font-medium">
+              <div className="text-xs font-black uppercase text-[#CCFF00]">MYSTERY CRICKETER</div>
+              <div className="text-lg font-black uppercase">{targetPlayer.name}</div>
+              <div className="text-xs font-semibold opacity-90">
                 {targetPlayer.country} • {targetPlayer.role}
               </div>
-              {targetPlayer.signaturePerformance && (
-                <div className="text-[11px] text-slate-400 mt-1 line-clamp-1 italic">
-                  "{targetPlayer.signaturePerformance}"
-                </div>
-              )}
             </div>
           </div>
+        )}
+
+        {/* Solve Time & Stats Box */}
+        {isWon && (
+          <div className="bg-[#CCFF00] border-3 border-black p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-around font-black text-xs uppercase text-black">
+            <div className="flex items-center gap-1.5">
+              <Timer className="w-4 h-4" />
+              <span>TIME: {solveTimeSecs} SECONDS</span>
+            </div>
+            <div>|</div>
+            <div>ATTEMPTS: {guesses.length}/7</div>
+          </div>
+        )}
+
+        {/* Name Input Form for Leaderboard Submission */}
+        {isWon && !isSubmitted && (
+          <form onSubmit={handleSubmitLeaderboard} className="flex flex-col gap-2 pt-1 text-left">
+            <label className="text-xs font-black uppercase text-black">
+              Enter Your Name For Leaderboard:
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={inputName}
+                onChange={(e) => setInputName(e.target.value)}
+                required
+                maxLength={20}
+                placeholder="Your Name (e.g. Rahul)..."
+                className="flex-1 bg-white border-3 border-black p-2.5 text-xs font-bold text-black focus:outline-none focus:ring-2 focus:ring-black"
+              />
+              <button
+                type="submit"
+                disabled={isSubmitting || !inputName.trim()}
+                className="bg-[#7E22CE] text-white font-black border-3 border-black px-4 py-2.5 text-xs uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-[#6B21A8] active:translate-x-0.5 active:translate-y-0.5"
+              >
+                SUBMIT
+              </button>
+            </div>
+          </form>
         )}
 
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-2">
           <button
             onClick={() => setActiveModal('share')}
-            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all"
+            className="bg-[#CCFF00] text-black font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5"
           >
             <Share2 className="w-4 h-4" />
-            <span>Share Score</span>
+            <span>SHARE SCORE</span>
           </button>
 
           {gameMode === 'unlimited' ? (
@@ -102,18 +173,18 @@ export function ResultModal() {
                 resetGame();
                 setActiveModal(null);
               }}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all"
+              className="bg-black text-white font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5"
             >
-              <RotateCcw className="w-4 h-4 text-cyan-400" />
-              <span>Next Player</span>
+              <RotateCcw className="w-4 h-4 text-[#CCFF00]" />
+              <span>NEXT PLAYER</span>
             </button>
           ) : (
             <button
-              onClick={() => setActiveModal(null)}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all"
+              onClick={() => setActiveModal('leaderboard')}
+              className="bg-[#7E22CE] text-white font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5"
             >
-              <X className="w-4 h-4 text-slate-400" />
-              <span>Close</span>
+              <Trophy className="w-4 h-4 text-[#CCFF00]" />
+              <span>LEADERBOARD</span>
             </button>
           )}
         </div>

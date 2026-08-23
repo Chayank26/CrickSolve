@@ -75,8 +75,10 @@ export interface LeaderboardEntry {
   userId: string;
   nickname: string;
   attempts: number;
-  timeMs: number;
-  createdAt: string;
+  timeMs?: number;
+  time_ms?: number;
+  createdAt?: string;
+  created_at?: string;
 }
 
 export interface UserStats {
