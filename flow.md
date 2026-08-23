@@ -4,55 +4,33 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 8 (PWA, Final Polish & Verification)
+## Current Status: Phase 9 (Neubrutalism Retro Arcade UI Transformation)
 
 ### 1. Code Entry Point
-- **Root Layout (`src/app/layout.tsx`)**: Global document metadata, font injection, theme color, and PWA manifest link (`/manifest.json`).
-- **Web App Manifest (`public/manifest.json`)**: Mobile standalone app configuration.
-- **Root Page (`src/app/page.tsx`)**: Master layout container for all game sections and modal components.
+- **Root Page (`src/app/page.tsx`)**: Renders `bg-dot-grid` background wrapping `Header`, `PlayerSearch`, `GuessesGrid`, `SilhouetteReveal`, and Modal overlays.
 
 ---
 
-### 2. Execution Order & Complete System Flow
-1. **PWA Standalone Mount**:
-   - Browser reads `manifest.json` and configures standalone theme `#020617`.
-2. **Page & State Initialization**:
-   - Next.js server mounts `src/app/layout.tsx` -> `src/app/page.tsx`.
-   - Zustand store hydrates saved `streak`, `guesses`, `gameMode`, `category`, and `currentDate` from `localStorage`.
-3. **Interactive Game Cycle**:
-   - `CategorySelector`: Switches format filters (*International, IPL, Legends, Women's*).
-   - `PlayerSearch`: Fuzzy search with Fuse.js -> submits guess to `/api/puzzle/guess`.
-   - `AttributeCards`: Triggers Framer Motion 3D card flips (`rotateY`) on attribute matches.
-   - `NumericHintsTable`: Displays directional stat comparisons (`↑`, `↓`, `✓`).
-   - `SilhouetteReveal`: Computes dynamic CSS `blur()` unblur effect.
-   - `Howler.js`: Plays Web Audio sound FX (`flipSound`, `winSound`).
-4. **Game End & Leaderboard**:
-   - `ResultModal`: Fires `canvas-confetti` explosion on victory -> posts finish to `/api/leaderboard` (Supabase PostgreSQL).
-   - `ShareGridModal`: Formats and copies Wordle emoji scorecard to clipboard.
-   - `CalendarModal`: Allows historical date selection and puzzle replay.
+### 2. Execution Order & Layout Flow
+1. **Header Mount (`Header.tsx`)**:
+   - Renders **CRICKSOLVE** Neon Lime header banner (`bg-[#CCFF00] border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]`).
+   - Renders `DAILY #`, `STREAK: X`, `RANK: #422` top stat boxes.
+   - Renders `DAILY MODE`, `UNLIMITED`, `PAST GAMES` tabs and `LEADERBOARD` action button.
+2. **Input Block (`PlayerSearch.tsx`)**:
+   - Renders Purple container (`bg-[#6B21A8]`) with white input field and Neon Lime `GUESS (x/7)` button.
+3. **Guesses Grid (`GuessesGrid.tsx`)**:
+   - Renders horizontal row grid with black player name blocks (`bg-black text-white`), grey/lime/orange attribute tiles, directional stat arrows (`1989 ↓`), and bottom `UNLOCK HINT` bar.
+4. **Silhouette Unblur (`SilhouetteReveal.tsx`)**:
+   - Renders photo silhouette container with dynamic hardware-accelerated CSS `filter: blur()`.
 
 ---
 
-### 3. Final Master Architecture & Dependency Graph
+### 3. Component Architecture Graph (Phase 9)
 ```
-[User Browser / PWA Client]
+src/app/page.tsx (bg-dot-grid background)
        │
-       ▼
-src/app/layout.tsx (Theme, Fonts, PWA Manifest)
-       │
-       ▼
-src/app/page.tsx (Master Layout)
-       │
-       ├──> CategorySelector.tsx ──> Updates useGameStore (category)
-       ├──> SilhouetteReveal.tsx (CSS filter: blur() unblur engine)
-       ├──> AttributeCards.tsx (Framer Motion 3D Card Flips)
-       ├──> PlayerSearch.tsx (Fuse.js Autocomplete)
-       │      └──> POST /api/puzzle/guess (Server Anti-Cheat Engine)
-       ├──> NumericHintsTable.tsx (Stat Comparison Log)
-       ├──> HowToModal.tsx
-       ├──> CalendarModal.tsx (Replay Past Puzzles)
-       ├──> ResultModal.tsx ──> POST /api/leaderboard (Supabase DB)
-       │      └──> canvas-confetti particle animation
-       ├──> StatsModal.tsx (Win Rate % & Streak Metrics)
-       └──> ShareGridModal.tsx (Wordle Emoji Scorecard Copy)
+       ├──> Header.tsx (CRICKSOLVE Neon Lime banner, Daily/Streak/Rank badges, Mode tabs)
+       ├──> PlayerSearch.tsx (Purple bg-[#6B21A8] input block & Neon Lime GUESS button)
+       ├──> GuessesGrid.tsx (Black player name blocks, Lime/Orange attribute tiles, Hint bar)
+       └──> SilhouetteReveal.tsx (Hardware-accelerated CSS blur unblur engine)
 ```

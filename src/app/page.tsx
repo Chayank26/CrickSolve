@@ -1,10 +1,8 @@
 'use client';
 
 import { Header } from '@/components/Header';
-import { CategorySelector } from '@/components/CategorySelector';
-import { AttributeCards } from '@/components/AttributeCards';
 import { PlayerSearch } from '@/components/PlayerSearch';
-import { NumericHintsTable } from '@/components/NumericHintsTable';
+import { GuessesGrid } from '@/components/GuessesGrid';
 import { SilhouetteReveal } from '@/components/SilhouetteReveal';
 import { HowToModal } from '@/components/TacticalHintModal';
 import { CalendarModal } from '@/components/CalendarModal';
@@ -14,27 +12,20 @@ import { ShareGridModal } from '@/components/ShareGridModal';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950 flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-dot-grid text-black font-sans selection:bg-[#CCFF00] selection:text-black flex flex-col p-3 md:p-6">
+      <div className="max-w-5xl w-full mx-auto flex flex-col gap-5">
+        {/* Top Header */}
+        <Header />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
-        {/* Category Selector Bar */}
-        <CategorySelector />
+        {/* Purple Input Block */}
+        <PlayerSearch />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: Silhouette Reveal & Attribute Locking Cards */}
-          <section className="lg:col-span-6 flex flex-col gap-6">
-            <SilhouetteReveal />
-            <AttributeCards />
-          </section>
+        {/* Main Guesses Grid & Hints */}
+        <GuessesGrid />
 
-          {/* Right Column: Search Box & Numeric Stat Hints Table */}
-          <section className="lg:col-span-6 flex flex-col gap-6">
-            <PlayerSearch />
-            <NumericHintsTable />
-          </section>
-        </div>
-      </main>
+        {/* Silhouette Unblur Banner */}
+        <SilhouetteReveal />
+      </div>
 
       {/* Modals */}
       <HowToModal />

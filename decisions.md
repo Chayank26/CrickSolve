@@ -205,6 +205,18 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Hand-keying 400+ players*: Extremely slow and prone to human stat entry errors.
 
+---
+
+## Phase 9: Neubrutalism Retro Arcade UI Transformation
+
+### Decision 22: Neubrutalism Comic Arcade Design System
+- **Approach Chosen:** Re-architected entire frontend UI to match high-contrast Neubrutalism arcade layout (`border-4 border-black`, `shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]`, Neon Lime `#CCFF00`, Purple `#6B21A8`, High-Vis Orange `#FF5500`, dot-grid background).
+- **Why this approach?**
+  - Matches exact retro comic arcade aesthetic requested by user, providing high visual impact, bold readability, and distinct identity over standard dark/light themes.
+- **Alternatives Considered:**
+  - *Generic dark-mode glassmorphism*: Lacks retro arcade brand identity.
+
+
 
 
 

@@ -4,9 +4,9 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { PLAYERS } from '@/data/players';
 import { Player } from '@/types/game';
 import { useGameStore } from '@/store/useGameStore';
-import { playFlipSound, playWinSound, playUnlockSound } from '@/lib/audio';
+import { playFlipSound, playWinSound } from '@/lib/audio';
 import Fuse from 'fuse.js';
-import { Search, Send, Lightbulb, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export function PlayerSearch() {
   const [query, setQuery] = useState('');
@@ -14,11 +14,11 @@ export function PlayerSearch() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { guesses, gameStatus, gameMode, category, currentDate, unlimitedTargetId, addGuess, unlockHintManually, unlockedHint, soundEnabled } = useGameStore();
+  const { guesses, gameStatus, gameMode, category, currentDate, unlimitedTargetId, addGuess, soundEnabled } = useGameStore();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Setup Fuse.js instance for fuzzy searching player names and countries
+  // Fuse.js search index
   const fuse = useMemo(() => {
     const pool = PLAYERS.filter((p) => {
       if (category === 'International') return true;
@@ -34,7 +34,6 @@ export function PlayerSearch() {
   const searchResults = useMemo(() => {
     if (!query.trim()) return [];
     const results = fuse.search(query).map((res) => res.item);
-    // Filter out players already guessed
     const guessedIds = new Set(guesses.map((g) => g.guessedPlayer.id));
     return results.filter((p) => !guessedIds.has(p.id)).slice(0, 6);
   }, [query, fuse, guesses]);
@@ -43,7 +42,6 @@ export function PlayerSearch() {
     setSelectedIndex(0);
   }, [searchResults]);
 
-  // Click outside to close dropdown
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -110,88 +108,78 @@ export function PlayerSearch() {
     }
   }
 
-  const guessesLeft = Math.max(0, 7 - guesses.length);
-  const isHintAvailable = guesses.length >= 4 && !unlockedHint;
+  const guessCountDisplay = Math.min(7, guesses.length + 1);
 
   return (
-    <div className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-6 backdrop-blur-md shadow-xl flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-            <span>Make Your Guess</span>
-          </h2>
-          <p className="text-xs text-slate-400">Search and select a cricketer from the database.</p>
-        </div>
-        <div className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-cyan-300">
-          {guessesLeft} {guessesLeft === 1 ? 'Guess Left' : 'Guesses Left'}
-        </div>
-      </div>
+    <div className="w-full relative">
+      {/* Purple Input Block */}
+      <div className="bg-[#6B21A8] border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 md:p-5 relative overflow-visible">
+        {/* Top-Right Neon Lime Accent Corner */}
+        <div className="absolute top-0 right-0 w-0 h-0 border-t-[28px] border-t-[#CCFF00] border-l-[28px] border-l-transparent" />
 
-      <div ref={containerRef} className="relative w-full">
-        <div className="relative flex items-center">
-          <Search className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setIsOpen(true);
-            }}
-            onFocus={() => setIsOpen(true)}
-            onKeyDown={handleKeyDown}
-            disabled={gameStatus !== 'IN_PROGRESS' || isLoading}
-            placeholder={gameStatus === 'IN_PROGRESS' ? 'Type player name (e.g. Kohli, Bumrah, Smith)...' : 'Game Finished'}
-            className="w-full pl-10 pr-12 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500/80 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50"
-          />
-          {isLoading && (
-            <div className="absolute right-3">
-              <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
-            </div>
-          )}
-        </div>
+        <div ref={containerRef} className="relative w-full flex flex-col md:flex-row items-center gap-3">
+          {/* Input Field */}
+          <div className="relative flex-1 w-full">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setIsOpen(true);
+              }}
+              onFocus={() => setIsOpen(true)}
+              onKeyDown={handleKeyDown}
+              disabled={gameStatus !== 'IN_PROGRESS' || isLoading}
+              placeholder="Enter Cricketer Name (e.g. Virat Kohli)..."
+              className="w-full bg-white text-black font-semibold placeholder:text-slate-500 border-3 border-black p-3.5 text-sm md:text-base focus:outline-none focus:ring-4 focus:ring-black transition-all disabled:bg-slate-200"
+            />
 
-        {/* Autocomplete Dropdown */}
-        {isOpen && searchResults.length > 0 && (
-          <div className="absolute left-0 right-0 top-full mt-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50 divide-y divide-slate-800">
-            {searchResults.map((player, index) => (
-              <button
-                key={player.id}
-                onClick={() => handleSelectPlayer(player)}
-                onMouseEnter={() => setSelectedIndex(index)}
-                className={`w-full text-left px-4 py-3 flex items-center justify-between transition-colors ${
-                  index === selectedIndex ? 'bg-emerald-950/70 text-emerald-200' : 'hover:bg-slate-800 text-slate-200'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800 border border-slate-700 flex-shrink-0">
-                    <img src={player.photoUrl} alt={player.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">{player.name}</div>
-                    <div className="text-xs text-slate-400">
-                      {player.country} • {player.role}
+            {isLoading && (
+              <div className="absolute right-3.5 top-3.5">
+                <Loader2 className="w-5 h-5 text-black animate-spin" />
+              </div>
+            )}
+
+            {/* Autocomplete Dropdown */}
+            {isOpen && searchResults.length > 0 && (
+              <div className="absolute left-0 right-0 top-full mt-2 bg-white border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] z-50 divide-y-2 divide-black overflow-hidden">
+                {searchResults.map((player, index) => (
+                  <button
+                    key={player.id}
+                    onClick={() => handleSelectPlayer(player)}
+                    onMouseEnter={() => setSelectedIndex(index)}
+                    className={`w-full text-left px-4 py-3 flex items-center justify-between transition-colors ${
+                      index === selectedIndex ? 'bg-[#CCFF00] text-black font-extrabold' : 'hover:bg-slate-100 text-black font-bold'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <img src={player.photoUrl} alt={player.name} className="w-8 h-8 rounded-none border-2 border-black object-cover bg-slate-200" />
+                      <div>
+                        <div className="text-sm font-extrabold">{player.name}</div>
+                        <div className="text-xs font-semibold opacity-70">
+                          {player.country} • {player.role}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <Send className="w-4 h-4 text-slate-400" />
-              </button>
-            ))}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Tactical Hint Button */}
-      <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
-        <button
-          onClick={unlockHintManually}
-          disabled={!isHintAvailable}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-          <span>{unlockedHint ? 'Hint Unlocked' : isHintAvailable ? 'Unlock Tactical Hint (1)' : 'Hint Available at 4 Guesses'}</span>
-        </button>
-
-        {unlockedHint && <div className="text-xs font-medium text-amber-300 bg-amber-950/60 px-3 py-1 rounded-lg border border-amber-500/40">{unlockedHint}</div>}
+          {/* GUESS (X/7) Action Button */}
+          <button
+            onClick={() => {
+              if (searchResults.length > 0) {
+                handleSelectPlayer(searchResults[0]);
+              }
+            }}
+            disabled={gameStatus !== 'IN_PROGRESS' || isLoading || !query.trim()}
+            className="w-full md:w-auto bg-[#CCFF00] hover:bg-[#b8e600] text-black font-black uppercase text-base border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] px-6 py-3.5 whitespace-nowrap active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+          >
+            GUESS ({guessCountDisplay}/7)
+          </button>
+        </div>
       </div>
     </div>
   );

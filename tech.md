@@ -8,6 +8,7 @@ This document lists every technology, library, database, and tool used in the Cr
 
 | Technology | Category | Role in Project | Alternative Considered | Justification for Selection |
 | :--- | :--- | :--- | :--- | :--- |
+| **Neubrutalism Design System** | Visual UI Paradigm | High-contrast black outlines (`border-4 border-black`), offset drop shadows (`shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]`), neon palette (`#CCFF00`, `#6B21A8`, `#FF5500`), and dot-grid background (`bg-dot-grid`). | **Material / Glassmorphism** | Delivers iconic retro comic arcade aesthetic requested by user with distinct visual identity and bold readability. |
 | **Next.js 14+ (App Router)** | Web Framework | Fullstack framework providing React UI components and Server API Routes for anti-cheat validation. | **Vite + React SPA** | Vite SPA compiles into static JS bundle, exposing all mystery player data to client-side inspection. Next.js provides serverless API routes to hide answers on the server and support dynamic OG share cards via SSR. |
 | **Web App Manifest (`public/manifest.json`)** | PWA Engine | Enables "Add to Home Screen" mobile app installation and standalone window display. | **Standard browser bookmarking** | Gives native app feel, status bar theme adaptation, and home screen icon shortcut without app store distribution overhead. |
 | **Canvas Confetti Particle Engine** | Celebration FX | Particle explosion on game win (`ResultModal.tsx`). | **Heavy GIF/Video assets** | Canvas rendering is lightweight, GPU-accelerated, and scales smoothly across screen resolutions. |
