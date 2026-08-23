@@ -1,8 +1,42 @@
 'use client';
 
 import { useGameStore } from '@/store/useGameStore';
-import { Lightbulb, Lock, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+interface FlipTileProps {
+  delay: number;
+  colSpan: string;
+  isMatched: boolean;
+  isIpl?: boolean;
+  isNumeric?: boolean;
+  children: React.ReactNode;
+}
+
+function FlipTile({ delay, colSpan, isMatched, isIpl = false, isNumeric = false, children }: FlipTileProps) {
+  let bgColorClass = 'bg-[#CBD5E1] text-slate-500';
+
+  if (isMatched) {
+    bgColorClass = isIpl ? 'bg-[#FF5500] text-white' : 'bg-[#CCFF00] text-black';
+  } else if (isNumeric) {
+    bgColorClass = 'bg-white text-black';
+  }
+
+  return (
+    <motion.div
+      initial={{ rotateY: 90, opacity: 0 }}
+      animate={{ rotateY: 0, opacity: 1 }}
+      transition={{
+        duration: 0.45,
+        delay,
+        ease: [0.23, 1, 0.32, 1],
+      }}
+      style={{ transformStyle: 'preserve-3d' }}
+      className={`${colSpan} border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center font-black text-xs p-1 transition-all ${bgColorClass}`}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 export function GuessesGrid() {
   const { guesses, unlockedHint, unlockHintManually } = useGameStore();
@@ -13,17 +47,18 @@ export function GuessesGrid() {
     <div className="w-full flex flex-col gap-6 my-2">
       {/* Guesses Table Container */}
       <div className="w-full overflow-x-auto">
-        <div className="min-w-[720px] flex flex-col gap-3">
+        <div className="min-w-[760px] flex flex-col gap-3">
           {/* Column Header Titles */}
           <div className="grid grid-cols-12 gap-2 text-center text-xs font-black uppercase text-slate-600 px-1">
             <div className="col-span-3 text-left pl-3" />
             <div className="col-span-1">COUNTRY</div>
             <div className="col-span-1">ROLE</div>
             <div className="col-span-1">BATTING</div>
-            <div className="col-span-2">BIRTH</div>
+            <div className="col-span-1">BIRTH</div>
             <div className="col-span-1">TESTS</div>
             <div className="col-span-1">ODIS</div>
             <div className="col-span-2">IPL TEAM</div>
+            <div className="col-span-1">RETIRED?</div>
           </div>
 
           {/* Render Guesses Rows */}
@@ -44,14 +79,15 @@ export function GuessesGrid() {
                   : 'BAT';
                 const battingCode = g.guessedPlayer.battingHand.includes('Left') ? 'LEFT' : 'RIGHT';
                 const iplCode = g.guessedPlayer.iplTeam === 'None' ? 'N/A' : g.guessedPlayer.iplTeam.split(' ').map((w) => w[0]).join('');
+                const retiredCode = g.guessedPlayer.retired ? 'YES' : 'NO';
 
                 return (
                   <motion.div
                     key={`${g.guessedPlayer.id}-${idx}`}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="grid grid-cols-12 gap-2 items-stretch"
+                    className="grid grid-cols-12 gap-2 items-stretch perspective-1000"
                   >
                     {/* Player Name Column (Black Box) */}
                     <div className="col-span-3 bg-black text-white border-3 border-black p-2.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-center">
@@ -63,82 +99,66 @@ export function GuessesGrid() {
                       </span>
                     </div>
 
-                    {/* Country Tile */}
-                    <div
-                      className={`col-span-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black text-xs p-1 transition-all ${
-                        g.attributeMatches.country ? 'bg-[#CCFF00] text-black' : 'bg-[#CBD5E1] text-slate-500'
-                      }`}
-                    >
-                      {countryCode}
-                    </div>
+                    {/* Tile 1: Country */}
+                    <FlipTile delay={0.1} colSpan="col-span-1" isMatched={g.attributeMatches.country}>
+                      <span>{countryCode}</span>
+                    </FlipTile>
 
-                    {/* Role Tile */}
-                    <div
-                      className={`col-span-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black text-xs p-1 transition-all ${
-                        g.attributeMatches.role ? 'bg-[#CCFF00] text-black' : 'bg-[#CBD5E1] text-slate-500'
-                      }`}
-                    >
-                      {roleCode}
-                    </div>
+                    {/* Tile 2: Role */}
+                    <FlipTile delay={0.2} colSpan="col-span-1" isMatched={g.attributeMatches.role}>
+                      <span>{roleCode}</span>
+                    </FlipTile>
 
-                    {/* Batting Hand Tile */}
-                    <div
-                      className={`col-span-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black text-[11px] p-1 transition-all ${
-                        g.attributeMatches.battingHand ? 'bg-[#CCFF00] text-black' : 'bg-[#CBD5E1] text-slate-500'
-                      }`}
-                    >
-                      {battingCode}
-                    </div>
+                    {/* Tile 3: Batting Hand */}
+                    <FlipTile delay={0.3} colSpan="col-span-1" isMatched={g.attributeMatches.battingHand}>
+                      <span className="text-[11px]">{battingCode}</span>
+                    </FlipTile>
 
-                    {/* Birth Year Tile */}
-                    <div
-                      className={`col-span-2 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center font-black text-xs p-1.5 transition-all ${
-                        g.numericMatches.birthYear === 'match'
-                          ? 'bg-[#CCFF00] text-black'
-                          : 'bg-white text-black'
-                      }`}
+                    {/* Tile 4: Birth Year */}
+                    <FlipTile
+                      delay={0.4}
+                      colSpan="col-span-1"
+                      isMatched={g.numericMatches.birthYear === 'match'}
+                      isNumeric={g.numericMatches.birthYear !== 'match'}
                     >
                       <span>{g.guessedPlayer.birthYear}</span>
                       {g.numericMatches.birthYear === 'higher' && <span className="text-xs">↑</span>}
                       {g.numericMatches.birthYear === 'lower' && <span className="text-xs">↓</span>}
-                    </div>
+                    </FlipTile>
 
-                    {/* Tests Tile */}
-                    <div
-                      className={`col-span-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center font-black text-xs p-1 transition-all ${
-                        g.numericMatches.tests === 'match'
-                          ? 'bg-[#CCFF00] text-black'
-                          : 'bg-white text-black'
-                      }`}
+                    {/* Tile 5: Tests */}
+                    <FlipTile
+                      delay={0.5}
+                      colSpan="col-span-1"
+                      isMatched={g.numericMatches.tests === 'match'}
+                      isNumeric={g.numericMatches.tests !== 'match'}
                     >
                       <span>{g.guessedPlayer.tests}</span>
                       {g.numericMatches.tests === 'higher' && <span className="text-xs">↑</span>}
                       {g.numericMatches.tests === 'lower' && <span className="text-xs">↓</span>}
-                    </div>
+                    </FlipTile>
 
-                    {/* ODIs Tile */}
-                    <div
-                      className={`col-span-1 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center font-black text-xs p-1 transition-all ${
-                        g.numericMatches.odis === 'match'
-                          ? 'bg-[#CCFF00] text-black'
-                          : 'bg-white text-black'
-                      }`}
+                    {/* Tile 6: ODIs */}
+                    <FlipTile
+                      delay={0.6}
+                      colSpan="col-span-1"
+                      isMatched={g.numericMatches.odis === 'match'}
+                      isNumeric={g.numericMatches.odis !== 'match'}
                     >
                       <span>{g.guessedPlayer.odis}</span>
                       {g.numericMatches.odis === 'higher' && <span className="text-xs">↑</span>}
                       {g.numericMatches.odis === 'lower' && <span className="text-xs">↓</span>}
-                    </div>
+                    </FlipTile>
 
-                    {/* IPL Team Tile */}
-                    <div
-                      className={`col-span-2 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black text-xs p-1 transition-all ${
-                        g.attributeMatches.iplTeam
-                          ? 'bg-[#FF5500] text-white'
-                          : 'bg-[#CBD5E1] text-slate-500'
-                      }`}
-                    >
-                      {iplCode}
-                    </div>
+                    {/* Tile 7: IPL Team */}
+                    <FlipTile delay={0.7} colSpan="col-span-2" isMatched={g.attributeMatches.iplTeam} isIpl={true}>
+                      <span>{iplCode}</span>
+                    </FlipTile>
+
+                    {/* Tile 8: Retired Status (New Column) */}
+                    <FlipTile delay={0.8} colSpan="col-span-1" isMatched={g.attributeMatches.retired}>
+                      <span>{retiredCode}</span>
+                    </FlipTile>
                   </motion.div>
                 );
               })}

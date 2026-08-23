@@ -241,6 +241,20 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Relying solely on remote database*: Caused blank leaderboard display when remote backend database credentials were absent or delayed.
 
+---
+
+## Phase 11: `RETIRED?` Attribute Column & Staggered 3D Card Flip Animation
+
+### Decision 25: Staggered 3D Tile Flip Animation & Retired Status Column
+- **Approach Chosen:**
+  1. Added a 9th table column **`RETIRED?`** (`YES`/`NO`) to indicate active vs retired cricketer status, evaluated against target player.
+  2. Implemented Framer Motion 3D card flip (`rotateY: 90` -> `0`) on guess submission, staggered across tiles with incremental delays (`0.1s`, `0.2s`, `0.3s`, ..., `0.8s`).
+- **Why this approach?**
+  - Staggered 3D tile flip provides engaging visual feedback (Wordle-style reveal) as each attribute flips to display match color and directional indicators.
+- **Alternatives Considered:**
+  - *Instant static appearance*: Feels flat and lacks arcade animation delight.
+
+
 
 
 

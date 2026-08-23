@@ -4,39 +4,39 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 10 (Fastest Solve-Time Leaderboard, First-Land How-To & Streak Persistence)
+## Current Status: Phase 11 (`RETIRED?` Attribute Column & Staggered 3D Card Flip Animation)
 
 ### 1. Code Entry Point
-- **Root Page (`src/app/page.tsx`)**: Renders `bg-dot-grid` background wrapping game components and unified Neubrutalist modals (`LeaderboardModal`, `HowToModal`, `ResultModal`, `StatsModal`, `CalendarModal`, `ShareGridModal`).
+- **Guesses Grid (`src/components/GuessesGrid.tsx`)**: Renders row layout containing 9 attribute columns (`COUNTRY`, `ROLE`, `BATTING`, `BIRTH`, `TESTS`, `ODIS`, `IPL TEAM`, `RETIRED?`).
 
 ---
 
-### 2. Execution Order & Updated Game Flow
-1. **Initial Landing (`HowToModal.tsx`)**:
-   - First-time visitors are presented with the **How to Play** modal (`activeModal: 'howTo'`).
-   - Clicking **"GOT IT, LET'S PLAY!"** sets `hasSeenHowTo: true` and closes modal to start playing.
-2. **Timer Initialization**:
-   - `startTimeMs` is recorded on **Guess #1**.
-3. **Winning & Solve Time Computation**:
-   - On winning guess, `endTimeMs` is recorded.
-   - `solveTimeSecs` is calculated (`Math.round((endTimeMs - startTimeMs) / 1000)`).
-   - `ResultModal` prompts player for their **Name/Nickname**.
-4. **Leaderboard Push & Ranking (`LeaderboardModal.tsx`)**:
-   - Submits `{ date, nickname, attempts, timeMs }` to `/api/leaderboard`.
-   - `/api/leaderboard` upserts entry in Supabase and orders by `time_ms ASC, attempts ASC`.
-   - Renders today's mystery player banner (Photo, Name, Country, Role), user's current streak, and sorted leaderboard rankings.
+### 2. Execution Order & Tile Flip Animation Flow
+1. **Guess Submission**:
+   - Player selects cricketer -> submits guess.
+2. **Staggered 3D Card Flip (`FlipTile`)**:
+   - Tile 1 (`COUNTRY`): Flips at `delay: 0.1s` (`rotateY: 90` -> `0`).
+   - Tile 2 (`ROLE`): Flips at `delay: 0.2s`.
+   - Tile 3 (`BATTING`): Flips at `delay: 0.3s`.
+   - Tile 4 (`BIRTH`): Flips at `delay: 0.4s`.
+   - Tile 5 (`TESTS`): Flips at `delay: 0.5s`.
+   - Tile 6 (`ODIS`): Flips at `delay: 0.6s`.
+   - Tile 7 (`IPL TEAM`): Flips at `delay: 0.7s`.
+   - Tile 8 (`RETIRED?`): Flips at `delay: 0.8s` (displaying `YES` or `NO` with match color).
 
 ---
 
-### 3. Final Master Architecture & Dependency Graph (Phase 10)
+### 3. Final Master Architecture & Dependency Graph (Phase 11)
 ```
-src/app/page.tsx (bg-dot-grid background)
+GuessesGrid.tsx (12-column grid layout)
        │
-       ├──> HowToModal.tsx (First-land modal with "GOT IT, LET'S PLAY!" button)
-       ├──> Header.tsx (CRICKSOLVE Neon Lime banner, Daily/Streak/Rank badges, Mode tabs)
-       ├──> PlayerSearch.tsx (Purple input block, records startTimeMs on guess #1)
-       ├──> GuessesGrid.tsx (Black player name blocks, Lime/Orange attribute tiles, Hint bar)
-       ├──> SilhouetteReveal.tsx (Hardware-accelerated CSS blur unblur engine)
-       ├──> ResultModal.tsx (Prompts name input, calculates solve time, submits to Supabase)
-       └──> LeaderboardModal.tsx (Sorted by time_ms ASC, today's player photo, current streak)
+       ├──> Player Name Block (Black background box, GUESS # label)
+       ├──> FlipTile (Country - 0.1s stagger delay)
+       ├──> FlipTile (Role - 0.2s stagger delay)
+       ├──> FlipTile (Batting - 0.3s stagger delay)
+       ├──> FlipTile (Birth Year - 0.4s stagger delay)
+       ├──> FlipTile (Tests - 0.5s stagger delay)
+       ├──> FlipTile (ODIs - 0.6s stagger delay)
+       ├──> FlipTile (IPL Team - 0.7s stagger delay)
+       └──> FlipTile (Retired? YES/NO - 0.8s stagger delay)
 ```
