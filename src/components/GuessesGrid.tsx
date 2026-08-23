@@ -47,7 +47,7 @@ function FlipTile({ delay, colSpan, isMatched, isIpl = false, isNumeric = false,
 }
 
 export function GuessesGrid() {
-  const { guesses, unlockedHint, unlockHintManually } = useGameStore();
+  const { guesses, unlockedHint } = useGameStore();
 
   const isHintAvailable = guesses.length >= 4 && !unlockedHint;
 
@@ -191,7 +191,11 @@ export function GuessesGrid() {
       {/* Bottom Unlock Hint Bar */}
       <div className="w-full flex items-center justify-center mt-2">
         <button
-          onClick={unlockHintManually}
+          onClick={() => {
+            if (isHintAvailable && !unlockedHint) {
+              useGameStore.getState().setActiveModal('hintPicker');
+            }
+          }}
           disabled={!isHintAvailable && !unlockedHint}
           className="w-full max-w-lg bg-white border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-3 flex items-center justify-center gap-3 transition-all hover:bg-slate-50 active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-80"
         >
@@ -205,7 +209,7 @@ export function GuessesGrid() {
             </span>
           ) : isHintAvailable ? (
             <span className="bg-[#CCFF00] text-black font-extrabold text-[11px] px-3 py-1 border-2 border-black uppercase animate-pulse">
-              HINT READY (CLICK)
+              HINT READY (CHOOSE ATTRIBUTE)
             </span>
           ) : (
             <span className="bg-slate-300 text-slate-700 font-extrabold text-[11px] px-3 py-1 border-2 border-black uppercase">

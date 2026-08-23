@@ -10,6 +10,7 @@ import { ResultModal } from '@/components/ResultModal';
 import { StatsModal } from '@/components/StatsModal';
 import { ShareGridModal } from '@/components/ShareGridModal';
 import { LeaderboardModal } from '@/components/LeaderboardModal';
+import { AttributeHintPickerModal } from '@/components/AttributeHintPickerModal';
 
 export default function Home() {
   return (
@@ -35,6 +36,7 @@ export default function Home() {
       <StatsModal />
       <ShareGridModal />
       <LeaderboardModal />
+      <AttributeHintPickerModal />
     </div>
   );
 }

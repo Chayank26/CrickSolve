@@ -1,10 +1,10 @@
 'use client';
 
 import { useGameStore } from '@/store/useGameStore';
-import { Volume2, VolumeX, HelpCircle } from 'lucide-react';
+import { Volume2, VolumeX, HelpCircle, Trophy } from 'lucide-react';
 
 export function Header() {
-  const { streak, soundEnabled, toggleSound, setActiveModal, gameMode, setGameMode } = useGameStore();
+  const { streak, soundEnabled, toggleSound, setActiveModal, gameMode, setGameMode, userRank } = useGameStore();
 
   return (
     <header className="w-full flex flex-col gap-5 pt-4 pb-2">
@@ -26,12 +26,13 @@ export function Header() {
 
           {/* Streak */}
           <div className="bg-white border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black">
-            STREAK: {streak}
+            STREAK: {streak} 🔥
           </div>
 
-          {/* Global Rank */}
-          <div className="bg-black border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[#CCFF00]">
-            RANK: #422
+          {/* Your Standing Badge */}
+          <div className="bg-black border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[#CCFF00] flex items-center gap-1.5">
+            <Trophy className="w-4 h-4 text-[#CCFF00]" />
+            <span>STANDING: {userRank ? `#${userRank}` : 'UNRANKED'}</span>
           </div>
 
           {/* Sound Toggle */}
@@ -85,10 +86,11 @@ export function Header() {
         {/* Action Buttons Right */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setActiveModal('stats')}
-            className="bg-[#CCFF00] text-black font-black px-6 py-2 text-xs md:text-sm border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+            onClick={() => setActiveModal('leaderboard')}
+            className="bg-[#CCFF00] text-black font-black px-6 py-2 text-xs md:text-sm border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-2"
           >
-            LEADERBOARD
+            <Trophy className="w-4 h-4 text-black" />
+            <span>LEADERBOARD {userRank ? `(#${userRank})` : ''}</span>
           </button>
 
           <button

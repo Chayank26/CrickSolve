@@ -267,6 +267,20 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Flat color swap*: Lacks game satisfaction feedback.
 
+---
+
+## Phase 13: Interactive Attribute Hint Picker & Dynamic Standing Rank Display
+
+### Decision 27: Interactive Target Attribute Hint Selector & Dynamic Standing Rank Badge
+- **Approach Chosen:**
+  1. Built `AttributeHintPickerModal.tsx` triggering after 4 incorrect guesses (`guesses.length >= 4`). Instead of random facts, players click on any unrevealed attribute (Country, Role, Batting Hand, Birth Year, IPL Team, Retired Status) to immediately reveal its exact value.
+  2. Replaced static rank numbers in `Header.tsx` with dynamic **`YOUR STANDING: #X`** (e.g. `#1`) computed directly from today's sorted leaderboard position. Shows `UNRANKED` if today's puzzle is not yet solved.
+- **Why this approach?**
+  - Empowers players with tactical choices over which clue to unlock while giving real-time feedback on their exact rank standing on today's leaderboard.
+- **Alternatives Considered:**
+  - *Static generic rank badge*: Displayed arbitrary static rank numbers unrelated to actual leaderboard placement.
+
+
 
 
 

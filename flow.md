@@ -4,34 +4,32 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 12 (`T20IS` Column Restoration & Attribute Match Celebration Pop Animation)
+## Current Status: Phase 13 (Interactive Attribute Hint Picker & Dynamic Standing Rank Display)
 
 ### 1. Code Entry Point
-- **Guesses Grid (`src/components/GuessesGrid.tsx`)**: Renders row layout containing all 10 attribute columns (`COUNTRY`, `ROLE`, `BATTING`, `BIRTH`, `TESTS`, `ODIS`, `T20IS`, `IPL TEAM`, `RETIRED?`).
+- **Root Page (`src/app/page.tsx`)**: Renders `Header`, `PlayerSearch`, `GuessesGrid`, `SilhouetteReveal`, and `AttributeHintPickerModal`.
 
 ---
 
-### 2. Execution Order & Staggered Reveal Animation
-1. **Guess Submission**:
-   - Player submits cricketer -> evaluates against daily mystery target.
-2. **Spring Flip Reveal (`FlipTile`)**:
-   - `COUNTRY` (delay 0.08s) ──> `ROLE` (delay 0.16s) ──> `BATTING` (delay 0.24s) ──> `BIRTH` (delay 0.32s) ──> `TESTS` (delay 0.40s) ──> `ODIS` (delay 0.48s) ──> `T20IS` (delay 0.56s) ──> `IPL TEAM` (delay 0.64s) ──> `RETIRED?` (delay 0.72s).
-   - Attribute Match (`isMatched === true`) triggers celebratory `scale: [0.7, 1.18, 1.0]` pop animation turning Neon Lime (`#CCFF00`).
+### 2. Execution Order & Updated Mechanics
+1. **Interactive Attribute Hint Picker (`AttributeHintPickerModal.tsx`)**:
+   - Unlocks after 4 incorrect guesses (`guesses.length >= 4`).
+   - Clicking **UNLOCK HINT** opens modal listing all target player attributes (*Country, Role, Batting Hand, Birth Year, IPL Team, Retired Status*).
+   - Player clicks desired attribute -> reveals exact value (e.g. `Country: India`) in Neon Lime banner.
+2. **Dynamic Standing Rank Calculation (`Header.tsx`)**:
+   - `LeaderboardModal.tsx` evaluates user's solve time & attempts position in sorted leaderboard array.
+   - Updates `userRank` in store (`setUserRank(index + 1)`).
+   - Top Header displays **`STANDING: #1`** (or `UNRANKED` if not yet solved today).
 
 ---
 
-### 3. Component Layout (Phase 12)
+### 3. Component Architecture Graph (Phase 13)
 ```
-GuessesGrid.tsx (12-column grid layout)
+src/app/page.tsx
        │
-       ├──> Player Name Block (Black box, GUESS # label)
-       ├──> FlipTile (Country - 0.08s delay)
-       ├──> FlipTile (Role - 0.16s delay)
-       ├──> FlipTile (Batting - 0.24s delay)
-       ├──> FlipTile (Birth Year - 0.32s delay)
-       ├──> FlipTile (Tests - 0.40s delay)
-       ├──> FlipTile (ODIs - 0.48s delay)
-       ├──> FlipTile (T20Is - 0.56s delay) [Brought Back!]
-       ├──> FlipTile (IPL Team - 0.64s delay)
-       └──> FlipTile (Retired? - 0.72s delay)
+       ├──> Header.tsx (Displays dynamic YOUR STANDING: #X rank badge & Leaderboard trigger)
+       ├──> PlayerSearch.tsx (Fuzzy autocomplete cricketer search input)
+       ├──> GuessesGrid.tsx (12-column grid layout, triggers AttributeHintPickerModal)
+       ├──> AttributeHintPickerModal.tsx (Interactive target attribute selection picker)
+       └──> LeaderboardModal.tsx (Calculates userRank position in sorted solve-time array)
 ```

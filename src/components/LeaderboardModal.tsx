@@ -71,6 +71,14 @@ export function LeaderboardModal() {
       return a.attempts - b.attempts;
     });
 
+    // Update player standing rank in store
+    const userIndex = combined.findIndex((e) => e.nickname.toLowerCase() === useGameStore.getState().nickname.toLowerCase());
+    if (userIndex !== -1) {
+      useGameStore.getState().setUserRank(userIndex + 1);
+    } else {
+      useGameStore.getState().setUserRank(null);
+    }
+
     setLeaderboard(combined);
     setTodayPlayer(fetchedTodayPlayer);
     setIsLoading(false);

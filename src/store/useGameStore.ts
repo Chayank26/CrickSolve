@@ -21,10 +21,11 @@ interface GameState {
   startTimeMs: number | null;
   endTimeMs: number | null;
 
-  // Player Profile
+  // Player Profile & Standing
   nickname: string;
   lastSolvedDate: string | null;
   hasSeenHowTo: boolean;
+  userRank: number | null;
 
   // Sound & Preferences
   soundEnabled: boolean;
@@ -36,17 +37,18 @@ interface GameState {
   gamesWon: number;
 
   // Modals
-  activeModal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | null;
+  activeModal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | null;
 
   // Actions
   setGameMode: (mode: GameMode) => void;
   setCategory: (category: PlayerCategory) => void;
   addGuess: (evaluation: GuessEvaluation) => void;
   setNickname: (name: string) => void;
+  setUserRank: (rank: number | null) => void;
   enableBonusChance: () => void;
-  unlockHintManually: () => void;
+  revealAttributeHint: (attrLabel: string, attrValue: string) => void;
   toggleSound: () => void;
-  setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | null) => void;
+  setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | null) => void;
   closeHowTo: () => void;
   resetGame: (newTargetId?: string) => void;
   syncDailyDate: (dateStr: string) => void;
@@ -70,6 +72,7 @@ export const useGameStore = create<GameState>()(
       nickname: 'Cricketer',
       lastSolvedDate: null,
       hasSeenHowTo: false,
+      userRank: null,
 
       soundEnabled: true,
 
@@ -93,6 +96,10 @@ export const useGameStore = create<GameState>()(
         set({ nickname: nickname.trim() || 'Cricketer' });
       },
 
+      setUserRank: (rank) => {
+        set({ userRank: rank });
+      },
+
       closeHowTo: () => {
         set({ hasSeenHowTo: true, activeModal: null });
       },
@@ -102,7 +109,6 @@ export const useGameStore = create<GameState>()(
         if (gameStatus !== 'IN_PROGRESS') return;
 
         const now = Date.now();
-        // Record start time on first guess
         const start = startTimeMs || now;
 
         const updatedGuesses = [...guesses, evaluation];
@@ -128,9 +134,9 @@ export const useGameStore = create<GameState>()(
           if (lastSolvedDate === yesterdayStr) {
             newStreak = streak + 1;
           } else if (lastSolvedDate === todayStr) {
-            newStreak = streak; // already solved today
+            newStreak = streak;
           } else {
-            newStreak = 1; // streak reset or first solve
+            newStreak = 1;
           }
 
           newMaxStreak = Math.max(newStreak, maxStreak);
@@ -159,15 +165,11 @@ export const useGameStore = create<GameState>()(
         set({ bonusChanceTaken: true, gameStatus: 'IN_PROGRESS' });
       },
 
-      unlockHintManually: () => {
-        const { guesses, unlockedHint } = get();
-        if (unlockedHint || guesses.length < 4) return;
-        const lastWithHint = guesses.slice().reverse().find((g) => g.unlockedHint);
-        if (lastWithHint?.unlockedHint) {
-          set({ unlockedHint: String(lastWithHint.unlockedHint.value) });
-        } else {
-          set({ unlockedHint: 'Hint: Player is a top international performer' });
-        }
+      revealAttributeHint: (attrLabel, attrValue) => {
+        set({
+          unlockedHint: `${attrLabel}: ${attrValue}`,
+          activeModal: null,
+        });
       },
 
       toggleSound: () => {
@@ -201,6 +203,7 @@ export const useGameStore = create<GameState>()(
             unlockedHint: null,
             startTimeMs: null,
             endTimeMs: null,
+            userRank: null,
           });
         }
       },
@@ -219,6 +222,7 @@ export const useGameStore = create<GameState>()(
         gamesWon: state.gamesWon,
         nickname: state.nickname,
         lastSolvedDate: state.lastSolvedDate,
+        userRank: state.userRank,
         hasSeenHowTo: state.hasSeenHowTo,
         soundEnabled: state.soundEnabled,
       }),
