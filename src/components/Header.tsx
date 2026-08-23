@@ -1,7 +1,7 @@
 'use client';
 
 import { useGameStore } from '@/store/useGameStore';
-import { Volume2, VolumeX, HelpCircle, Trophy } from 'lucide-react';
+import { Volume2, VolumeX, HelpCircle, Trophy, BarChart2 } from 'lucide-react';
 
 export function Header() {
   const { streak, soundEnabled, toggleSound, setActiveModal, gameMode, setGameMode, userRank } = useGameStore();
@@ -24,15 +24,15 @@ export function Header() {
             DAILY #142
           </div>
 
-          {/* Streak */}
+          {/* Streak without fire emoji */}
           <div className="bg-white border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black">
-            STREAK: {streak} 🔥
+            STREAK: {streak}
           </div>
 
           {/* Your Standing Badge */}
           <div className="bg-black border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[#CCFF00] flex items-center gap-1.5">
             <Trophy className="w-4 h-4 text-[#CCFF00]" />
-            <span>STANDING: {userRank ? `#${userRank}` : 'UNRANKED'}</span>
+            <span>STANDING: {userRank ? `#${userRank}` : '--'}</span>
           </div>
 
           {/* Sound Toggle */}
@@ -84,18 +84,29 @@ export function Header() {
         </div>
 
         {/* Action Buttons Right */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-3">
+          {/* YOUR STATS Button */}
+          <button
+            onClick={() => setActiveModal('stats')}
+            className="bg-white text-black hover:bg-slate-100 font-black px-5 py-2 text-xs md:text-sm border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase transition-all flex items-center gap-2"
+          >
+            <BarChart2 className="w-4 h-4 text-black" />
+            <span>YOUR STATS</span>
+          </button>
+
+          {/* LEADERBOARD Button */}
           <button
             onClick={() => setActiveModal('leaderboard')}
-            className="bg-[#CCFF00] text-black font-black px-6 py-2 text-xs md:text-sm border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-2"
+            className="bg-[#CCFF00] text-black font-black px-5 py-2 text-xs md:text-sm border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-2"
           >
             <Trophy className="w-4 h-4 text-black" />
             <span>LEADERBOARD {userRank ? `(#${userRank})` : ''}</span>
           </button>
 
+          {/* HOW TO PLAY Icon */}
           <button
             onClick={() => setActiveModal('howTo')}
-            className="bg-white border-3 border-black p-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+            className="bg-white border-3 border-black p-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-slate-100"
             title="How to Play"
           >
             <HelpCircle className="w-5 h-5 text-black" />

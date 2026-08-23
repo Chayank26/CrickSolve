@@ -131,8 +131,7 @@ export function LeaderboardModal() {
             {/* Streak Counter */}
             <div className="bg-[#CCFF00] text-black border-2 border-black px-3 py-1.5 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
               <div className="text-[10px] font-black uppercase">STREAK</div>
-              <div className="text-sm font-black flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 fill-black" />
+              <div className="text-sm font-black flex items-center justify-center">
                 <span>{streak}</span>
               </div>
             </div>
@@ -166,17 +165,16 @@ export function LeaderboardModal() {
                   idx === 0
                     ? 'bg-[#CCFF00] text-black font-black'
                     : idx === 1
-                    ? 'bg-slate-300 text-black font-black'
-                    : idx === 2
-                    ? 'bg-amber-400 text-black font-black'
-                    : 'bg-white text-black font-bold';
+                      ? 'bg-slate-300 text-black font-black'
+                      : idx === 2
+                        ? 'bg-amber-400 text-black font-black'
+                        : 'bg-white text-black font-bold';
 
                 return (
                   <div
                     key={entry.id || idx}
-                    className={`grid grid-cols-12 gap-1 p-2.5 items-center text-xs ${
-                      idx === 0 ? 'bg-[#CCFF00]/20' : 'hover:bg-slate-100'
-                    }`}
+                    className={`grid grid-cols-12 gap-1 p-2.5 items-center text-xs ${idx === 0 ? 'bg-[#CCFF00]/20' : 'hover:bg-slate-100'
+                      }`}
                   >
                     <div className="col-span-2 pl-2">
                       <span className={`px-2 py-0.5 border-2 border-black ${rankColor}`}>

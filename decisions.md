@@ -280,6 +280,21 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Static generic rank badge*: Displayed arbitrary static rank numbers unrelated to actual leaderboard placement.
 
+---
+
+## Phase 14: Streak Clean-up, Header Standing Badge Simplification & Dedicated `YOUR STATS` Button
+
+### Decision 28: Dedicated `YOUR STATS` Button & Cleaned Top Header Badges
+- **Approach Chosen:**
+  1. Removed 🔥 fire emoji from all streak counter elements for a cleaner text aesthetic (`STREAK: 12`).
+  2. Cleaned up top header badges: standing is displayed cleanly in the top right badge (`STANDING: #1` or `STANDING: --` when unranked), avoiding cluttered duplicate unranked buttons.
+  3. Added a dedicated **`YOUR STATS`** button in the top action bar opening `StatsModal.tsx`, which displays Games Played, Games Solved, Win Rate %, Current Streak, and Max Streak.
+- **Why this approach?**
+  - Separates general user performance metrics (Win %, Games Played) from today's competitive solve-time leaderboard while keeping the header uncluttered.
+- **Alternatives Considered:**
+  - *Merging stats into leaderboard modal*: Creates visual clutter and confuses personal stats with daily competitive rankings.
+
+
 
 
 
