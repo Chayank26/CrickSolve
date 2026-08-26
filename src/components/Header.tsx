@@ -1,13 +1,10 @@
 'use client';
 
 import { useGameStore } from '@/store/useGameStore';
-import { PlayerCategory } from '@/types/game';
 import { Volume2, VolumeX, HelpCircle, Trophy, BarChart2 } from 'lucide-react';
 
 export function Header() {
-  const { streak, soundEnabled, toggleSound, setActiveModal, gameMode, setGameMode, category, setCategory, userRank } = useGameStore();
-
-  const categories: PlayerCategory[] = ['International', 'IPL', 'Legend', 'Womens'];
+  const { streak, soundEnabled, toggleSound, setActiveModal, gameMode, setGameMode } = useGameStore();
 
   return (
     <header className="w-full flex flex-col gap-5 pt-4 pb-2">
@@ -32,12 +29,6 @@ export function Header() {
             STREAK: {streak}
           </div>
 
-          {/* Rank / Standing Badge */}
-          <div className="bg-black border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[#CCFF00] flex items-center gap-1.5">
-            <Trophy className="w-4 h-4 text-[#CCFF00]" />
-            <span>RANK: {userRank ? `#${userRank}` : 'UNRANKED'}</span>
-          </div>
-
           {/* Sound Toggle */}
           <button
             onClick={toggleSound}
@@ -54,7 +45,7 @@ export function Header() {
 
       {/* Controls & Mode Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-        {/* Mode & Category Tabs */}
+        {/* Mode Tabs */}
         <div className="flex items-center flex-wrap gap-3">
           <button
             onClick={() => setGameMode('daily')}
@@ -84,19 +75,6 @@ export function Header() {
           >
             PAST GAMES
           </button>
-
-          {/* Format Dropdown Selector */}
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as PlayerCategory)}
-            className="bg-white text-black font-black text-xs md:text-sm px-4 py-2 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase focus:outline-none cursor-pointer"
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat === 'IPL' ? 'IPL STARS' : cat === 'Womens' ? "WOMEN'S CRICKET" : cat.toUpperCase()}
-              </option>
-            ))}
-          </select>
         </div>
 
         {/* Action Buttons Right */}

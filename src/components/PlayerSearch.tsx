@@ -8,7 +8,7 @@ import { Lightbulb } from 'lucide-react';
 import Fuse from 'fuse.js';
 
 export function PlayerSearch() {
-  const { guesses, addGuess, unlockedHint, setActiveModal, gameStatus, category, currentDate, gameMode, unlimitedTargetId } = useGameStore();
+  const { guesses, addGuess, unlockedHint, setActiveModal, gameStatus, currentDate, gameMode, unlimitedTargetId } = useGameStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -16,18 +16,15 @@ export function PlayerSearch() {
 
   const isGameOver = gameStatus !== 'IN_PROGRESS';
 
-  // Resolve target player
-  let targetPlayer = getDailyTargetPlayer(currentDate, category);
+  // Resolve target player across full player pool
+  let targetPlayer = getDailyTargetPlayer(currentDate, 'International');
   if (gameMode === 'unlimited' && unlimitedTargetId) {
     const found = PLAYERS.find((p) => p.id === unlimitedTargetId);
     if (found) targetPlayer = found;
   }
 
-  // Filter pool by category
-  const availablePlayers = useMemo(() => {
-    if (category === 'International') return PLAYERS;
-    return PLAYERS.filter((p) => p.category === category || (category === 'IPL' && p.iplTeam !== 'None'));
-  }, [category]);
+  // Full available player search pool
+  const availablePlayers = PLAYERS;
 
   // Configure Fuse.js fuzzy search engine
   const fuse = useMemo(() => {
@@ -112,7 +109,7 @@ export function PlayerSearch() {
                       {player.country} • {player.role}
                     </div>
                   </div>
-                  <div className="text-xs font-black text-black bg-white border border-black px-2 py-0.5 uppercase">
+                  <div className="text-xs font-black text-black bg-[#CCFF00] border border-black px-2 py-0.5 uppercase">
                     {player.battingHand.includes('Left') ? 'LHB' : 'RHB'}
                   </div>
                 </div>

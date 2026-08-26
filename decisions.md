@@ -295,6 +295,20 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Dark slate glassmorphic layout*: Replaced by official Neubrutalism dot-grid arcade theme as requested by user.
 
+---
+
+## Phase 18: Removal of Format Category Mode & Header Rank Showcase Badge
+
+### Decision 32: Streamlined Single Player Pool & Header Cleanup
+- **Approach Chosen:**
+  1. Removed the format category mode selector (*International, Women's, IPL Stars, Legends*) so that all 424 cricketers are available in search and puzzle evaluation by default.
+  2. Removed the top header rank showcase badge (`RANK: #422` / `STANDING: #X`) for a cleaner header design.
+- **Why this approach?**
+  - Simplifies user experience and header navigation while keeping all 424 international players accessible to every player.
+- **Alternatives Considered:**
+  - *Category mode tabs*: Removed as explicitly requested by user.
+
+
 
 ---
 
