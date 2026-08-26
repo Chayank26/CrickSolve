@@ -1,10 +1,46 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/useGameStore';
-import { Volume2, VolumeX, HelpCircle, Trophy, BarChart2 } from 'lucide-react';
+import { formatMmSs } from '@/lib/utils';
+import { Volume2, VolumeX, HelpCircle, Trophy, BarChart2, Timer } from 'lucide-react';
 
 export function Header() {
-  const { streak, soundEnabled, toggleSound, setActiveModal, gameMode, setGameMode } = useGameStore();
+  const {
+    streak,
+    soundEnabled,
+    toggleSound,
+    setActiveModal,
+    gameMode,
+    setGameMode,
+    startTimeMs,
+    endTimeMs,
+    gameStatus,
+  } = useGameStore();
+
+  const [elapsedMs, setElapsedMs] = useState(0);
+
+  useEffect(() => {
+    if (!startTimeMs) {
+      setElapsedMs(0);
+      return;
+    }
+
+    if (gameStatus !== 'IN_PROGRESS') {
+      const end = endTimeMs || Date.now();
+      setElapsedMs(Math.max(0, end - startTimeMs));
+      return;
+    }
+
+    const updateTimer = () => {
+      setElapsedMs(Math.max(0, Date.now() - startTimeMs));
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 500);
+
+    return () => clearInterval(interval);
+  }, [startTimeMs, endTimeMs, gameStatus]);
 
   return (
     <header className="w-full flex flex-col gap-5 pt-4 pb-2">
@@ -19,6 +55,12 @@ export function Header() {
 
         {/* Top Badges */}
         <div className="flex items-center flex-wrap gap-3 text-xs md:text-sm font-black uppercase">
+          {/* Live Timer Badge (mm:ss) */}
+          <div className="bg-black border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-[#CCFF00] flex items-center gap-1.5 font-black">
+            <Timer className="w-4 h-4 text-[#CCFF00]" />
+            <span>TIME: {formatMmSs(elapsedMs)}</span>
+          </div>
+
           {/* Daily Puzzle # */}
           <div className="bg-white border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black">
             DAILY #142

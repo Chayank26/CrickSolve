@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useGameStore } from '@/store/useGameStore';
-import { X, Trophy, Flame, Timer, Loader2 } from 'lucide-react';
+import { formatMmSs } from '@/lib/utils';
+import { X, Trophy, Timer, Loader2 } from 'lucide-react';
 import { LeaderboardEntry } from '@/types/game';
 
 export function LeaderboardModal() {
@@ -160,7 +161,6 @@ export function LeaderboardModal() {
             <div className="divide-y-2 divide-black">
               {leaderboard.map((entry, idx) => {
                 const rawTimeMs = entry.time_ms ?? entry.timeMs ?? 0;
-                const solveSecs = Math.max(1, Math.round(rawTimeMs / 1000));
                 const rankColor =
                   idx === 0
                     ? 'bg-[#CCFF00] text-black font-black'
@@ -186,7 +186,7 @@ export function LeaderboardModal() {
                     </div>
                     <div className="col-span-3 text-center flex items-center justify-center gap-1 text-black font-black">
                       <Timer className="w-3.5 h-3.5" />
-                      <span>{solveSecs}s</span>
+                      <span>{formatMmSs(rawTimeMs)}</span>
                     </div>
                     <div className="col-span-2 text-center font-black">
                       {entry.attempts}/7

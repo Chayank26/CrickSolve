@@ -345,6 +345,21 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Abrupt game loss popup*: Disappointing user experience compared to an optional bonus 8th attempt with hint previews.
 
+---
+
+## Phase 21: Live On-Screen mm:ss Timer & Blank Leaderboard Name Input Box
+
+### Decision 35: Standardized mm:ss Live Timer & Blank Name Input Box
+- **Approach Chosen:**
+  1. Added a live on-screen timer badge (`TIME: mm:ss`) in `Header.tsx` that starts counting up on the first submitted guess and freezes as soon as the puzzle is solved.
+  2. Standardized time formatting across the entire app (`Header.tsx`, `ResultModal.tsx`, `LeaderboardModal.tsx`) using the `formatMmSs()` utility function (`01:24` format).
+  3. Removed dummy default values from the leaderboard name input box in `ResultModal.tsx`, leaving it clean and blank for player input.
+- **Why this approach?**
+  - Provides real-time solve feedback in a readable `mm:ss` format while ensuring players type their custom handle cleanly.
+- **Alternatives Considered:**
+  - *Displaying raw seconds (84s)*: Less human-readable than standardized `mm:ss`.
+
+
 
 
 

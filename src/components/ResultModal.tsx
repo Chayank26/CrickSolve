@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '@/store/useGameStore';
 import confetti from 'canvas-confetti';
+import { formatMmSs } from '@/lib/utils';
 import { Trophy, Share2, RotateCcw, AlertCircle, Timer, X } from 'lucide-react';
 import { LeaderboardEntry } from '@/types/game';
 
@@ -17,21 +18,19 @@ export function ResultModal() {
     currentDate,
     startTimeMs,
     endTimeMs,
-    nickname,
     setNickname,
   } = useGameStore();
 
-  const [inputName, setInputName] = useState(nickname || 'Cricketer');
+  const [inputName, setInputName] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isWon = gameStatus === 'WON';
   const isLost = gameStatus === 'LOST';
 
-  // Calculate solve time in seconds from first guess to winning guess
+  // Calculate solve time from first guess to winning guess
   const start = startTimeMs || Date.now();
   const end = endTimeMs || Date.now();
-  const solveTimeSecs = Math.max(1, Math.round((end - start) / 1000));
   const solveTimeMs = Math.max(1000, end - start);
 
   useEffect(() => {
@@ -162,19 +161,19 @@ export function ResultModal() {
           </div>
         )}
 
-        {/* Solve Time & Stats Box for Winners */}
+        {/* Solve Time & Stats Box for Winners (mm:ss) */}
         {isWon && (
           <div className="bg-[#CCFF00] border-3 border-black p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-around font-black text-xs uppercase text-black">
             <div className="flex items-center gap-1.5">
-              <Timer className="w-4 h-4" />
-              <span>SOLVE TIME: {solveTimeSecs} SECONDS</span>
+              <Timer className="w-4 h-4 text-black" />
+              <span>SOLVE TIME: {formatMmSs(solveTimeMs)}</span>
             </div>
             <div>|</div>
             <div>TRIES: {guesses.length}/7</div>
           </div>
         )}
 
-        {/* Name Input Form for Leaderboard Submission */}
+        {/* Name Input Form for Leaderboard Submission (Blank Input Box) */}
         {isWon && !isSubmitted && (
           <form onSubmit={handleSubmitLeaderboard} className="flex flex-col gap-2 pt-1 text-left">
             <label className="text-xs font-black uppercase text-black">
