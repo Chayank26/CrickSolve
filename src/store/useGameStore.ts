@@ -18,6 +18,8 @@ interface GameState {
   gameStatus: GameStatus;
   bonusChanceTaken: boolean;
   unlockedHint: string | null;
+  isHintSelecting: boolean;
+  manuallyUnlockedAttributes: Record<string, string>;
   startTimeMs: number | null;
   endTimeMs: number | null;
 
@@ -46,6 +48,9 @@ interface GameState {
   setNickname: (name: string) => void;
   setUserRank: (rank: number | null) => void;
   enableBonusChance: () => void;
+  startHintSelection: () => void;
+  cancelHintSelection: () => void;
+  unlockAttributeByHint: (attrKey: string, attrLabel: string, attrValue: string) => void;
   revealAttributeHint: (attrLabel: string, attrValue: string) => void;
   toggleSound: () => void;
   setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | null) => void;
@@ -66,6 +71,8 @@ export const useGameStore = create<GameState>()(
       gameStatus: 'IN_PROGRESS',
       bonusChanceTaken: false,
       unlockedHint: null,
+      isHintSelecting: false,
+      manuallyUnlockedAttributes: {},
       startTimeMs: null,
       endTimeMs: null,
 
@@ -85,11 +92,11 @@ export const useGameStore = create<GameState>()(
       activeModal: 'howTo',
 
       setGameMode: (mode) => {
-        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, startTimeMs: null, endTimeMs: null });
+        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null });
       },
 
       setCategory: (category) => {
-        set({ category, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, startTimeMs: null, endTimeMs: null });
+        set({ category, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null });
       },
 
       setNickname: (nickname) => {
@@ -102,6 +109,29 @@ export const useGameStore = create<GameState>()(
 
       closeHowTo: () => {
         set({ hasSeenHowTo: true, activeModal: null });
+      },
+
+      startHintSelection: () => {
+        const { guesses, unlockedHint } = get();
+        if (guesses.length >= 4 && !unlockedHint) {
+          set({ isHintSelecting: true });
+        }
+      },
+
+      cancelHintSelection: () => {
+        set({ isHintSelecting: false });
+      },
+
+      unlockAttributeByHint: (attrKey, attrLabel, attrValue) => {
+        const { manuallyUnlockedAttributes } = get();
+        set({
+          manuallyUnlockedAttributes: {
+            ...manuallyUnlockedAttributes,
+            [attrKey]: attrValue,
+          },
+          unlockedHint: `${attrLabel}: ${attrValue}`,
+          isHintSelecting: false,
+        });
       },
 
       addGuess: (evaluation) => {
@@ -186,6 +216,8 @@ export const useGameStore = create<GameState>()(
           gameStatus: 'IN_PROGRESS',
           bonusChanceTaken: false,
           unlockedHint: null,
+          isHintSelecting: false,
+          manuallyUnlockedAttributes: {},
           startTimeMs: null,
           endTimeMs: null,
           unlimitedTargetId: newTargetId || null,
@@ -201,6 +233,8 @@ export const useGameStore = create<GameState>()(
             gameStatus: 'IN_PROGRESS',
             bonusChanceTaken: false,
             unlockedHint: null,
+            isHintSelecting: false,
+            manuallyUnlockedAttributes: {},
             startTimeMs: null,
             endTimeMs: null,
             userRank: null,

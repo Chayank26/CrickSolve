@@ -308,6 +308,23 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Category mode tabs*: Removed as explicitly requested by user.
 
+---
+
+## Phase 19: Interactive In-Place Shimmer Glare & 3D Card Flip Unlock Hint Mechanics
+
+### Decision 33: Direct In-Place Glare FX & Click-to-Unlock 3D Card Shutter Flip
+- **Approach Chosen:**
+  1. Built interactive in-place hint selection mechanics directly on the Left Column attribute cards (`AttributeCards.tsx`).
+  2. When the user clicks **`USE HINT (AVAILABLE AFTER 4 GUESSES)`**, `isHintSelecting` mode triggers:
+     - All locked attribute cards (*Country, Batting Hand, Bowling Style, Role, IPL Team, Retired*) activate an animated gradient **shimmer/glare sweep effect** with glowing ring borders and `CLICK TO UNLOCK 💡` text prompts.
+  3. Clicking any shining locked card triggers a 3D shutter card flip (`rotateY: [0, 90, 0]`, `scale: [1, 1.12, 1]`) revealing the target player's exact value in Neon Lime (`#CCFF00`).
+  4. The game seamlessly resumes normal play without requiring modal popups.
+- **Why this approach?**
+  - Delivers tactile, high-engagement wordle-style arcade delight with direct card interactions directly on the main board.
+- **Alternatives Considered:**
+  - *Modal picker popup*: Less tactile than directly interacting with the board tiles.
+
+
 
 
 ---

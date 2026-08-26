@@ -4,32 +4,34 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 18 (Removal of Format Category Mode & Header Rank Showcase Badge)
+## Current Status: Phase 19 (Interactive In-Place Shimmer Glare & 3D Card Flip Unlock Hint Mechanics)
 
 ### 1. Code Entry Point
-- **Root Page (`src/app/page.tsx`)**: Renders `Header`, 2-Column Neubrutalist Main Layout (`AttributeCards.tsx` on Left; `PlayerSearch.tsx` and `NumericHintsTable.tsx` on Right), and Modals.
+- **Root Page (`src/app/page.tsx`)**: Renders `Header`, `AttributeCards.tsx` (with in-place glare FX & shutter flip), `PlayerSearch.tsx` (with `USE HINT` trigger), `NumericHintsTable.tsx`, and Modals.
 
 ---
 
-### 2. Execution Order & Layout Flow
-1. **Header Component (`Header.tsx`)**:
-   - `CRICKSOLVE` Neon Yellow logo banner (`#CCFF00`), `DAILY #142` badge, `STREAK` counter badge, and action buttons (*DAILY MODE, UNLIMITED, PAST GAMES, YOUR STATS, LEADERBOARD*). Format category dropdown and rank showcase badge have been removed.
-2. **Left Column (`AttributeCards.tsx`)**:
-   - Mystery Player Card with 6 unlockable attribute cards (*Country, Batting Hand, Bowling Style, Role, IPL Team, Retired*) and `#7E22CE` photo silhouette unblur preview.
-3. **Right Column (`PlayerSearch.tsx` & `NumericHintsTable.tsx`)**:
-   - Deep Purple (`#7E22CE`) Search Container with search across all 424 players & Neon Yellow `GUESS (X/7)` button.
-   - Neubrutalist Numeric Hints Table (`GUESS`, `BIRTH`, `TESTS`, `ODIS`, `T20IS` with stat arrows `↑`/`↓`).
+### 2. Execution Order & Hint Unlock Flow
+1. **Hint Activation Trigger (`PlayerSearch.tsx`)**:
+   - Available after 4 incorrect guesses (`guesses.length >= 4`).
+   - Clicking **`USE HINT`** activates `isHintSelecting = true`.
+2. **In-Place Shimmer Glare FX (`AttributeCards.tsx`)**:
+   - All locked attribute cards (*Country, Batting Hand, Bowling Style, Role, IPL Team, Retired*) start shining with animated gradient glare sweeps and `CLICK TO UNLOCK 💡` text prompts.
+3. **Click-to-Unlock 3D Shutter Flip**:
+   - Player clicks desired locked attribute card -> triggers 3D shutter flip (`rotateY: [0, 90, 0]`) revealing target player value in Neon Lime (`#CCFF00`).
+   - `isHintSelecting` mode completes and game resumes normal play.
 
 ---
 
-### 3. Component Architecture Graph (Phase 18)
+### 3. Component Architecture Graph (Phase 19)
 ```
-src/app/page.tsx (Neubrutalism Dot-Grid 2-Column Layout)
+PlayerSearch.tsx (USE HINT trigger)
        │
-       ├──> Header.tsx (CRICKSOLVE Neon Yellow Logo, Clean Badges & Action Buttons)
-       ├──> Left Column (lg:col-span-5)
-       │      └──> AttributeCards.tsx (6 Unlockable Neubrutalist Attribute Cards + Silhouette Reveal)
-       └──> Right Column (lg:col-span-7)
-              ├──> PlayerSearch.tsx (Purple Search Container across 424 Players & GUESS Button)
-              └──> NumericHintsTable.tsx (Numeric Hints Table: Birth, Tests, ODIs, T20Is)
+       └──> Triggers isHintSelecting Mode
+                 │
+                 └──> AttributeCards.tsx (Locked cards shine with glare sweep FX)
+                            │
+                            └──> Player Clicks Locked Card
+                                      │
+                                      └──> 3D Shutter Card Flip ──> Unlocks Value in Neon Lime (#CCFF00)
 ```

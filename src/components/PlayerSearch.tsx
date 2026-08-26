@@ -8,7 +8,17 @@ import { Lightbulb } from 'lucide-react';
 import Fuse from 'fuse.js';
 
 export function PlayerSearch() {
-  const { guesses, addGuess, unlockedHint, setActiveModal, gameStatus, currentDate, gameMode, unlimitedTargetId } = useGameStore();
+  const {
+    guesses,
+    addGuess,
+    unlockedHint,
+    gameStatus,
+    currentDate,
+    gameMode,
+    unlimitedTargetId,
+    isHintSelecting,
+    startHintSelection,
+  } = useGameStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -132,15 +142,25 @@ export function PlayerSearch() {
       <div className="flex justify-end">
         <button
           onClick={() => {
-            if (isHintAvailable) {
-              setActiveModal('hintPicker');
+            if (isHintAvailable && !isHintSelecting) {
+              startHintSelection();
             }
           }}
           disabled={!isHintAvailable || isGameOver}
-          className="bg-white hover:bg-slate-100 text-black border-2 border-black px-3.5 py-1.5 text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 flex items-center gap-1.5"
+          className={`border-2 border-black px-3.5 py-1.5 text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5 ${
+            isHintSelecting
+              ? 'bg-[#CCFF00] text-black border-black animate-pulse'
+              : 'bg-white hover:bg-slate-100 text-black disabled:opacity-50'
+          }`}
         >
           <Lightbulb className="w-3.5 h-3.5 text-black" />
-          <span>{unlockedHint ? `HINT: ${unlockedHint}` : 'USE HINT (AVAILABLE AFTER 4 GUESSES)'}</span>
+          <span>
+            {unlockedHint
+              ? `HINT: ${unlockedHint}`
+              : isHintSelecting
+              ? 'CLICK A SHINING CARD ON THE LEFT 💡'
+              : 'USE HINT (AVAILABLE AFTER 4 GUESSES)'}
+          </span>
         </button>
       </div>
     </div>

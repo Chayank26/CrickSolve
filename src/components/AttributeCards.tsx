@@ -1,18 +1,39 @@
 'use client';
 
+import { useState } from 'react';
 import { useGameStore } from '@/store/useGameStore';
-import { Lock, Sparkles, Eye, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { getDailyTargetPlayer } from '@/lib/game-engine';
+import { PLAYERS } from '@/data/players';
+import { Lock, Sparkles, Eye, CheckCircle2, Lightbulb, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function AttributeCards() {
-  const { guesses, gameStatus } = useGameStore();
+  const {
+    guesses,
+    gameStatus,
+    currentDate,
+    category,
+    gameMode,
+    unlimitedTargetId,
+    isHintSelecting,
+    cancelHintSelection,
+    manuallyUnlockedAttributes,
+    unlockAttributeByHint,
+  } = useGameStore();
+
+  const [flippingAttrKey, setFlippingAttrKey] = useState<string | null>(null);
+
+  // Resolve target player for daily/unlimited mode
+  let targetPlayer = getDailyTargetPlayer(currentDate, category);
+  if (gameMode === 'unlimited' && unlimitedTargetId) {
+    const found = PLAYERS.find((p) => p.id === unlimitedTargetId);
+    if (found) targetPlayer = found;
+  }
 
   const isSolved = gameStatus === 'WON';
   const isFailed = gameStatus === 'LOST';
 
-  const lastGuess = guesses.length > 0 ? guesses[guesses.length - 1] : null;
-
-  // Track matched attributes across all guesses submitted
+  // Check which attributes have been matched by guesses submitted
   const matchedCountry = guesses.some((g) => g.attributeMatches.country);
   const matchedBatting = guesses.some((g) => g.attributeMatches.battingHand);
   const matchedBowling = guesses.some((g) => g.attributeMatches.bowlingType);
@@ -20,44 +41,42 @@ export function AttributeCards() {
   const matchedIpl = guesses.some((g) => g.attributeMatches.iplTeam);
   const matchedRetired = guesses.some((g) => g.attributeMatches.retired);
 
-  const player = lastGuess?.guessedPlayer;
-
   const attributes = [
     {
       key: 'country',
       label: 'COUNTRY',
-      matched: matchedCountry,
-      value: player?.country || '???',
+      matched: matchedCountry || !!manuallyUnlockedAttributes.country,
+      value: targetPlayer.country,
     },
     {
       key: 'battingHand',
       label: 'BATTING HAND',
-      matched: matchedBatting,
-      value: player?.battingHand || '???',
+      matched: matchedBatting || !!manuallyUnlockedAttributes.battingHand,
+      value: targetPlayer.battingHand,
     },
     {
       key: 'bowlingType',
       label: 'BOWLING STYLE',
-      matched: matchedBowling,
-      value: player?.bowlingType || '???',
+      matched: matchedBowling || !!manuallyUnlockedAttributes.bowlingType,
+      value: targetPlayer.bowlingType,
     },
     {
       key: 'role',
       label: 'ROLE',
-      matched: matchedRole,
-      value: player?.role || '???',
+      matched: matchedRole || !!manuallyUnlockedAttributes.role,
+      value: targetPlayer.role,
     },
     {
       key: 'iplTeam',
       label: 'IPL TEAM',
-      matched: matchedIpl,
-      value: player?.iplTeam || '???',
+      matched: matchedIpl || !!manuallyUnlockedAttributes.iplTeam,
+      value: targetPlayer.iplTeam === 'None' ? 'NOT IN IPL' : targetPlayer.iplTeam,
     },
     {
       key: 'retired',
       label: 'RETIRED',
-      matched: matchedRetired,
-      value: player ? (player.retired ? 'YES' : 'NO') : '???',
+      matched: matchedRetired || !!manuallyUnlockedAttributes.retired,
+      value: targetPlayer.retired ? 'YES' : 'NO',
     },
   ];
 
@@ -66,43 +85,109 @@ export function AttributeCards() {
   let blurAmount = Math.max(0, 24 - attemptCount * 4);
   if (isSolved || isFailed) blurAmount = 0;
 
-  const photoUrl = isSolved && lastGuess ? lastGuess.guessedPlayer.photoUrl : 'https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316600/316605.png';
+  const photoUrl = isSolved ? targetPlayer.photoUrl : 'https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316600/316605.png';
+
+  const handleCardClick = (key: string, label: string, value: string, isMatched: boolean) => {
+    if (!isHintSelecting || isMatched) return;
+
+    setFlippingAttrKey(key);
+    setTimeout(() => {
+      unlockAttributeByHint(key, label, value);
+      setFlippingAttrKey(null);
+    }, 300);
+  };
 
   return (
-    <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5 flex flex-col gap-4 text-black">
+    <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5 flex flex-col gap-4 text-black relative">
       {/* Card Header */}
-      <div className="border-b-3 border-black pb-3">
-        <h2 className="text-xl font-black uppercase tracking-tight text-black flex items-center justify-between">
-          MYSTERY PLAYER
-        </h2>
-        <p className="text-xs font-bold text-slate-600 mt-0.5">Attributes unlock when your guess matches.</p>
+      <div className="border-b-3 border-black pb-3 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-black uppercase tracking-tight text-black flex items-center gap-2">
+            MYSTERY PLAYER
+          </h2>
+          <p className="text-xs font-bold text-slate-600 mt-0.5">Attributes unlock when your guess matches.</p>
+        </div>
+
+        {/* Cancel Hint Selection Mode Button */}
+        {isHintSelecting && (
+          <button
+            onClick={cancelHintSelection}
+            className="bg-black text-white hover:bg-slate-900 border-2 border-black px-3 py-1 text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1"
+          >
+            <X className="w-3.5 h-3.5" /> CANCEL HINT
+          </button>
+        )}
       </div>
+
+      {/* Active Hint Selection Banner */}
+      <AnimatePresence>
+        {isHintSelecting && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="bg-[#CCFF00] border-3 border-black p-3 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-bounce"
+          >
+            <div className="text-xs font-black uppercase text-black flex items-center justify-center gap-2">
+              <Lightbulb className="w-4 h-4 fill-black" />
+              <span>HINT ACTIVE! CLICK ANY SHINING LOCKED ATTRIBUTE BELOW TO UNLOCK IT!</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 6 Unlockable Attribute Cards Grid */}
       <div className="grid grid-cols-2 gap-3">
         {attributes.map((attr, idx) => {
+          const isTargetingHint = isHintSelecting && !attr.matched;
+          const isFlippingThis = flippingAttrKey === attr.key;
+
           return (
             <motion.div
               key={attr.key}
               initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: idx * 0.05 }}
-              className={`p-3.5 border-3 border-black flex flex-col justify-center transition-all min-h-[68px] ${
+              animate={{
+                scale: isFlippingThis ? [1, 1.12, 1] : 1,
+                rotateY: isFlippingThis ? [0, 90, 0] : 0,
+                opacity: 1,
+              }}
+              transition={{ delay: idx * 0.04, duration: 0.3 }}
+              onClick={() => handleCardClick(attr.key, attr.label, attr.value, attr.matched)}
+              className={`relative overflow-hidden p-3.5 border-3 border-black flex flex-col justify-center transition-all min-h-[68px] ${
                 attr.matched
                   ? 'bg-[#CCFF00] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ring-2 ring-black font-black'
+                  : isTargetingHint
+                  ? 'bg-[#7E22CE] text-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] cursor-pointer ring-4 ring-[#CCFF00] animate-pulse'
                   : 'bg-slate-100 text-slate-700 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] font-bold'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase text-black">{attr.label}</span>
+              {/* Animated Glare / Shimmer Sweep Overlay for Hint Selection */}
+              {isTargetingHint && (
+                <motion.div
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '200%' }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none"
+                />
+              )}
+
+              <div className="flex items-center justify-between relative z-10">
+                <span className={`text-[10px] font-black uppercase ${isTargetingHint ? 'text-[#CCFF00]' : 'text-black'}`}>
+                  {attr.label}
+                </span>
                 {attr.matched ? (
                   <Sparkles className="w-4 h-4 text-black" />
+                ) : isTargetingHint ? (
+                  <Lightbulb className="w-4 h-4 text-[#CCFF00] animate-spin" />
                 ) : (
                   <Lock className="w-3.5 h-3.5 text-black" />
                 )}
               </div>
-              <div className="text-xs md:text-sm font-black uppercase mt-1 truncate">
-                {attr.matched ? attr.value : 'LOCKED'}
+
+              <div className={`text-xs md:text-sm font-black uppercase mt-1 truncate relative z-10 ${
+                isTargetingHint ? 'text-white' : ''
+              }`}>
+                {attr.matched ? attr.value : isTargetingHint ? 'CLICK TO UNLOCK 💡' : 'LOCKED'}
               </div>
             </motion.div>
           );

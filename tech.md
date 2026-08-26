@@ -4,10 +4,9 @@ This document lists every technology, library, database, and tool used in the Cr
 
 ---
 
-## Complete Technology Stack Log
-
-| Technology | Category | Role in Project | Alternative Considered | Justification for Selection |
+## Complete Technology Stack Lo| Technology | Category | Role in Project | Alternative Considered | Justification for Selection |
 | :--- | :--- | :--- | :--- | :--- |
+| **Interactive In-Place Shimmer Glare & 3D Shutter Flip Unlock Engine** | Game Mechanics & FX | Triggers animated gradient glare sweeps across locked attribute cards when hint mode activates, enabling direct click-to-unlock 3D shutter card flips (`rotateY: [0, 90, 0]`). | **Modal picker popup** | Provides tactile, high-delight wordle-style arcade board interactions without leaving the game flow. |
 | **Streamlined Universal Player Search Engine** | Data Search | Allows fuzzy search and puzzle target selection across all 424 international cricketers without format filtering. | **Format category mode filtering** | Provides an unconstrained player search experience as requested by user. |
 | **Clean Neubrutalism Header Badges** | UI Navigation | Displays `DAILY #142` and `STREAK` counter badges without rank showcase badge. | **Displaying static or dynamic rank text** | Keeps header clean and uncluttered. |
 | **Official Neubrutalism Dot-Grid Theme & 2-Column Attribute Layout** | UI Layout & Design Engine | Renders 2-column layout with Left Neubrutalist AttributeCards (6 unlockable tiles + Silhouette) and Right Purple Search Container & Neubrutalist Numeric Hints Table on a dot-grid backdrop. | **Dark glassmorphism layout** | Combines the official Neubrutalism arcade aesthetic requested by user with the original 2-column attribute structure. |
@@ -35,7 +34,7 @@ This document lists every technology, library, database, and tool used in the Cr
 | **CSS `filter: blur()` & Framer Motion** | Visual Unblur Engine | Dynamically computes blur radius for mystery player photo silhouette inside `SilhouetteReveal.tsx`. | **Canvas pixel manipulation** | CSS `filter: blur()` is hardware-accelerated by GPU, rendering 60fps transitions without CPU overhead. |
 | **Framer Motion (`rotateY` / `AnimatePresence`)** | Animation Engine | 3D card flip effects on attribute unlocks and smooth layout transitions. | **CSS `@keyframes` animations** | Framer Motion handles dynamic state transitions cleanly without manual CSS class toggling or animation end listeners. |
 | **Fuse.js Autocomplete Engine** | Fuzzy Search | Fuzzy search matching for cricketer names, countries, and IPL teams inside `PlayerSearch.tsx`. | **Native string `startsWith`** | String search fails on player last name lookups or minor typos (e.g. searching `"Tendulkar"` without `"Sachin"`). |
-| **Lucide React UI Vector Icons** | UI Graphics | Vector icons for `Flame` (streak), `Lock`, `CheckCircle2`, `ArrowUp`, `ArrowDown`, `Lightbulb`, `Volume2`. | **Raw SVG inline code** | Clean, typed React components with minimal bundle footprint. |
+| **Lucide React UI Vector Icons** | UI Graphics | Vector icons for `Flame` (streak), `Lock`, `CheckCircle2`, `ArrowUp`, `ArrowDown`, `Lightbulb`, `Volume2`. | **Raw SVG inline code** | Clean, typed React components with minimal bundle footprint. |. |
 | **Next.js Route Handlers (`src/app/api/puzzle/*`)** | Serverless API Engine | Secure HTTP endpoints for daily puzzle resolution, guess evaluation, and practice mode target generation. | **Standalone Express server** | Standardized Next.js route handlers run serverlessly alongside the frontend without needing separate backend infrastructure or CORS configuration. |
 | **TypeScript** | Language | Strict type definitions for player statistics, guess results, API contracts, and Supabase database schemas. | **JavaScript** | Prevents runtime `TypeError` issues when evaluating player stats and attribute matches across complex data structures. |
 | **Tailwind CSS** | CSS Framework | Utility-first styling engine for glassmorphic cards, responsive grid layouts, animations, and dark mode. | **Plain CSS / CSS Modules** | Eliminates CSS file bloat and class-name duplication. Enables dynamic HSL color tailoring and dark-mode toggling natively. |
