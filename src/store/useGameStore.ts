@@ -39,7 +39,7 @@ interface GameState {
   gamesWon: number;
 
   // Modals
-  activeModal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | null;
+  activeModal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | 'continue' | null;
 
   // Actions
   setGameMode: (mode: GameMode) => void;
@@ -53,7 +53,7 @@ interface GameState {
   unlockAttributeByHint: (attrKey: string, attrLabel: string, attrValue: string) => void;
   revealAttributeHint: (attrLabel: string, attrValue: string) => void;
   toggleSound: () => void;
-  setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | null) => void;
+  setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | 'continue' | null) => void;
   closeHowTo: () => void;
   resetGame: (newTargetId?: string) => void;
   syncDailyDate: (dateStr: string) => void;
@@ -88,15 +88,14 @@ export const useGameStore = create<GameState>()(
       gamesPlayed: 0,
       gamesWon: 0,
 
-      // Default activeModal is 'howTo' on first land
       activeModal: 'howTo',
 
       setGameMode: (mode) => {
-        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null });
+        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', bonusChanceTaken: false, unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null });
       },
 
       setCategory: (category) => {
-        set({ category, guesses: [], gameStatus: 'IN_PROGRESS', unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null });
+        set({ category, guesses: [], gameStatus: 'IN_PROGRESS', bonusChanceTaken: false, unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null });
       },
 
       setNickname: (nickname) => {
@@ -135,7 +134,7 @@ export const useGameStore = create<GameState>()(
       },
 
       addGuess: (evaluation) => {
-        const { guesses, gameStatus, streak, maxStreak, gamesPlayed, gamesWon, startTimeMs, lastSolvedDate, currentDate } = get();
+        const { guesses, gameStatus, streak, maxStreak, gamesPlayed, gamesWon, startTimeMs, lastSolvedDate, currentDate, bonusChanceTaken } = get();
         if (gameStatus !== 'IN_PROGRESS') return;
 
         const now = Date.now();
@@ -171,7 +170,15 @@ export const useGameStore = create<GameState>()(
 
           newMaxStreak = Math.max(newStreak, maxStreak);
           newLastSolvedDate = todayStr;
-        } else if (updatedGuesses.length >= (get().bonusChanceTaken ? 8 : 7)) {
+        } else if (updatedGuesses.length === 7 && !bonusChanceTaken) {
+          // Trigger Bonus 8th Chance Modal on 7th wrong guess
+          set({
+            guesses: updatedGuesses,
+            startTimeMs: start,
+            activeModal: 'continue',
+          });
+          return;
+        } else if (updatedGuesses.length >= (bonusChanceTaken ? 8 : 7)) {
           newStatus = 'LOST';
           newStreak = 0;
           newGamesPlayed = gamesPlayed + 1;

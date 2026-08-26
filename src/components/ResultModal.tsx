@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '@/store/useGameStore';
 import confetti from 'canvas-confetti';
-import { Trophy, Share2, RotateCcw, AlertCircle, Timer } from 'lucide-react';
+import { Trophy, Share2, RotateCcw, AlertCircle, Timer, X } from 'lucide-react';
 import { LeaderboardEntry } from '@/types/game';
 
 export function ResultModal() {
@@ -68,11 +68,10 @@ export function ResultModal() {
       createdAt: new Date().toISOString(),
     };
 
-    // 1. Save locally in localStorage for instant 100% reliable display
+    // Save locally in localStorage
     try {
       const existingRaw = localStorage.getItem('cricksolve_leaderboard_v1');
       const existing: LeaderboardEntry[] = existingRaw ? JSON.parse(existingRaw) : [];
-      // Remove previous entry for same date & nickname if exists
       const filtered = existing.filter((e) => !(e.date === currentDate && e.nickname === cleanName));
       const updated = [...filtered, newEntry];
       localStorage.setItem('cricksolve_leaderboard_v1', JSON.stringify(updated));
@@ -80,7 +79,7 @@ export function ResultModal() {
       console.error('Failed to save score to localStorage', err);
     }
 
-    // 2. Post to Supabase API
+    // Post to Supabase API
     try {
       await fetch('/api/leaderboard', {
         method: 'POST',
@@ -104,9 +103,27 @@ export function ResultModal() {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col gap-5 text-black animate-in fade-in zoom-in-95 duration-150 text-center">
+      <div className="w-full max-w-md bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col gap-4 text-black animate-in fade-in zoom-in-95 duration-150 relative">
+        {/* Top Right Action Icons: Share & Cross */}
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <button
+            onClick={() => setActiveModal('share')}
+            className="bg-[#CCFF00] border-2 border-black p-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+            title="Share Score"
+          >
+            <Share2 className="w-4 h-4 text-black" />
+          </button>
+          <button
+            onClick={() => setActiveModal(null)}
+            className="bg-white border-2 border-black p-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-slate-100 active:translate-x-0.5 active:translate-y-0.5 transition-all"
+            title="Close"
+          >
+            <X className="w-4 h-4 text-black" />
+          </button>
+        </div>
+
         {/* Banner Status Header */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2 text-center pt-2">
           {isWon ? (
             <div className="bg-[#CCFF00] border-3 border-black p-3 text-black">
               <Trophy className="w-8 h-8 animate-bounce" />
@@ -118,34 +135,34 @@ export function ResultModal() {
           )}
 
           <h2 className="text-2xl font-black uppercase tracking-tight text-black">
-            {isWon ? 'SPECTACULAR WIN! 🏆' : 'GAME OVER'}
+            {isWon ? 'SPECTACULAR WIN! 🏆' : 'MYSTERY PLAYER REVEALED'}
           </h2>
           <p className="text-xs font-bold text-slate-600">
             {isWon
               ? `You solved the puzzle in ${guesses.length} tries!`
-              : 'You ran out of guess attempts for today.'}
+              : 'Here is the target cricketer for today.'}
           </p>
         </div>
 
-        {/* Player Reveal Card */}
+        {/* Mystery Player Card */}
         {targetPlayer && (
           <div className="bg-[#7E22CE] text-white border-3 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4 text-left">
             <img
               src={targetPlayer.photoUrl}
               alt={targetPlayer.name}
-              className="w-14 h-14 border-2 border-black object-cover bg-slate-200"
+              className="w-16 h-16 border-2 border-black object-cover bg-slate-200 flex-shrink-0"
             />
             <div>
               <div className="text-xs font-black uppercase text-[#CCFF00]">MYSTERY CRICKETER</div>
-              <div className="text-lg font-black uppercase">{targetPlayer.name}</div>
-              <div className="text-xs font-semibold opacity-90">
+              <div className="text-lg font-black uppercase tracking-tight">{targetPlayer.name}</div>
+              <div className="text-xs font-bold opacity-90 mt-0.5">
                 {targetPlayer.country} • {targetPlayer.role}
               </div>
             </div>
           </div>
         )}
 
-        {/* Solve Time & Stats Box */}
+        {/* Solve Time & Stats Box for Winners */}
         {isWon && (
           <div className="bg-[#CCFF00] border-3 border-black p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-around font-black text-xs uppercase text-black">
             <div className="flex items-center gap-1.5">
@@ -184,11 +201,11 @@ export function ResultModal() {
           </form>
         )}
 
-        {/* Action Buttons */}
+        {/* Footer Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-2">
           <button
             onClick={() => setActiveModal('share')}
-            className="bg-[#CCFF00] text-black font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5"
+            className="bg-[#CCFF00] text-black font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all"
           >
             <Share2 className="w-4 h-4" />
             <span>SHARE SCORE</span>
@@ -200,7 +217,7 @@ export function ResultModal() {
                 resetGame();
                 setActiveModal(null);
               }}
-              className="bg-black text-white font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5"
+              className="bg-black text-white font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5 transition-all"
             >
               <RotateCcw className="w-4 h-4 text-[#CCFF00]" />
               <span>NEXT PLAYER</span>
@@ -208,7 +225,7 @@ export function ResultModal() {
           ) : (
             <button
               onClick={() => setActiveModal('leaderboard')}
-              className="bg-[#7E22CE] text-white font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5"
+              className="bg-[#7E22CE] text-white font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] py-2.5 text-xs uppercase flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5 transition-all"
             >
               <Trophy className="w-4 h-4 text-[#CCFF00]" />
               <span>LEADERBOARD</span>

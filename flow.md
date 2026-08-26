@@ -4,34 +4,37 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 19 (Interactive In-Place Shimmer Glare & 3D Card Flip Unlock Hint Mechanics)
+## Current Status: Phase 20 (Bonus 8th Chance Continue Modal & Mystery Player Reveal Card)
 
 ### 1. Code Entry Point
-- **Root Page (`src/app/page.tsx`)**: Renders `Header`, `AttributeCards.tsx` (with in-place glare FX & shutter flip), `PlayerSearch.tsx` (with `USE HINT` trigger), `NumericHintsTable.tsx`, and Modals.
+- **Root Page (`src/app/page.tsx`)**: Renders `Header`, 2-Column Main Layout (`AttributeCards.tsx` & `PlayerSearch.tsx`), `ContinueModal.tsx`, `ResultModal.tsx`, and Modals.
 
 ---
 
-### 2. Execution Order & Hint Unlock Flow
-1. **Hint Activation Trigger (`PlayerSearch.tsx`)**:
-   - Available after 4 incorrect guesses (`guesses.length >= 4`).
-   - Clicking **`USE HINT`** activates `isHintSelecting = true`.
-2. **In-Place Shimmer Glare FX (`AttributeCards.tsx`)**:
-   - All locked attribute cards (*Country, Batting Hand, Bowling Style, Role, IPL Team, Retired*) start shining with animated gradient glare sweeps and `CLICK TO UNLOCK 💡` text prompts.
-3. **Click-to-Unlock 3D Shutter Flip**:
-   - Player clicks desired locked attribute card -> triggers 3D shutter flip (`rotateY: [0, 90, 0]`) revealing target player value in Neon Lime (`#CCFF00`).
-   - `isHintSelecting` mode completes and game resumes normal play.
+### 2. Execution Order & 7th Guess Wrong Decision Flow
+1. **7th Wrong Guess Trigger (`useGameStore.ts`)**:
+   - Submitting 7th incorrect guess opens **`ContinueModal.tsx`**.
+2. **Bonus 8th Chance Prompt (`ContinueModal.tsx`)**:
+   - Prompts **"DO YOU WANT ANOTHER GUESS?"** (Yes / No).
+   - Displays bonus hint:
+     - *If locked attribute exists*: Shows 1 locked attribute value (e.g. `Role: Batting Allrounder`).
+     - *If all 6 attributes unlocked*: Shows numeric stat profile (*Birth Year, Tests, ODIs, T20Is*).
+3. **User Action**:
+   - **`YES (1 MORE GUESS)`**: Grants 8th guess attempt and resumes game.
+   - **`NO`**: Sets game status to `LOST` and opens Mystery Player Reveal Card (`ResultModal.tsx`).
+4. **Mystery Player Reveal Card (`ResultModal.tsx`)**:
+   - Displays unblurred cricketer photo, Name, Country, and Role.
+   - Top right features 📋 Share score button and ✖ Close button.
 
 ---
 
-### 3. Component Architecture Graph (Phase 19)
+### 3. Component Architecture Graph (Phase 20)
 ```
-PlayerSearch.tsx (USE HINT trigger)
+7th Wrong Guess Submitted
        │
-       └──> Triggers isHintSelecting Mode
+       └──> Opens ContinueModal.tsx
                  │
-                 └──> AttributeCards.tsx (Locked cards shine with glare sweep FX)
-                            │
-                            └──> Player Clicks Locked Card
-                                      │
-                                      └──> 3D Shutter Card Flip ──> Unlocks Value in Neon Lime (#CCFF00)
+                 ├──> YES (1 MORE GUESS) ──> Unlocks Hint & Grants 8th Attempt
+                 │
+                 └──> NO ──> Opens ResultModal.tsx (Mystery Player Card: Name, Photo, Country, Role, Share & Close Buttons)
 ```

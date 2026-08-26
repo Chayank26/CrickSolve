@@ -324,6 +324,28 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Modal picker popup*: Less tactile than directly interacting with the board tiles.
 
+---
+
+## Phase 20: Bonus 8th Chance Continue Modal & Mystery Player Reveal Card
+
+### Decision 34: Bonus 8th Chance Prompt with Automatic Hint Preview & Mystery Player Reveal Card
+- **Approach Chosen:**
+  1. Built `ContinueModal.tsx` triggering automatically when the 7th guess is wrong:
+     - Prompts **"DO YOU WANT ANOTHER GUESS?"** (Yes / No).
+     - Displays an automatic bonus hint inside the modal:
+       - **If any non-numeric attribute is still locked**: Displays one locked attribute's value (e.g. `Role is Batting Allrounder`).
+       - **If all 6 non-numeric attributes are unlocked**: Displays the mystery cricketer's exact stat profile (*Birth Year, Tests, ODIs, T20Is*).
+     - Clicking **`YES (1 MORE GUESS)`** unlocks that hint and grants 1 additional 8th guess attempt.
+     - Clicking **`NO`** ends the game as Lost and opens the Mystery Player Reveal Card.
+  2. Redesigned `ResultModal.tsx` for game loss / reveal:
+     - Displays mystery cricketer photo (unblurred), Name, Country, and Role.
+     - Features 📋 **Share** button and ✖ **Close** button in top-right corner.
+- **Why this approach?**
+  - Gives players a second wind opportunity with tactical hint previews while presenting a clean mystery cricketer reveal card upon game end.
+- **Alternatives Considered:**
+  - *Abrupt game loss popup*: Disappointing user experience compared to an optional bonus 8th attempt with hint previews.
+
+
 
 
 
