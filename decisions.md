@@ -294,6 +294,21 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Merging stats into leaderboard modal*: Creates visual clutter and confuses personal stats with daily competitive rankings.
 
+---
+
+## Phase 15: Rich Dataset Roles, Bowling Style & Batting Hand Attribute Columns
+
+### Decision 29: Rich Dataset Player Roles & Distinct Bowling Style Column
+- **Approach Chosen:**
+  1. Preserved exact dataset role descriptions (*Batting Allrounder, Bowling Allrounder, Spinner, Medium Pacer, Top Order Batter, Middle Order Batter, Wicketkeeper*) from `players_with_stats.csv` into `src/data/players.ts`.
+  2. Created distinct attribute columns in `GuessesGrid.tsx` for **`ROLE`**, **`BATTING`** (Batting Hand), and **`BOWLING`** (Bowling Style/Type like *Right-arm Fast, Right-arm Offbreak, Legbreak, Slow Left-arm Orthodox, Does Not Bowl*).
+  3. Added `Bowling Style` to the interactive hint selector (`AttributeHintPickerModal.tsx`).
+- **Why this approach?**
+  - Gives players complete tactical depth across all 3 key cricketer skill attributes (Batting, Bowling, and Role) as stored in the authoritative dataset.
+- **Alternatives Considered:**
+  - *Generic 4-category role abbreviation*: Oversimplified rich player distinctions like Spinners vs Medium Pacers vs Top Order Batters.
+
+
 
 
 

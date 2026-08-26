@@ -1,16 +1,6 @@
-export type BattingHand = 'Right-hand bat' | 'Left-hand bat';
-export type BowlingType = 
-  | 'Right-arm fast' 
-  | 'Right-arm medium' 
-  | 'Right-arm offbreak' 
-  | 'Legbreak' 
-  | 'Left-arm fast' 
-  | 'Left-arm orthodox' 
-  | 'Left-arm chinaman' 
-  | 'None';
-
-export type PlayerRole = 'Batter' | 'Bowler' | 'All-rounder' | 'Wicketkeeper batter';
-
+export type BattingHand = string;
+export type BowlingType = string;
+export type PlayerRole = string;
 export type PlayerCategory = 'International' | 'IPL' | 'Legend' | 'Womens';
 
 export interface Player {
