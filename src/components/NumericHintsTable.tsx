@@ -1,105 +1,112 @@
 'use client';
 
 import { useGameStore } from '@/store/useGameStore';
-import { ArrowUp, ArrowDown, Check, Hash } from 'lucide-react';
-import { NumericComparison } from '@/types/game';
-
-function Indicator({ status }: { status: NumericComparison }) {
-  if (status === 'match') {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xs border border-emerald-500/40">
-        <Check className="w-3 h-3" /> Match
-      </span>
-    );
-  }
-  if (status === 'higher') {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/40">
-        <ArrowUp className="w-3 h-3 text-amber-400" /> Higher
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold text-xs border border-cyan-500/40">
-      <ArrowDown className="w-3 h-3 text-cyan-400" /> Lower
-    </span>
-  );
-}
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function NumericHintsTable() {
   const { guesses } = useGameStore();
 
   return (
-    <div className="w-full bg-slate-900/60 border border-slate-800 rounded-2xl p-4 md:p-6 backdrop-blur-md shadow-xl flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-            <span>Numeric Stat Hints</span>
-            <Hash className="w-4 h-4 text-cyan-400" />
-          </h2>
-          <p className="text-xs text-slate-400">↑ means mystery player is higher, ↓ means lower.</p>
-        </div>
-        <div className="text-xs text-slate-400 font-mono">{guesses.length} / 7 tries</div>
+    <div className="card-dark p-5 flex flex-col gap-4">
+      {/* Card Header */}
+      <div className="border-b border-white/10 pb-3">
+        <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
+          Numeric Hints
+        </h2>
+        <p className="text-xs text-slate-400 mt-0.5">↑ means mystery is higher. ↓ means lower.</p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-slate-300">
-          <thead className="bg-slate-950/70 uppercase text-[11px] font-semibold text-slate-400 border-b border-slate-800">
+      {/* Table Container */}
+      <div className="w-full overflow-x-auto rounded-xl border border-white/10 bg-slate-950/60">
+        <table className="w-full text-center text-xs">
+          <thead className="bg-slate-900/90 text-slate-300 font-extrabold uppercase text-[11px] border-b border-white/10">
             <tr>
-              <th className="py-2.5 px-3">#</th>
-              <th className="py-2.5 px-3">Player</th>
-              <th className="py-2.5 px-3">Birth Year</th>
-              <th className="py-2.5 px-3">Tests</th>
-              <th className="py-2.5 px-3">ODIs</th>
-              <th className="py-2.5 px-3">T20Is</th>
+              <th className="py-3 px-3 text-left">Guess</th>
+              <th className="py-3 px-2">Birth Year</th>
+              <th className="py-3 px-2">Tests</th>
+              <th className="py-3 px-2">ODIs</th>
+              <th className="py-3 px-2">T20Is</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-white/5 font-bold">
             {guesses.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-500 text-xs italic">
-                  No guesses made yet. Enter a cricketer name above to start unlocking hints!
+                <td colSpan={5} className="py-8 text-slate-500 font-semibold text-center">
+                  No guesses yet. Submit a cricketer to view numeric stat hints!
                 </td>
               </tr>
             ) : (
-              guesses.map((g, idx) => (
-                <tr key={`${g.guessedPlayer.id}-${idx}`} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-3 px-3 font-mono font-bold text-slate-500">{idx + 1}</td>
-                  <td className="py-3 px-3">
-                    <div className="flex items-center gap-2.5">
-                      <img src={g.guessedPlayer.photoUrl} alt={g.guessedPlayer.name} className="w-7 h-7 rounded-full object-cover border border-slate-700" />
-                      <div>
-                        <div className="font-bold text-slate-200">{g.guessedPlayer.name}</div>
-                        <div className="text-[10px] text-slate-400">{g.guessedPlayer.country}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-mono text-slate-200">{g.guessedPlayer.birthYear}</span>
-                      <Indicator status={g.numericMatches.birthYear} />
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-mono text-slate-200">{g.guessedPlayer.tests}</span>
-                      <Indicator status={g.numericMatches.tests} />
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-mono text-slate-200">{g.guessedPlayer.odis}</span>
-                      <Indicator status={g.numericMatches.odis} />
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-mono text-slate-200">{g.guessedPlayer.t20is}</span>
-                      <Indicator status={g.numericMatches.t20is} />
-                    </div>
-                  </td>
-                </tr>
-              ))
+              <AnimatePresence>
+                {guesses.map((g, idx) => {
+                  return (
+                    <motion.tr
+                      key={`${g.guessedPlayer.id}-${idx}`}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="hover:bg-white/5 transition-colors"
+                    >
+                      {/* Player Name */}
+                      <td className="py-3 px-3 text-left font-extrabold text-white">
+                        <div className="text-xs">{g.guessedPlayer.name}</div>
+                        <div className="text-[10px] text-slate-400 font-semibold">{g.guessedPlayer.country}</div>
+                      </td>
+
+                      {/* Birth Year */}
+                      <td className="py-3 px-2">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${
+                          g.numericMatches.birthYear === 'match'
+                            ? 'bg-emerald-500/20 text-emerald-400 font-extrabold border border-emerald-500/30'
+                            : 'text-slate-200'
+                        }`}>
+                          {g.guessedPlayer.birthYear}
+                          {g.numericMatches.birthYear === 'higher' && <span className="text-emerald-400 font-black">↑</span>}
+                          {g.numericMatches.birthYear === 'lower' && <span className="text-rose-400 font-black">↓</span>}
+                        </span>
+                      </td>
+
+                      {/* Tests */}
+                      <td className="py-3 px-2">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${
+                          g.numericMatches.tests === 'match'
+                            ? 'bg-emerald-500/20 text-emerald-400 font-extrabold border border-emerald-500/30'
+                            : 'text-slate-200'
+                        }`}>
+                          {g.guessedPlayer.tests}
+                          {g.numericMatches.tests === 'higher' && <span className="text-emerald-400 font-black">↑</span>}
+                          {g.numericMatches.tests === 'lower' && <span className="text-rose-400 font-black">↓</span>}
+                        </span>
+                      </td>
+
+                      {/* ODIs */}
+                      <td className="py-3 px-2">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${
+                          g.numericMatches.odis === 'match'
+                            ? 'bg-emerald-500/20 text-emerald-400 font-extrabold border border-emerald-500/30'
+                            : 'text-slate-200'
+                        }`}>
+                          {g.guessedPlayer.odis}
+                          {g.numericMatches.odis === 'higher' && <span className="text-emerald-400 font-black">↑</span>}
+                          {g.numericMatches.odis === 'lower' && <span className="text-rose-400 font-black">↓</span>}
+                        </span>
+                      </td>
+
+                      {/* T20Is */}
+                      <td className="py-3 px-2">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${
+                          g.numericMatches.t20is === 'match'
+                            ? 'bg-emerald-500/20 text-emerald-400 font-extrabold border border-emerald-500/30'
+                            : 'text-slate-200'
+                        }`}>
+                          {g.guessedPlayer.t20is}
+                          {g.numericMatches.t20is === 'higher' && <span className="text-emerald-400 font-black">↑</span>}
+                          {g.numericMatches.t20is === 'lower' && <span className="text-rose-400 font-black">↓</span>}
+                        </span>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </AnimatePresence>
             )}
           </tbody>
         </table>

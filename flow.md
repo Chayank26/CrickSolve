@@ -4,26 +4,32 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 14 (Header Standing Badge Simplification & Dedicated `YOUR STATS` Button)
+## Current Status: Phase 16 (Restoration of Original Sleek 2-Column Glassmorphic Dark Layout)
 
 ### 1. Code Entry Point
-- **Root Page (`src/app/page.tsx`)**: Renders `Header`, `PlayerSearch`, `GuessesGrid`, `SilhouetteReveal`, `LeaderboardModal`, and `StatsModal`.
+- **Root Page (`src/app/page.tsx`)**: Renders `Header`, 2-Column Main Layout (`AttributeCards.tsx` on Left; `PlayerSearch.tsx` and `NumericHintsTable.tsx` on Right), and Modals.
 
 ---
 
-### 2. Execution Order & Top Bar Navigation Flow
-1. **Header Navigation Bar (`Header.tsx`)**:
-   - Displays `DAILY #142`, clean `STREAK: X` (no emojis), and `STANDING: #X` (or `--` if unranked).
-   - **`YOUR STATS`** button opens `StatsModal.tsx` showing Games Played, Games Solved, Win Rate %, Current Streak, and Max Streak.
-   - **`LEADERBOARD`** button opens `LeaderboardModal.tsx` showing today's sorted solve-time rankings.
+### 2. Execution Order & Layout Flow
+1. **Header Component (`Header.tsx`)**:
+   - Logo `CrickSolve 🏏`, category selection dropdown, streak badge, standing rank badge, and action triggers (*How to Play, Past Games, Practice Mode, Your Stats, Leaderboard*).
+2. **Left Column (`AttributeCards.tsx`)**:
+   - Mystery Player Card with 6 unlockable attribute tiles (*Country, Batting Hand, Bowling Style, Role, IPL Team, Retired*) and photo silhouette unblur preview.
+3. **Right Column (`PlayerSearch.tsx` & `NumericHintsTable.tsx`)**:
+   - Player Search Box with Fuse.js autocomplete & `Guess` / `Use Hint` buttons.
+   - Numeric Hints Table displaying player attempts with stat values and directional arrows (`↑`, `↓`, `✓`).
 
 ---
 
-### 3. Component Architecture Graph (Phase 14)
+### 3. Component Architecture Graph (Phase 16)
 ```
-Header.tsx (Cleaned top badges & action buttons)
+src/app/page.tsx (Original 2-Column Dark Layout)
        │
-       ├──> YOUR STATS Button ──> Opens StatsModal.tsx (Played, Solved, Win %, Streaks)
-       ├──> LEADERBOARD Button ──> Opens LeaderboardModal.tsx (Today's player & rankings)
-       └──> HOW TO PLAY Button ──> Opens HowToModal.tsx
+       ├──> Header.tsx (CrickSolve 🏏 title, Category Dropdown, Navigation Badges & Buttons)
+       ├──> Left Column (lg:col-span-5)
+       │      └──> AttributeCards.tsx (6 Unlockable Attribute Cards + Silhouette Reveal)
+       └──> Right Column (lg:col-span-7)
+              ├──> PlayerSearch.tsx (Autocomplete Search Input & Guess/Hint Buttons)
+              └──> NumericHintsTable.tsx (Numeric Hints Table: Birth, Tests, ODIs, T20Is)
 ```

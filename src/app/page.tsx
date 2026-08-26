@@ -1,9 +1,9 @@
 'use client';
 
 import { Header } from '@/components/Header';
+import { AttributeCards } from '@/components/AttributeCards';
 import { PlayerSearch } from '@/components/PlayerSearch';
-import { GuessesGrid } from '@/components/GuessesGrid';
-import { SilhouetteReveal } from '@/components/SilhouetteReveal';
+import { NumericHintsTable } from '@/components/NumericHintsTable';
 import { HowToModal } from '@/components/TacticalHintModal';
 import { CalendarModal } from '@/components/CalendarModal';
 import { ResultModal } from '@/components/ResultModal';
@@ -14,20 +14,23 @@ import { AttributeHintPickerModal } from '@/components/AttributeHintPickerModal'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-dot-grid text-black font-sans selection:bg-[#CCFF00] selection:text-black flex flex-col p-3 md:p-6">
-      <div className="max-w-5xl w-full mx-auto flex flex-col gap-5">
-        {/* Top Header */}
-        <Header />
+    <div className="min-h-screen text-slate-100 flex flex-col p-4 md:p-6 max-w-7xl mx-auto selection:bg-emerald-500 selection:text-black">
+      {/* Top Header */}
+      <Header />
 
-        {/* Purple Input Block */}
-        <PlayerSearch />
+      {/* Main 2-Column Layout */}
+      <main className="grid grid-cols-1 lg:grid-cols-12 gap-5 my-2">
+        {/* Left Column: Mystery Player Attribute Cards & Silhouette */}
+        <section className="lg:col-span-5 flex flex-col gap-5">
+          <AttributeCards />
+        </section>
 
-        {/* Main Guesses Grid & Hints */}
-        <GuessesGrid />
-
-        {/* Silhouette Unblur Banner */}
-        <SilhouetteReveal />
-      </div>
+        {/* Right Column: Search/Guess Box & Numeric Hints Table */}
+        <section className="lg:col-span-7 flex flex-col gap-5">
+          <PlayerSearch />
+          <NumericHintsTable />
+        </section>
+      </main>
 
       {/* Modals */}
       <HowToModal />

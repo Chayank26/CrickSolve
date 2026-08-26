@@ -254,6 +254,32 @@ This document logs all key technical and architectural decisions taken during th
 - **Alternatives Considered:**
   - *Instant static appearance*: Feels flat and lacks arcade animation delight.
 
+### Decision 29: Rich Dataset Player Roles & Distinct Bowling Style Column
+- **Approach Chosen:**
+  1. Preserved exact dataset role descriptions (*Batting Allrounder, Bowling Allrounder, Spinner, Medium Pacer, Top Order Batter, Middle Order Batter, Wicketkeeper*) from `players_with_stats.csv` into `src/data/players.ts`.
+  2. Created distinct attribute columns in `GuessesGrid.tsx` for **`ROLE`**, **`BATTING`** (Batting Hand), and **`BOWLING`** (Bowling Style/Type like *Right-arm Fast, Right-arm Offbreak, Legbreak, Slow Left-arm Orthodox, Does Not Bowl*).
+  3. Added `Bowling Style` to the interactive hint selector (`AttributeHintPickerModal.tsx`).
+- **Why this approach?**
+  - Gives players complete tactical depth across all 3 key cricketer skill attributes (Batting, Bowling, and Role) as stored in the authoritative dataset.
+- **Alternatives Considered:**
+  - *Generic 4-category role abbreviation*: Oversimplified rich player distinctions like Spinners vs Medium Pacers vs Top Order Batters.
+
+---
+
+## Phase 16: Restoration of Original Sleek 2-Column Glassmorphic Dark Layout
+
+### Decision 30: Original 2-Column Dark Layout Architecture
+- **Approach Chosen:**
+  1. Re-architected `src/app/page.tsx` back to the original sleek 2-column layout structure:
+     - **Top Header (`Header.tsx`)**: Logo `CrickSolve 🏏`, category selection dropdown (*International, IPL Stars, Legends, Women's Cricket*), Streak badge, Standing rank badge, How to Play button, Past Games calendar button, Practice mode toggle button, Your Stats button, and Leaderboard button.
+     - **Left Column (`AttributeCards.tsx`)**: Mystery Player card displaying the 6 unlockable attribute cards (*Country, Batting Hand, Bowling Style, Role, IPL Team, Retired*) with lock states 🔒, plus the progressive photo silhouette unblur preview.
+     - **Right Column (`PlayerSearch.tsx` & `NumericHintsTable.tsx`)**: Top card for player search input with Fuse.js autocomplete & guess button, and bottom card for the Numeric Hints Table (*Birth Year, Tests, ODIs, T20Is* with directional `↑`/`↓` indicators).
+  2. Styled with original sleek dark slate/blue background (`#0b1329`), glassmorphic rounded cards (`card-dark`), green action buttons (`btn-primary-green`), and comic buttons (`comic-button`).
+- **Why this approach?**
+  - Restores the exact user-favored classic design aesthetic while seamlessly keeping all dynamic backend anti-cheat APIs, Supabase solve-time leaderboards, and fullstack features.
+- **Alternatives Considered:**
+  - *Full-width 12-column grid*: Replaced by original 2-column layout requested by user.
+
 ---
 
 ## Phase 12: `T20IS` Column Restoration & Attribute Match Celebration Pop Animation
