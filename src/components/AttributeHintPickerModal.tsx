@@ -3,7 +3,7 @@
 import { useGameStore } from '@/store/useGameStore';
 import { getDailyTargetPlayer } from '@/lib/game-engine';
 import { PLAYERS } from '@/data/players';
-import { X, Lightbulb, Globe, UserCheck, Calendar, Trophy, ShieldAlert, Activity, Zap } from 'lucide-react';
+import { X, Lightbulb, Globe, UserCheck, Calendar, Trophy, ShieldAlert, Activity } from 'lucide-react';
 
 export function AttributeHintPickerModal() {
   const { activeModal, setActiveModal, currentDate, category, gameMode, unlimitedTargetId, revealAttributeHint } = useGameStore();
@@ -35,12 +35,6 @@ export function AttributeHintPickerModal() {
       label: 'Batting Hand',
       icon: Activity,
       value: targetPlayer.battingHand,
-    },
-    {
-      key: 'bowlingType',
-      label: 'Bowling Style',
-      icon: Zap,
-      value: targetPlayer.bowlingType,
     },
     {
       key: 'birthYear',

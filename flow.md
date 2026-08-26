@@ -4,35 +4,26 @@ This document traces the complete execution flow, entry points, component hierar
 
 ---
 
-## Current Status: Phase 15 (Rich Dataset Roles, Bowling Style & Batting Hand Attribute Columns)
+## Current Status: Phase 14 (Header Standing Badge Simplification & Dedicated `YOUR STATS` Button)
 
 ### 1. Code Entry Point
-- **Guesses Grid (`src/components/GuessesGrid.tsx`)**: Renders 10 attribute columns (`PLAYER`, `COUNTRY`, `ROLE`, `BATTING`, `BOWLING`, `BIRTH`, `TESTS`, `ODIS`, `T20IS`, `IPL TEAM`, `RETIRED?`).
+- **Root Page (`src/app/page.tsx`)**: Renders `Header`, `PlayerSearch`, `GuessesGrid`, `SilhouetteReveal`, `LeaderboardModal`, and `StatsModal`.
 
 ---
 
-### 2. Execution Order & Attribute Evaluation Flow
-1. **CSV Dataset Parsing (`scripts/convert-csv.js`)**:
-   - Imports all 424 players preserving exact dataset roles (*Batting Allrounder, Bowling Allrounder, Spinner, Medium Pacer, Top Order Batter, Middle Order Batter, Wicketkeeper*) and bowling styles (*Right-arm Fast, Right-arm Offbreak, Legbreak, Slow Left-arm Orthodox, Does Not Bowl*).
-2. **Guess Submission & Reveal (`GuessesGrid.tsx`)**:
-   - Evaluates `guessedPlayer.role === targetPlayer.role`, `guessedPlayer.battingHand === targetPlayer.battingHand`, and `guessedPlayer.bowlingType === targetPlayer.bowlingType`.
-   - Staggered 3D card flip reveals match colors (Neon Lime `#CCFF00` on match).
+### 2. Execution Order & Top Bar Navigation Flow
+1. **Header Navigation Bar (`Header.tsx`)**:
+   - Displays `DAILY #142`, clean `STREAK: X` (no emojis), and `STANDING: #X` (or `--` if unranked).
+   - **`YOUR STATS`** button opens `StatsModal.tsx` showing Games Played, Games Solved, Win Rate %, Current Streak, and Max Streak.
+   - **`LEADERBOARD`** button opens `LeaderboardModal.tsx` showing today's sorted solve-time rankings.
 
 ---
 
-### 3. Component Architecture Graph (Phase 15)
+### 3. Component Architecture Graph (Phase 14)
 ```
-GuessesGrid.tsx (12-column grid layout)
+Header.tsx (Cleaned top badges & action buttons)
        │
-       ├──> Player Name Block (Black box, GUESS # label)
-       ├──> FlipTile (Country)
-       ├──> FlipTile (Role - Batting Allrounder / Spinner / etc.)
-       ├──> FlipTile (Batting - Right-hand / Left-hand)
-       ├──> FlipTile (Bowling - Right-arm Fast / Offbreak / etc.)
-       ├──> FlipTile (Birth Year)
-       ├──> FlipTile (Tests)
-       ├──> FlipTile (ODIs)
-       ├──> FlipTile (T20Is)
-       ├──> FlipTile (IPL Team)
-       └──> FlipTile (Retired? YES/NO)
+       ├──> YOUR STATS Button ──> Opens StatsModal.tsx (Played, Solved, Win %, Streaks)
+       ├──> LEADERBOARD Button ──> Opens LeaderboardModal.tsx (Today's player & rankings)
+       └──> HOW TO PLAY Button ──> Opens HowToModal.tsx
 ```

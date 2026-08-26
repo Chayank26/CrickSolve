@@ -44,14 +44,6 @@ const IPL_MAP = {
   NA: 'None',
 };
 
-function formatTitleCase(str) {
-  if (!str) return '';
-  return str
-    .split(/[-_\s]+/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(' ');
-}
-
 const players = [];
 const seenIds = new Set();
 
@@ -96,14 +88,33 @@ for (const line of dataLines) {
   // Batting Hand
   const battingHand = rawBatting?.includes('left') ? 'Left-hand bat' : 'Right-hand bat';
 
-  // Bowling Type (preserve rich descriptions)
-  let bowlingType = 'Does Not Bowl';
-  if (rawBowling && rawBowling !== 'does not bowl') {
-    bowlingType = formatTitleCase(rawBowling);
+  // Bowling Type
+  let bowlingType = 'None';
+  if (rawBowling?.includes('fast')) {
+    bowlingType = rawBowling.includes('left') ? 'Left-arm fast' : 'Right-arm fast';
+  } else if (rawBowling?.includes('medium')) {
+    bowlingType = 'Right-arm medium';
+  } else if (rawBowling?.includes('offbreak')) {
+    bowlingType = 'Right-arm offbreak';
+  } else if (rawBowling?.includes('legbreak')) {
+    bowlingType = 'Legbreak';
+  } else if (rawBowling?.includes('orthodox')) {
+    bowlingType = 'Left-arm orthodox';
+  } else if (rawBowling?.includes('chinaman')) {
+    bowlingType = 'Left-arm chinaman';
   }
 
-  // Role (preserve rich roles from dataset)
-  const role = rawRole ? rawRole.trim() : 'Batter';
+  // Role
+  let role = 'Batter';
+  if (rawRole?.toLowerCase().includes('wicketkeeper')) {
+    role = 'Wicketkeeper batter';
+  } else if (rawRole?.toLowerCase().includes('allrounder')) {
+    role = 'All-rounder';
+  } else if (rawRole?.toLowerCase().includes('spinner') || rawRole?.toLowerCase().includes('pacer') || rawRole?.toLowerCase().includes('bowler')) {
+    role = 'Bowler';
+  } else {
+    role = 'Batter';
+  }
 
   const iplTeam = IPL_MAP[rawIpl] || 'None';
   const retired = rawRetired === 'y';
