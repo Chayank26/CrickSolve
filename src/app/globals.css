@@ -1,41 +1,27 @@
 @import "tailwindcss";
 
-@layer utilities {
-  .bg-dot-grid {
-    background-color: #E2E8F0;
-    background-image: radial-gradient(#64748B 1.2px, transparent 1.2px);
-    background-size: 16px 16px;
-  }
-
-  .neo-box {
-    border: 3.5px solid #000000;
-    box-shadow: 4px 4px 0px 0px #000000;
-  }
-
-  .neo-box-lg {
-    border: 4px solid #000000;
-    box-shadow: 6px 6px 0px 0px #000000;
-  }
-
-  .neo-box-sm {
-    border: 2.5px solid #000000;
-    box-shadow: 3px 3px 0px 0px #000000;
-  }
-
-  .neo-button {
-    border: 3px solid #000000;
-    box-shadow: 4px 4px 0px 0px #000000;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
-  }
-
-  .neo-button:active {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px 0px #000000;
-  }
+:root {
+  --background: #f4f4f6;
+  --foreground: #000000;
 }
 
 body {
-  background-color: #E2E8F0;
+  background-color: #f4f4f6;
+  background-image: radial-gradient(#a1a1aa 1.2px, transparent 1.2px);
+  background-size: 20px 20px;
   color: #000000;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+}
+
+.bg-dot-grid {
+  background-color: #f4f4f6;
+  background-image: radial-gradient(#a1a1aa 1.2px, transparent 1.2px);
+  background-size: 20px 20px;
+}
+
+@layer utilities {
+  .border-3 {
+    border-width: 3px;
+  }
 }

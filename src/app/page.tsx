@@ -14,23 +14,25 @@ import { AttributeHintPickerModal } from '@/components/AttributeHintPickerModal'
 
 export default function Home() {
   return (
-    <div className="min-h-screen text-slate-100 flex flex-col p-4 md:p-6 max-w-7xl mx-auto selection:bg-emerald-500 selection:text-black">
-      {/* Top Header */}
-      <Header />
+    <div className="min-h-screen bg-dot-grid text-black font-sans selection:bg-[#CCFF00] selection:text-black flex flex-col p-3 md:p-6">
+      <div className="max-w-6xl w-full mx-auto flex flex-col gap-5">
+        {/* Top Header */}
+        <Header />
 
-      {/* Main 2-Column Layout */}
-      <main className="grid grid-cols-1 lg:grid-cols-12 gap-5 my-2">
-        {/* Left Column: Mystery Player Attribute Cards & Silhouette */}
-        <section className="lg:col-span-5 flex flex-col gap-5">
-          <AttributeCards />
-        </section>
+        {/* Main 2-Column Layout */}
+        <main className="grid grid-cols-1 lg:grid-cols-12 gap-5 my-2">
+          {/* Left Column: Mystery Player Attribute Cards & Silhouette */}
+          <section className="lg:col-span-5 flex flex-col gap-5">
+            <AttributeCards />
+          </section>
 
-        {/* Right Column: Search/Guess Box & Numeric Hints Table */}
-        <section className="lg:col-span-7 flex flex-col gap-5">
-          <PlayerSearch />
-          <NumericHintsTable />
-        </section>
-      </main>
+          {/* Right Column: Search/Guess Box & Numeric Hints Table */}
+          <section className="lg:col-span-7 flex flex-col gap-5">
+            <PlayerSearch />
+            <NumericHintsTable />
+          </section>
+        </main>
+      </div>
 
       {/* Modals */}
       <HowToModal />

@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { useGameStore } from '@/store/useGameStore';
 import { PLAYERS } from '@/data/players';
 import { getDailyTargetPlayer, evaluatePlayerGuess } from '@/lib/game-engine';
-import { Search, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import Fuse from 'fuse.js';
 
 export function PlayerSearch() {
@@ -74,27 +74,13 @@ export function PlayerSearch() {
   };
 
   const isHintAvailable = guesses.length >= 4 && !unlockedHint;
-  const guessesLeft = Math.max(0, 7 - guesses.length);
+  const currentGuessNum = Math.min(7, guesses.length + 1);
 
   return (
-    <div className="card-dark p-5 flex flex-col gap-4">
-      {/* Card Header */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-        <div>
-          <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
-            Guess
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Search and select a player.</p>
-        </div>
-        <div className="text-xs font-extrabold text-emerald-400 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-white/10">
-          Guesses left: {guessesLeft} / 7
-        </div>
-      </div>
-
-      {/* Input Field & Suggestions Dropdown */}
-      <div className="relative">
-        <div className="relative flex items-center">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
+    <div className="bg-[#7E22CE] border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 flex flex-col gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch gap-3 relative">
+        {/* Search Input Box */}
+        <div className="relative flex-1">
           <input
             type="text"
             value={query}
@@ -107,46 +93,46 @@ export function PlayerSearch() {
               if (e.key === 'Enter') handleGuessSubmit();
             }}
             disabled={isGameOver}
-            placeholder={isGameOver ? 'Game finished' : 'Enter cricketer name...'}
-            className="w-full pl-10 pr-4 py-3 bg-slate-900/90 text-white placeholder-slate-500 rounded-xl border border-white/15 focus:outline-none focus:border-emerald-500 text-sm font-semibold transition-all disabled:opacity-50"
+            placeholder={isGameOver ? 'GAME FINISHED' : 'Enter Cricketer Name (e.g. Virat Kohli)...'}
+            className="w-full bg-white text-black font-black placeholder-slate-400 border-3 border-black px-4 py-3.5 text-sm sm:text-base uppercase focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:opacity-70"
           />
-        </div>
 
-        {/* Autocomplete Suggestions Menu */}
-        {isFocused && suggestions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-slate-900 border border-white/15 rounded-xl overflow-hidden shadow-2xl z-30 divide-y divide-white/5">
-            {suggestions.map((player) => (
-              <div
-                key={player.id}
-                onMouseDown={() => handleSelectPlayer(player.id, player.name)}
-                className="p-3 hover:bg-emerald-500/15 cursor-pointer transition-colors flex items-center justify-between"
-              >
-                <div>
-                  <div className="text-sm font-bold text-white">{player.name}</div>
-                  <div className="text-xs text-slate-400">
-                    {player.country} • {player.role}
+          {/* Autocomplete Suggestions Menu */}
+          {isFocused && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden z-30 divide-y-2 divide-black">
+              {suggestions.map((player) => (
+                <div
+                  key={player.id}
+                  onMouseDown={() => handleSelectPlayer(player.id, player.name)}
+                  className="p-3 hover:bg-[#CCFF00] cursor-pointer transition-colors flex items-center justify-between text-black"
+                >
+                  <div>
+                    <div className="text-sm font-black uppercase text-black">{player.name}</div>
+                    <div className="text-xs font-bold text-slate-700 uppercase">
+                      {player.country} • {player.role}
+                    </div>
+                  </div>
+                  <div className="text-xs font-black text-black bg-white border border-black px-2 py-0.5 uppercase">
+                    {player.battingHand.includes('Left') ? 'LHB' : 'RHB'}
                   </div>
                 </div>
-                <div className="text-xs font-semibold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">
-                  {player.battingHand.includes('Left') ? 'LHB' : 'RHB'}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-3">
+        {/* Big Neon Yellow GUESS (X/7) Button */}
         <button
           onClick={handleGuessSubmit}
           disabled={isGameOver || (!selectedPlayerId && !query.trim())}
-          className="btn-primary-green px-6 py-2.5 rounded-xl text-sm font-extrabold transition-all disabled:opacity-50 active:scale-95 flex items-center gap-2"
+          className="bg-[#CCFF00] hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 text-black font-black border-3 border-black px-6 py-3.5 text-sm sm:text-base uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-60 whitespace-nowrap"
         >
-          <CheckCircle2 className="w-4 h-4" />
-          <span>Guess</span>
+          GUESS ({currentGuessNum}/7)
         </button>
+      </div>
 
+      {/* Hint Trigger Button (If available) */}
+      <div className="flex justify-end">
         <button
           onClick={() => {
             if (isHintAvailable) {
@@ -154,10 +140,10 @@ export function PlayerSearch() {
             }
           }}
           disabled={!isHintAvailable || isGameOver}
-          className="btn-ghost-dark px-4 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-40 flex items-center gap-2"
+          className="bg-white hover:bg-slate-100 text-black border-2 border-black px-3.5 py-1.5 text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 flex items-center gap-1.5"
         >
-          <Lightbulb className="w-4 h-4 text-emerald-400" />
-          <span>{unlockedHint ? `Hint: ${unlockedHint}` : 'Use Hint (1)'}</span>
+          <Lightbulb className="w-3.5 h-3.5 text-black" />
+          <span>{unlockedHint ? `HINT: ${unlockedHint}` : 'USE HINT (AVAILABLE AFTER 4 GUESSES)'}</span>
         </button>
       </div>
     </div>

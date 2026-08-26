@@ -282,6 +282,22 @@ This document logs all key technical and architectural decisions taken during th
 
 ---
 
+## Phase 17: Official Neubrutalism Arcade Dot-Grid Theme & 2-Column Attribute Layout Integration
+
+### Decision 31: Official Neubrutalism Arcade Color Scheme & 2-Column Attribute Card Layout
+- **Approach Chosen:**
+  1. Applied the **Official Neubrutalism Dot-Grid Arcade Theme** (`bg-dot-grid`, radial dots background, Neon Lime `#CCFF00`, Deep Purple `#7E22CE`, high-contrast black outlines `border-4 border-black`, and offset drop shadows `shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]`) across the entire web app.
+  2. Integrated the 2-column layout for player attributes:
+     - **Left Column (`AttributeCards.tsx`)**: Mystery Player Card featuring the 6 unlockable attribute cards (*Country, Batting Hand, Bowling Style, Role, IPL Team, Retired*) styled with Neubrutalist boxes (`border-3 border-black`, `#CCFF00` matched cards, `#7E22CE` silhouette unblur card).
+     - **Right Column (`PlayerSearch.tsx` & `NumericHintsTable.tsx`)**: Top card featuring the Purple Search Container with white input and Neon Yellow `GUESS (X/7)` button, and bottom card featuring the Neubrutalist Numeric Hints Table (`GUESS`, `BIRTH`, `TESTS`, `ODIS`, `T20IS` with directional stat arrows).
+- **Why this approach?**
+  - Combines the iconic retro-comic Neubrutalist arcade color scheme requested by the user with the clean 2-column attribute structure from the original plain vanilla JS app.
+- **Alternatives Considered:**
+  - *Dark slate glassmorphic layout*: Replaced by official Neubrutalism dot-grid arcade theme as requested by user.
+
+
+---
+
 ## Phase 12: `T20IS` Column Restoration & Attribute Match Celebration Pop Animation
 
 ### Decision 26: T20IS Column Restoration & Spring Scale Match Reveal Animation
