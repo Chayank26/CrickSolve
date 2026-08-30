@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { getDailyTargetPlayer } from '@/lib/game-engine';
+import { verifyVictoryToken } from '@/lib/server-crypto';
 import { PlayerCategory } from '@/types/game';
 import { NextResponse } from 'next/server';
 
@@ -57,11 +58,32 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { date, userId, nickname, attempts, timeMs } = body;
+    const { date, userId, nickname, attempts, timeMs, victoryToken } = body;
 
-    if (!nickname || !attempts) {
-      return NextResponse.json({ error: 'Missing required leaderboard parameters' }, { status: 400 });
+    if (!nickname) {
+      return NextResponse.json({ error: 'Missing required nickname' }, { status: 400 });
     }
+
+    let verifiedAttempts = attempts;
+    let verifiedTimeMs = timeMs;
+
+    // Verify victory token if present
+    if (victoryToken) {
+      const payload = verifyVictoryToken(victoryToken);
+      if (!payload) {
+        return NextResponse.json({ error: 'Invalid or tampered victory token' }, { status: 401 });
+      }
+      verifiedAttempts = payload.attempts;
+      verifiedTimeMs = payload.timeMs;
+    } else {
+      // Basic bounds check if token isn't provided (for legacy local sessions)
+      if (!verifiedAttempts || verifiedAttempts < 1 || verifiedAttempts > 8) {
+        return NextResponse.json({ error: 'Invalid attempts value' }, { status: 400 });
+      }
+    }
+
+    // Sanity check minimum solve time (2000ms minimum)
+    const finalTimeMs = Math.max(2000, verifiedTimeMs || 15000);
 
     const todayStr = date || new Date().toISOString().split('T')[0];
     const uid = userId || `user_${Math.floor(Math.random() * 1000000)}`;
@@ -72,8 +94,8 @@ export async function POST(request: Request) {
       date: todayStr,
       user_id: uid,
       nickname: nickname.trim(),
-      attempts,
-      time_ms: Math.max(1000, timeMs || 15000),
+      attempts: verifiedAttempts,
+      time_ms: finalTimeMs,
       created_at: new Date().toISOString(),
     });
 
@@ -86,3 +108,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, localOnly: true });
   }
 }
+

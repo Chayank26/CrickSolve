@@ -51,6 +51,9 @@ export interface GuessEvaluation {
     type: 'jerseyNumber' | 'famousTeammate' | 'signaturePerformance';
     value: string | number;
   };
+  sessionToken?: string;
+  victoryToken?: string;
+  solveTimeMs?: number;
 }
 
 export interface DailyPuzzle {

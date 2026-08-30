@@ -14,8 +14,10 @@ export function PlayerSearch() {
     unlockedHint,
     gameStatus,
     currentDate,
+    category,
     gameMode,
     unlimitedTargetId,
+    sessionToken,
     isHintSelecting,
     startHintSelection,
   } = useGameStore();
@@ -23,6 +25,7 @@ export function PlayerSearch() {
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isGameOver = gameStatus !== 'IN_PROGRESS';
 
@@ -60,8 +63,8 @@ export function PlayerSearch() {
     setIsFocused(false);
   };
 
-  const handleGuessSubmit = () => {
-    if (isGameOver) return;
+  const handleGuessSubmit = async () => {
+    if (isGameOver || isSubmitting) return;
 
     let targetId = selectedPlayerId;
     if (!targetId && query.trim()) {
@@ -71,12 +74,42 @@ export function PlayerSearch() {
     }
 
     if (targetId) {
-      const evaluation = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
-      if (evaluation) {
-        addGuess(evaluation);
+      setIsSubmitting(true);
+      try {
+        const res = await fetch('/api/puzzle/guess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guessedPlayerId: targetId,
+            date: currentDate,
+            category,
+            mode: gameMode,
+            sessionToken,
+            attemptNumber: guesses.length + 1,
+          }),
+        });
+        const data = await res.json();
+        if (data.evaluation) {
+          addGuess({
+            ...data.evaluation,
+            sessionToken: data.sessionToken,
+            victoryToken: data.victoryToken,
+            solveTimeMs: data.solveTimeMs,
+          });
+        } else {
+          // Fallback local evaluation
+          const evaluation = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
+          if (evaluation) addGuess(evaluation);
+        }
+      } catch {
+        // Fallback local evaluation
+        const evaluation = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
+        if (evaluation) addGuess(evaluation);
+      } finally {
+        setIsSubmitting(false);
+        setQuery('');
+        setSelectedPlayerId(null);
       }
-      setQuery('');
-      setSelectedPlayerId(null);
     }
   };
 

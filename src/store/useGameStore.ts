@@ -22,6 +22,8 @@ interface GameState {
   manuallyUnlockedAttributes: Record<string, string>;
   startTimeMs: number | null;
   endTimeMs: number | null;
+  sessionToken: string | null;
+  victoryToken: string | null;
 
   // Player Profile & Standing
   nickname: string;
@@ -47,6 +49,8 @@ interface GameState {
   addGuess: (evaluation: GuessEvaluation) => void;
   setNickname: (name: string) => void;
   setUserRank: (rank: number | null) => void;
+  setSessionToken: (token: string | null) => void;
+  setVictoryToken: (token: string | null) => void;
   enableBonusChance: () => void;
   startHintSelection: () => void;
   cancelHintSelection: () => void;
@@ -75,6 +79,8 @@ export const useGameStore = create<GameState>()(
       manuallyUnlockedAttributes: {},
       startTimeMs: null,
       endTimeMs: null,
+      sessionToken: null,
+      victoryToken: null,
 
       nickname: 'Cricketer',
       lastSolvedDate: null,
@@ -91,11 +97,11 @@ export const useGameStore = create<GameState>()(
       activeModal: 'howTo',
 
       setGameMode: (mode) => {
-        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', bonusChanceTaken: false, unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null });
+        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', bonusChanceTaken: false, unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null, sessionToken: null, victoryToken: null });
       },
 
       setCategory: (category) => {
-        set({ category, guesses: [], gameStatus: 'IN_PROGRESS', bonusChanceTaken: false, unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null });
+        set({ category, guesses: [], gameStatus: 'IN_PROGRESS', bonusChanceTaken: false, unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null, sessionToken: null, victoryToken: null });
       },
 
       setNickname: (nickname) => {
@@ -104,6 +110,14 @@ export const useGameStore = create<GameState>()(
 
       setUserRank: (rank) => {
         set({ userRank: rank });
+      },
+
+      setSessionToken: (token) => {
+        set({ sessionToken: token });
+      },
+
+      setVictoryToken: (token) => {
+        set({ victoryToken: token });
       },
 
       closeHowTo: () => {
@@ -134,7 +148,7 @@ export const useGameStore = create<GameState>()(
       },
 
       addGuess: (evaluation) => {
-        const { guesses, gameStatus, streak, maxStreak, gamesPlayed, gamesWon, startTimeMs, lastSolvedDate, currentDate, bonusChanceTaken } = get();
+        const { guesses, gameStatus, streak, maxStreak, gamesPlayed, gamesWon, startTimeMs, lastSolvedDate, currentDate, bonusChanceTaken, sessionToken, victoryToken } = get();
         if (gameStatus !== 'IN_PROGRESS') return;
 
         const now = Date.now();
@@ -148,6 +162,9 @@ export const useGameStore = create<GameState>()(
         let newGamesPlayed = gamesPlayed;
         let newGamesWon = gamesWon;
         let newLastSolvedDate = lastSolvedDate;
+
+        const newSessionToken = evaluation.sessionToken || sessionToken;
+        const newVictoryToken = evaluation.victoryToken || victoryToken;
 
         if (evaluation.isCorrect) {
           newStatus = 'WON';
@@ -175,6 +192,8 @@ export const useGameStore = create<GameState>()(
           set({
             guesses: updatedGuesses,
             startTimeMs: start,
+            sessionToken: newSessionToken,
+            victoryToken: newVictoryToken,
             activeModal: 'continue',
           });
           return;
@@ -184,11 +203,15 @@ export const useGameStore = create<GameState>()(
           newGamesPlayed = gamesPlayed + 1;
         }
 
+        const calculatedEndTime = evaluation.solveTimeMs ? start + evaluation.solveTimeMs : now;
+
         set({
           guesses: updatedGuesses,
           gameStatus: newStatus,
           startTimeMs: start,
-          endTimeMs: newStatus !== 'IN_PROGRESS' ? now : null,
+          endTimeMs: newStatus !== 'IN_PROGRESS' ? calculatedEndTime : null,
+          sessionToken: newSessionToken,
+          victoryToken: newVictoryToken,
           streak: newStreak,
           maxStreak: newMaxStreak,
           gamesPlayed: newGamesPlayed,
@@ -227,6 +250,8 @@ export const useGameStore = create<GameState>()(
           manuallyUnlockedAttributes: {},
           startTimeMs: null,
           endTimeMs: null,
+          sessionToken: null,
+          victoryToken: null,
           unlimitedTargetId: newTargetId || null,
         });
       },
@@ -244,6 +269,8 @@ export const useGameStore = create<GameState>()(
             manuallyUnlockedAttributes: {},
             startTimeMs: null,
             endTimeMs: null,
+            sessionToken: null,
+            victoryToken: null,
             userRank: null,
           });
         }
@@ -257,6 +284,8 @@ export const useGameStore = create<GameState>()(
         currentDate: state.currentDate,
         guesses: state.guesses,
         gameStatus: state.gameStatus,
+        sessionToken: state.sessionToken,
+        victoryToken: state.victoryToken,
         streak: state.streak,
         maxStreak: state.maxStreak,
         gamesPlayed: state.gamesPlayed,

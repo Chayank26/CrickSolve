@@ -18,6 +18,7 @@ export function ResultModal() {
     currentDate,
     startTimeMs,
     endTimeMs,
+    victoryToken,
     setNickname,
   } = useGameStore();
 
@@ -89,6 +90,7 @@ export function ResultModal() {
           nickname: cleanName,
           attempts: guesses.length,
           timeMs: solveTimeMs,
+          victoryToken: victoryToken || undefined,
         }),
       });
     } catch (err) {
