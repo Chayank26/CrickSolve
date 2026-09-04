@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useGameStore } from '@/store/useGameStore';
 import { Header } from '@/components/Header';
 import { AttributeCards } from '@/components/AttributeCards';
 import { PlayerSearch } from '@/components/PlayerSearch';
@@ -14,6 +16,15 @@ import { AttributeHintPickerModal } from '@/components/AttributeHintPickerModal'
 import { ContinueModal } from '@/components/ContinueModal';
 
 export default function Home() {
+  const { currentDate, gameMode, syncDailyDate } = useGameStore();
+
+  useEffect(() => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (gameMode === 'daily' && currentDate !== todayStr) {
+      syncDailyDate(todayStr);
+    }
+  }, [currentDate, gameMode, syncDailyDate]);
+
   return (
     <div className="min-h-screen bg-dot-grid text-black font-sans selection:bg-[#CCFF00] selection:text-black flex flex-col p-3 md:p-6">
       <div className="max-w-6xl w-full mx-auto flex flex-col gap-5">

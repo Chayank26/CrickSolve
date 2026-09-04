@@ -81,7 +81,7 @@ export function ContinueModal() {
             <HelpCircle className="w-8 h-8 animate-bounce text-black" />
           </div>
           <h2 className="text-xl font-black uppercase tracking-tight text-black">
-            DO YOU WANT ANOTHER GUESS? 🏏
+            DO YOU WANT ANOTHER GUESS?
           </h2>
           <p className="text-xs font-bold text-slate-600">
             You have used 7 attempts. Would you like 1 bonus guess to solve the puzzle?

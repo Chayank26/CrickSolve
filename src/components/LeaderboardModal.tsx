@@ -100,7 +100,7 @@ export function LeaderboardModal() {
               <h2 className="text-xl font-black uppercase tracking-tight text-black">
                 TODAY'S LEADERBOARD
               </h2>
-              <p className="text-xs font-bold text-slate-600">Ranked by fastest solve time ⏱️</p>
+              <p className="text-xs font-bold text-slate-600">Ranked by fastest solve time</p>
             </div>
           </div>
           <button

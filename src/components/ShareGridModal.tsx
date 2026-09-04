@@ -21,7 +21,7 @@ export function ShareGridModal() {
     })
     .join('\n');
 
-  const shareText = `CrickSolve 🏏 ${currentDate}\nGuesses: ${guesses.length}/7 • Streak: ${streak}🔥\n\n${emojiGrid}\n\nPlay at: https://cricksolve.vercel.app`;
+  const shareText = `CrickSolve ${currentDate}\nGuesses: ${guesses.length}/7 • Streak: ${streak}\n\n${emojiGrid}\n\nPlay at: https://cricksolve.vercel.app`;
 
   function handleCopy() {
     navigator.clipboard.writeText(shareText);
@@ -47,7 +47,7 @@ export function ShareGridModal() {
           </button>
         </div>
 
-        {/* Emoji Preview Box */}
+        {/* Scorecard Preview Box */}
         <div className="p-4 bg-slate-100 border-3 border-black font-mono text-xs leading-relaxed whitespace-pre-wrap text-black text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
           {shareText}
         </div>
@@ -65,7 +65,7 @@ export function ShareGridModal() {
             ) : (
               <>
                 <Copy className="w-4 h-4 text-black" />
-                <span>COPY EMOJI SCORECARD</span>
+                <span>COPY SCORECARD</span>
               </>
             )}
           </button>

@@ -18,7 +18,7 @@ export function HowToModal() {
               <HelpCircle className="w-6 h-6" />
             </div>
             <h2 className="text-xl font-black uppercase tracking-tight text-black">
-              HOW TO PLAY CRICKSOLVE 🏏
+              HOW TO PLAY CRICKSOLVE
             </h2>
           </div>
           <button

@@ -5,11 +5,11 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CrickSolve 🏏 - Daily Cricketer Guessing Game',
+  title: 'CrickSolve - Daily Cricketer Guessing Game',
   description: 'Guess the mystery cricketer in 7 tries with attribute unlocking, numeric stat hints, silhouette reveals, and daily leaderboards.',
   manifest: '/manifest.json',
   openGraph: {
-    title: 'CrickSolve 🏏 - Daily Cricketer Guessing Game',
+    title: 'CrickSolve - Daily Cricketer Guessing Game',
     description: 'Guess the mystery cricketer in 7 tries. Test your cricket knowledge with attribute unlocking and stat hints!',
     url: 'https://cricksolve.vercel.app',
     siteName: 'CrickSolve',

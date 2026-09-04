@@ -136,7 +136,7 @@ export function ResultModal() {
           )}
 
           <h2 className="text-2xl font-black uppercase tracking-tight text-black">
-            {isWon ? 'SPECTACULAR WIN! 🏆' : 'MYSTERY PLAYER REVEALED'}
+            {isWon ? 'SPECTACULAR WIN!' : 'MYSTERY PLAYER REVEALED'}
           </h2>
           <p className="text-xs font-bold text-slate-600">
             {isWon

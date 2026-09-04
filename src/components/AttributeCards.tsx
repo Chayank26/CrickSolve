@@ -85,7 +85,7 @@ export function AttributeCards() {
   let blurAmount = Math.max(0, 24 - attemptCount * 4);
   if (isSolved || isFailed) blurAmount = 0;
 
-  const photoUrl = isSolved ? targetPlayer.photoUrl : 'https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316600/316605.png';
+  const photoUrl = targetPlayer.photoUrl || 'https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316600/316605.png';
 
   const handleCardClick = (key: string, label: string, value: string, isMatched: boolean) => {
     if (!isHintSelecting || isMatched) return;
@@ -187,7 +187,7 @@ export function AttributeCards() {
               <div className={`text-xs md:text-sm font-black uppercase mt-1 truncate relative z-10 ${
                 isTargetingHint ? 'text-white' : ''
               }`}>
-                {attr.matched ? attr.value : isTargetingHint ? 'CLICK TO UNLOCK 💡' : 'LOCKED'}
+                {attr.matched ? attr.value : isTargetingHint ? 'CLICK TO UNLOCK' : 'LOCKED'}
               </div>
             </motion.div>
           );
@@ -195,40 +195,48 @@ export function AttributeCards() {
       </div>
 
       {/* Progressive Photo Silhouette Card Underneath */}
-      <div className="bg-[#7E22CE] text-white border-3 border-black p-3.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between gap-3 mt-1">
-        <div className="flex items-center gap-3">
-          <div className="relative w-12 h-12 rounded-none border-2 border-black overflow-hidden bg-slate-200 flex-shrink-0 flex items-center justify-center">
-            <motion.img
-              src={photoUrl}
-              alt="Silhouette"
-              animate={{ filter: `blur(${blurAmount}px)` }}
-              transition={{ duration: 0.4 }}
-              className={`w-full h-full object-cover ${!isSolved && !isFailed ? 'brightness-50 contrast-125' : 'brightness-100'}`}
-            />
-            {!isSolved && !isFailed && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <Eye className="w-4 h-4 text-[#CCFF00]" />
-              </div>
+      <div className="bg-[#7E22CE] text-white border-3 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center text-center gap-3 mt-1">
+        {/* Header with Title & Blur/Pixels Badge */}
+        <div className="flex flex-col items-center gap-1.5 w-full">
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <span className="text-xs md:text-sm font-black uppercase text-[#CCFF00] tracking-wide flex items-center gap-1.5">
+              <Eye className="w-4 h-4 text-[#CCFF00]" /> SILHOUETTE UNBLUR
+            </span>
+            {isSolved ? (
+              <span className="text-[10px] md:text-xs px-2.5 py-0.5 bg-[#CCFF00] text-black border-2 border-black font-black uppercase flex items-center gap-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-black" /> SOLVED
+              </span>
+            ) : (
+              <span className="text-[10px] md:text-xs px-2.5 py-0.5 bg-black text-[#CCFF00] font-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                PIXELS / BLUR: {blurAmount}PX
+              </span>
             )}
           </div>
+          <p className="text-[11px] md:text-xs font-bold text-white/90">
+            {isSolved ? 'Mystery cricketer identity revealed!' : 'Silhouette automatically sharpens with every guess try.'}
+          </p>
+        </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase text-[#CCFF00]">SILHOUETTE UNBLUR</span>
-              {isSolved ? (
-                <span className="text-[10px] px-2 py-0.5 bg-[#CCFF00] text-black border border-black font-black uppercase flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> SOLVED
-                </span>
-              ) : (
-                <span className="text-[10px] px-2 py-0.5 bg-black text-[#CCFF00] font-black border border-black uppercase">
-                  BLUR: {blurAmount}PX
-                </span>
-              )}
+        {/* Big Center-Aligned Silhouette Image */}
+        <div className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 rounded-none border-4 border-black overflow-hidden bg-slate-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center group my-1">
+          <motion.img
+            src={photoUrl}
+            alt="Mystery Cricketer Silhouette"
+            animate={{ filter: `blur(${blurAmount}px)` }}
+            transition={{ duration: 0.4 }}
+            className={`w-full h-full object-cover transition-all ${
+              !isSolved && !isFailed
+                ? 'brightness-50 contrast-150 scale-105'
+                : 'brightness-100 scale-100'
+            }`}
+          />
+          {!isSolved && !isFailed && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
+              <div className="bg-black/80 border-2 border-[#CCFF00] p-2 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <Eye className="w-6 h-6 text-[#CCFF00] animate-pulse" />
+              </div>
             </div>
-            <p className="text-[11px] font-semibold text-white/90 mt-0.5">
-              {isSolved ? 'Mystery player revealed!' : 'Silhouette sharpens with every guess.'}
-            </p>
-          </div>
+          )}
         </div>
       </div>
 

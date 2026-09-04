@@ -278,6 +278,14 @@ export const useGameStore = create<GameState>()(
     }),
     {
       name: 'cricksolve-game-storage',
+      onRehydrateStorage: () => (state) => {
+        if (state && state.gameMode === 'daily') {
+          const todayStr = new Date().toISOString().split('T')[0];
+          if (state.currentDate !== todayStr) {
+            state.syncDailyDate(todayStr);
+          }
+        }
+      },
       partialize: (state) => ({
         gameMode: state.gameMode,
         category: state.category,

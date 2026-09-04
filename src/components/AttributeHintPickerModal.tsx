@@ -67,7 +67,7 @@ export function AttributeHintPickerModal() {
             </div>
             <div>
               <h2 className="text-lg font-black uppercase tracking-tight text-black">
-                SELECT ATTRIBUTE TO REVEAL 💡
+                SELECT ATTRIBUTE TO REVEAL
               </h2>
               <p className="text-xs font-bold text-slate-600">Click any attribute to unlock its value!</p>
             </div>

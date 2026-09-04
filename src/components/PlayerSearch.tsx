@@ -191,7 +191,7 @@ export function PlayerSearch() {
             {unlockedHint
               ? `HINT: ${unlockedHint}`
               : isHintSelecting
-              ? 'CLICK A SHINING CARD ON THE LEFT 💡'
+              ? 'CLICK A SHINING CARD ON THE LEFT'
               : 'USE HINT (AVAILABLE AFTER 4 GUESSES)'}
           </span>
         </button>
