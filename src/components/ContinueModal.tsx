@@ -22,8 +22,8 @@ export function ContinueModal() {
 
   if (activeModal !== 'continue') return null;
 
-  // Resolve target player
-  let targetPlayer = getDailyTargetPlayer(currentDate, category);
+  const activeDate = currentDate || new Date().toISOString().split('T')[0];
+  let targetPlayer = getDailyTargetPlayer(activeDate, 'International');
   if (gameMode === 'unlimited' && unlimitedTargetId) {
     const found = PLAYERS.find((p) => p.id === unlimitedTargetId);
     if (found) targetPlayer = found;

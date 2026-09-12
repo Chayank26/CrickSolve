@@ -6,6 +6,8 @@ import confetti from 'canvas-confetti';
 import { formatMmSs } from '@/lib/utils';
 import { Trophy, Share2, RotateCcw, AlertCircle, Timer, X } from 'lucide-react';
 import { LeaderboardEntry } from '@/types/game';
+import { getDailyTargetPlayer } from '@/lib/game-engine';
+import { PLAYERS } from '@/data/players';
 
 export function ResultModal() {
   const {
@@ -14,6 +16,8 @@ export function ResultModal() {
     gameStatus,
     guesses,
     gameMode,
+    unlimitedTargetId,
+    category,
     resetGame,
     currentDate,
     startTimeMs,
@@ -46,7 +50,12 @@ export function ResultModal() {
 
   if (activeModal !== 'result' || (!isWon && !isLost)) return null;
 
-  const targetPlayer = guesses.length > 0 ? guesses[guesses.length - 1].guessedPlayer : null;
+  const activeDate = currentDate || new Date().toISOString().split('T')[0];
+  let targetPlayer = getDailyTargetPlayer(activeDate, 'International');
+  if (gameMode === 'unlimited' && unlimitedTargetId) {
+    const custom = PLAYERS.find((p) => p.id === unlimitedTargetId);
+    if (custom) targetPlayer = custom;
+  }
 
   async function handleSubmitLeaderboard(e: React.FormEvent) {
     e.preventDefault();
