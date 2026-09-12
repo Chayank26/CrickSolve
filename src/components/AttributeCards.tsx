@@ -24,7 +24,9 @@ export function AttributeCards() {
   const [flippingAttrKey, setFlippingAttrKey] = useState<string | null>(null);
 
   // Resolve target player for daily/unlimited mode
-  let targetPlayer = getDailyTargetPlayer(currentDate, category);
+  const todayStr = new Date().toISOString().split('T')[0];
+  const activeDate = gameMode === 'daily' ? (currentDate || todayStr) : currentDate;
+  let targetPlayer = getDailyTargetPlayer(activeDate, 'International');
   if (gameMode === 'unlimited' && unlimitedTargetId) {
     const found = PLAYERS.find((p) => p.id === unlimitedTargetId);
     if (found) targetPlayer = found;

@@ -15,7 +15,7 @@ export const PLAYERS: Player[] = [
     "odis": 89,
     "t20is": 78,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Gulbadin_Naib.jpg/500px-Gulbadin_Naib.jpg"
+    "photoUrl": "/players/gulbadin-naib.png"
   },
   {
     "id": "mujeeb-ur-rahman",
@@ -31,7 +31,7 @@ export const PLAYERS: Player[] = [
     "odis": 75,
     "t20is": 60,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Mujeeb_Ur_Rahman_celebrating.jpg"
+    "photoUrl": "/players/mujeeb-ur-rahman.png"
   },
   {
     "id": "mohammad-nabi",
@@ -47,7 +47,7 @@ export const PLAYERS: Player[] = [
     "odis": 176,
     "t20is": 147,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/4/49/Mohammad_Nabi-Australia.jpg"
+    "photoUrl": "/players/mohammad-nabi.png"
   },
   {
     "id": "rashid-khan",
@@ -63,7 +63,7 @@ export const PLAYERS: Player[] = [
     "odis": 105,
     "t20is": 93,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Rashid_Khan.jpg/500px-Rashid_Khan.jpg"
+    "photoUrl": "/players/rashid-khan.png"
   },
   {
     "id": "hazratullah-zazai",
@@ -79,7 +79,7 @@ export const PLAYERS: Player[] = [
     "odis": 16,
     "t20is": 45,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/af.png"
+    "photoUrl": "/players/hazratullah-zazai.png"
   },
   {
     "id": "karim-janat",
@@ -95,7 +95,7 @@ export const PLAYERS: Player[] = [
     "odis": 3,
     "t20is": 75,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/af.png"
+    "photoUrl": "/players/karim-janat.png"
   },
   {
     "id": "mohammad-shahzad",
@@ -111,7 +111,7 @@ export const PLAYERS: Player[] = [
     "odis": 84,
     "t20is": 73,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/af.png"
+    "photoUrl": "/players/mohammad-shahzad.png"
   },
   {
     "id": "rahmanullah-gurbaz",
@@ -127,7 +127,7 @@ export const PLAYERS: Player[] = [
     "odis": 58,
     "t20is": 68,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/af.png"
+    "photoUrl": "/players/rahmanullah-gurbaz.png"
   },
   {
     "id": "naveen-ul-haq",
@@ -143,7 +143,7 @@ export const PLAYERS: Player[] = [
     "odis": 15,
     "t20is": 48,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/af.png"
+    "photoUrl": "/players/naveen-ul-haq.png"
   },
   {
     "id": "ibrahim-zadran",
@@ -159,7 +159,7 @@ export const PLAYERS: Player[] = [
     "odis": 39,
     "t20is": 60,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Ibrahim_Zadran.jpg/500px-Ibrahim_Zadran.jpg"
+    "photoUrl": "/players/ibrahim-zadran.png"
   },
   {
     "id": "fazalhaq-farooqi",
@@ -175,7 +175,7 @@ export const PLAYERS: Player[] = [
     "odis": 35,
     "t20is": 44,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Fazalhaq_Farooqi.jpg/500px-Fazalhaq_Farooqi.jpg"
+    "photoUrl": "/players/fazalhaq-farooqi.png"
   },
   {
     "id": "noor-ahmad",
@@ -191,7 +191,7 @@ export const PLAYERS: Player[] = [
     "odis": 13,
     "t20is": 22,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/af.png"
+    "photoUrl": "/players/noor-ahmad.png"
   },
   {
     "id": "tim-paine",
@@ -207,7 +207,7 @@ export const PLAYERS: Player[] = [
     "odis": 35,
     "t20is": 12,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Poised_for_the_start_of_Day_4_of_the_3rd_Test_of_the_2019_Ashes_Ben_Stokes%3B_Tim_Paine%3B_umpire_Joel_Wilson%3B_Usman_Khawaja_and_Matthew_Wade_%2848630622833%29_%28cropped%29.jpg/500px-thumbnail.jpg"
+    "photoUrl": "/players/tim-paine.png"
   },
   {
     "id": "ashton-agar",
@@ -223,7 +223,7 @@ export const PLAYERS: Player[] = [
     "odis": 22,
     "t20is": 49,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8a/2018.02.03.20.31.23-AUSvNZL_T20_NZL_innings%2C_SCG-0002_%2838618210190%29_%28Agar_cropped%29.jpg"
+    "photoUrl": "/players/ashton-agar.png"
   },
   {
     "id": "aaron-finch",
@@ -239,7 +239,7 @@ export const PLAYERS: Player[] = [
     "odis": 146,
     "t20is": 103,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/AARON_FINCH_%286299558883%29.jpg/500px-AARON_FINCH_%286299558883%29.jpg"
+    "photoUrl": "/players/aaron-finch.png"
   },
   {
     "id": "travis-head",
@@ -255,7 +255,7 @@ export const PLAYERS: Player[] = [
     "odis": 69,
     "t20is": 38,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Travis_Head_bowling_at_Perth_Stadium%2C_First_Test_Australia_versus_West_Indies%2C_2_December_2022_03_%28cropped%29.jpg/500px-Travis_Head_bowling_at_Perth_Stadium%2C_First_Test_Australia_versus_West_Indies%2C_2_December_2022_03_%28cropped%29.jpg"
+    "photoUrl": "/players/travis-head.png"
   },
   {
     "id": "usman-khawaja",
@@ -271,7 +271,7 @@ export const PLAYERS: Player[] = [
     "odis": 40,
     "t20is": 9,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ef/2018.01.05.17.43.25-Usman_Khawaja_%26_Steve_Smith_%2838876757994%29_%28Khawaja_cropped%29.jpg"
+    "photoUrl": "/players/usman-khawaja.png"
   },
   {
     "id": "marnus-labuschagne",
@@ -287,7 +287,7 @@ export const PLAYERS: Player[] = [
     "odis": 66,
     "t20is": 1,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/5/53/Day_4_of_the_3rd_Test_of_the_2019_Ashes_at_Headingley_%2848631113862%29_%28Marnus_Labuschagne_cropped%29.jpg"
+    "photoUrl": "/players/marnus-labuschagne.png"
   },
   {
     "id": "nathan-lyon",
@@ -303,7 +303,7 @@ export const PLAYERS: Player[] = [
     "odis": 29,
     "t20is": 2,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Nathan_Lyon_%281%29.jpg/500px-Nathan_Lyon_%281%29.jpg"
+    "photoUrl": "/players/nathan-lyon.png"
   },
   {
     "id": "mitchell-marsh",
@@ -319,7 +319,7 @@ export const PLAYERS: Player[] = [
     "odis": 99,
     "t20is": 81,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/7/73/Mitchell_Marsh.jpg"
+    "photoUrl": "/players/mitchell-marsh.png"
   },
   {
     "id": "shaun-marsh",
@@ -335,7 +335,7 @@ export const PLAYERS: Player[] = [
     "odis": 73,
     "t20is": 15,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Shaun_Marsh.jpg/500px-Shaun_Marsh.jpg"
+    "photoUrl": "/players/shaun-marsh.png"
   },
   {
     "id": "michael-neser",
@@ -351,7 +351,7 @@ export const PLAYERS: Player[] = [
     "odis": 4,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/20251224_Michael_Neser_01.jpg/500px-20251224_Michael_Neser_01.jpg"
+    "photoUrl": "/players/michael-neser.png"
   },
   {
     "id": "matt-renshaw",
@@ -367,7 +367,7 @@ export const PLAYERS: Player[] = [
     "odis": 3,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3b/2_23_Renshaw_hundred_%28cropped%29.jpg"
+    "photoUrl": "/players/matt-renshaw.png"
   },
   {
     "id": "peter-siddle",
@@ -383,7 +383,7 @@ export const PLAYERS: Player[] = [
     "odis": 20,
     "t20is": 2,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/2_19_Peter_Siddle.jpg/500px-2_19_Peter_Siddle.jpg"
+    "photoUrl": "/players/peter-siddle.png"
   },
   {
     "id": "mitchell-starc",
@@ -399,7 +399,7 @@ export const PLAYERS: Player[] = [
     "odis": 123,
     "t20is": 66,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/3/38/Mitchell_Starc_2023.jpg"
+    "photoUrl": "/players/mitchell-starc.png"
   },
   {
     "id": "alex-carey",
@@ -415,7 +415,7 @@ export const PLAYERS: Player[] = [
     "odis": 80,
     "t20is": 39,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Alex_Carey_wicket-keeping_Ashes_2021_%28cropped_2%29.jpg/500px-Alex_Carey_wicket-keeping_Ashes_2021_%28cropped_2%29.jpg"
+    "photoUrl": "/players/alex-carey.png"
   },
   {
     "id": "nathan-coulter-nile",
@@ -431,7 +431,7 @@ export const PLAYERS: Player[] = [
     "odis": 32,
     "t20is": 28,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/nathan-coulter-nile.png"
   },
   {
     "id": "chris-lynn",
@@ -447,7 +447,7 @@ export const PLAYERS: Player[] = [
     "odis": 4,
     "t20is": 18,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Brisbane_Heat_vs_Melbourne_Stars_T20_7_%28cropped%29.jpg"
+    "photoUrl": "/players/chris-lynn.png"
   },
   {
     "id": "glenn-maxwell",
@@ -463,7 +463,7 @@ export const PLAYERS: Player[] = [
     "odis": 142,
     "t20is": 113,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Glen_Maxwell_2026_%28cropped%29.jpg/500px-Glen_Maxwell_2026_%28cropped%29.jpg"
+    "photoUrl": "/players/glenn-maxwell.png"
   },
   {
     "id": "d-arcy-short",
@@ -479,7 +479,7 @@ export const PLAYERS: Player[] = [
     "odis": 8,
     "t20is": 23,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/2018.02.03.20.04.13-AUSvNZL_T20_NZL_innings%2C_SCG_%2825557959457%29.jpg/500px-2018.02.03.20.04.13-AUSvNZL_T20_NZL_innings%2C_SCG_%2825557959457%29.jpg"
+    "photoUrl": "/players/d-arcy-short.png"
   },
   {
     "id": "andrew-tye",
@@ -495,7 +495,7 @@ export const PLAYERS: Player[] = [
     "odis": 7,
     "t20is": 32,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/2018.02.03.20.38.56-AUSvNZL_T20_NZL_innings%2C_SCG-0001_%2838618205890%29_%28Tye_cropped%29.jpg"
+    "photoUrl": "/players/andrew-tye.png"
   },
   {
     "id": "adam-zampa",
@@ -511,7 +511,7 @@ export const PLAYERS: Player[] = [
     "odis": 104,
     "t20is": 91,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Adam_Zampa_2023.jpg/500px-Adam_Zampa_2023.jpg"
+    "photoUrl": "/players/adam-zampa.png"
   },
   {
     "id": "pat-cummins",
@@ -527,7 +527,7 @@ export const PLAYERS: Player[] = [
     "odis": 90,
     "t20is": 57,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Pat_Cummins_fielding_Ashes_2021_%28cropped%29.jpg/500px-Pat_Cummins_fielding_Ashes_2021_%28cropped%29.jpg"
+    "photoUrl": "/players/pat-cummins.png"
   },
   {
     "id": "josh-hazlewood",
@@ -543,7 +543,7 @@ export const PLAYERS: Player[] = [
     "odis": 81,
     "t20is": 49,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/2018_Josh_Hazlewood_%28cropped%29.jpg/500px-2018_Josh_Hazlewood_%28cropped%29.jpg"
+    "photoUrl": "/players/josh-hazlewood.png"
   },
   {
     "id": "mitchell-swepson",
@@ -559,7 +559,7 @@ export const PLAYERS: Player[] = [
     "odis": 3,
     "t20is": 8,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/8/82/Mitchell_Swepson.png"
+    "photoUrl": "/players/mitchell-swepson.png"
   },
   {
     "id": "joe-burns",
@@ -575,7 +575,7 @@ export const PLAYERS: Player[] = [
     "odis": 6,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/James_Franklin_and_Joe_Burns.jpg/500px-James_Franklin_and_Joe_Burns.jpg"
+    "photoUrl": "/players/joe-burns.png"
   },
   {
     "id": "jhye-richardson",
@@ -591,7 +591,7 @@ export const PLAYERS: Player[] = [
     "odis": 15,
     "t20is": 18,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/20251224_Jhye_Richardson_01.jpg/500px-20251224_Jhye_Richardson_01.jpg"
+    "photoUrl": "/players/jhye-richardson.png"
   },
   {
     "id": "marcus-stoinis",
@@ -607,7 +607,7 @@ export const PLAYERS: Player[] = [
     "odis": 71,
     "t20is": 80,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/2018.01.21.15.22.25-Stoinis_%2839081521620%29.jpg/500px-2018.01.21.15.22.25-Stoinis_%2839081521620%29.jpg"
+    "photoUrl": "/players/marcus-stoinis.png"
   },
   {
     "id": "ben-cutting",
@@ -623,7 +623,7 @@ export const PLAYERS: Player[] = [
     "odis": 4,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Brisbane_Heat_vs_Melbourne_Stars_T20_15.jpg/500px-Brisbane_Heat_vs_Melbourne_Stars_T20_15.jpg"
+    "photoUrl": "/players/ben-cutting.png"
   },
   {
     "id": "george-bailey",
@@ -639,7 +639,7 @@ export const PLAYERS: Player[] = [
     "odis": 90,
     "t20is": 30,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Jimmy_Stewart_as_George_Bailey_in_It%27s_A_Wonderful_Life.jpg/500px-Jimmy_Stewart_as_George_Bailey_in_It%27s_A_Wonderful_Life.jpg"
+    "photoUrl": "/players/george-bailey.png"
   },
   {
     "id": "james-faulkner",
@@ -655,7 +655,7 @@ export const PLAYERS: Player[] = [
     "odis": 69,
     "t20is": 24,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/James_Faulkner_2021.jpg/500px-James_Faulkner_2021.jpg"
+    "photoUrl": "/players/james-faulkner.png"
   },
   {
     "id": "cameron-white",
@@ -671,7 +671,7 @@ export const PLAYERS: Player[] = [
     "odis": 91,
     "t20is": 47,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Cameron_White.jpg/500px-Cameron_White.jpg"
+    "photoUrl": "/players/cameron-white.png"
   },
   {
     "id": "marcus-harris",
@@ -687,7 +687,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/marcus-harris.png"
   },
   {
     "id": "brad-hodge",
@@ -703,7 +703,7 @@ export const PLAYERS: Player[] = [
     "odis": 25,
     "t20is": 15,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Brad_Hodge_2008.jpg/500px-Brad_Hodge_2008.jpg"
+    "photoUrl": "/players/brad-hodge.png"
   },
   {
     "id": "beau-webster",
@@ -719,7 +719,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/2_10_Beau_Webster_mugshot.jpg/500px-2_10_Beau_Webster_mugshot.jpg"
+    "photoUrl": "/players/beau-webster.png"
   },
   {
     "id": "daniel-christian",
@@ -735,7 +735,7 @@ export const PLAYERS: Player[] = [
     "odis": 20,
     "t20is": 23,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Christian_Daniel_en_Dulce_Osuna.jpg/500px-Christian_Daniel_en_Dulce_Osuna.jpg"
+    "photoUrl": "/players/daniel-christian.png"
   },
   {
     "id": "kane-richardson",
@@ -751,7 +751,7 @@ export const PLAYERS: Player[] = [
     "odis": 25,
     "t20is": 36,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/5/53/2018.02.03.19.21.13-AUSvNZL_T20_NZL_innings%2C_SCG-0002_%2840429045331%29_%28cropped%29.jpg"
+    "photoUrl": "/players/kane-richardson.png"
   },
   {
     "id": "brad-hogg",
@@ -767,7 +767,7 @@ export const PLAYERS: Player[] = [
     "odis": 123,
     "t20is": 15,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/BradleyHogg_%28cropped%29.jpg/500px-BradleyHogg_%28cropped%29.jpg"
+    "photoUrl": "/players/brad-hogg.png"
   },
   {
     "id": "peter-handscomb",
@@ -783,7 +783,7 @@ export const PLAYERS: Player[] = [
     "odis": 22,
     "t20is": 2,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Peter_Handscomb_20251017.jpg/500px-Peter_Handscomb_20251017.jpg"
+    "photoUrl": "/players/peter-handscomb.png"
   },
   {
     "id": "scott-boland",
@@ -799,7 +799,7 @@ export const PLAYERS: Player[] = [
     "odis": 14,
     "t20is": 3,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Scott_Boland_01_20251017.jpg/500px-Scott_Boland_01_20251017.jpg"
+    "photoUrl": "/players/scott-boland.png"
   },
   {
     "id": "ben-hilfenhaus",
@@ -815,7 +815,7 @@ export const PLAYERS: Player[] = [
     "odis": 25,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Ben_Hilfenhaus_2009.jpg/500px-Ben_Hilfenhaus_2009.jpg"
+    "photoUrl": "/players/ben-hilfenhaus.png"
   },
   {
     "id": "cameron-bancroft",
@@ -831,7 +831,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 2,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/1_05_Bancroft_departs.jpg/500px-1_05_Bancroft_departs.jpg"
+    "photoUrl": "/players/cameron-bancroft.png"
   },
   {
     "id": "tim-david",
@@ -847,7 +847,7 @@ export const PLAYERS: Player[] = [
     "odis": 22,
     "t20is": 47,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/tim-david.png"
   },
   {
     "id": "ashton-turner",
@@ -863,7 +863,7 @@ export const PLAYERS: Player[] = [
     "odis": 9,
     "t20is": 19,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/ASHTON_TURNER_%2815520068750%29.jpg/500px-ASHTON_TURNER_%2815520068750%29.jpg"
+    "photoUrl": "/players/ashton-turner.png"
   },
   {
     "id": "josh-inglis",
@@ -879,7 +879,7 @@ export const PLAYERS: Player[] = [
     "odis": 18,
     "t20is": 25,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/9/95/Josh_Inglis_The_Test_clip.png"
+    "photoUrl": "/players/josh-inglis.png"
   },
   {
     "id": "josh-philippe",
@@ -895,7 +895,7 @@ export const PLAYERS: Player[] = [
     "odis": 3,
     "t20is": 10,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/josh-philippe.png"
   },
   {
     "id": "jason-behrendorff",
@@ -911,7 +911,7 @@ export const PLAYERS: Player[] = [
     "odis": 12,
     "t20is": 14,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Jason_behrendorff.jpg/500px-Jason_behrendorff.jpg"
+    "photoUrl": "/players/jason-behrendorff.png"
   },
   {
     "id": "mitchell-johnson",
@@ -927,7 +927,7 @@ export const PLAYERS: Player[] = [
     "odis": 153,
     "t20is": 30,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/MITCHELL_JOHNSON_%2811705174114%29_%28cropped%29.jpg/500px-MITCHELL_JOHNSON_%2811705174114%29_%28cropped%29.jpg"
+    "photoUrl": "/players/mitchell-johnson.png"
   },
   {
     "id": "cameron-green",
@@ -943,7 +943,7 @@ export const PLAYERS: Player[] = [
     "odis": 24,
     "t20is": 8,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Cameron_Green_fielding_Boxing_Day_2022_%28cropped%29.jpg/500px-Cameron_Green_fielding_Boxing_Day_2022_%28cropped%29.jpg"
+    "photoUrl": "/players/cameron-green.png"
   },
   {
     "id": "david-warner",
@@ -959,7 +959,7 @@ export const PLAYERS: Player[] = [
     "odis": 167,
     "t20is": 108,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1d/David_Warner_%28Actor%29_Rory_Lewis_Photographer.jpg"
+    "photoUrl": "/players/david-warner.png"
   },
   {
     "id": "moises-henriques",
@@ -975,7 +975,7 @@ export const PLAYERS: Player[] = [
     "odis": 16,
     "t20is": 29,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Moises_Henriques_with_the_Sydney_Sixers.jpg/500px-Moises_Henriques_with_the_Sydney_Sixers.jpg"
+    "photoUrl": "/players/moises-henriques.png"
   },
   {
     "id": "steven-smith",
@@ -991,7 +991,7 @@ export const PLAYERS: Player[] = [
     "odis": 163,
     "t20is": 67,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/steven-smith.png"
   },
   {
     "id": "shane-watson",
@@ -1007,7 +1007,7 @@ export const PLAYERS: Player[] = [
     "odis": 190,
     "t20is": 58,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/SHANE_WATSON_%2811705862116%29.jpg/500px-SHANE_WATSON_%2811705862116%29.jpg"
+    "photoUrl": "/players/shane-watson.png"
   },
   {
     "id": "sean-abbott",
@@ -1023,7 +1023,7 @@ export const PLAYERS: Player[] = [
     "odis": 20,
     "t20is": 15,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Sean_Abbott_playing_for_the_Sydney_Sixers.jpg/500px-Sean_Abbott_playing_for_the_Sydney_Sixers.jpg"
+    "photoUrl": "/players/sean-abbott.png"
   },
   {
     "id": "steve-o-keefe",
@@ -1039,7 +1039,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Stephen_O%27Keefe.jpg/500px-Stephen_O%27Keefe.jpg"
+    "photoUrl": "/players/steve-o-keefe.png"
   },
   {
     "id": "daniel-sams",
@@ -1055,7 +1055,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 10,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Daniel_Sams_Batting.jpg/500px-Daniel_Sams_Batting.jpg"
+    "photoUrl": "/players/daniel-sams.png"
   },
   {
     "id": "brad-haddin",
@@ -1071,7 +1071,7 @@ export const PLAYERS: Player[] = [
     "odis": 126,
     "t20is": 34,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Brad_Haddin_playing_for_the_Sixers.jpg/500px-Brad_Haddin_playing_for_the_Sixers.jpg"
+    "photoUrl": "/players/brad-haddin.png"
   },
   {
     "id": "shaun-tait",
@@ -1087,7 +1087,7 @@ export const PLAYERS: Player[] = [
     "odis": 35,
     "t20is": 21,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Shaun_Tait.jpg/500px-Shaun_Tait.jpg"
+    "photoUrl": "/players/shaun-tait.png"
   },
   {
     "id": "ricky-ponting",
@@ -1103,7 +1103,7 @@ export const PLAYERS: Player[] = [
     "odis": 375,
     "t20is": 17,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Ricky_Ponting_2015.jpg/500px-Ricky_Ponting_2015.jpg"
+    "photoUrl": "/players/ricky-ponting.png"
   },
   {
     "id": "michael-clarke",
@@ -1119,7 +1119,7 @@ export const PLAYERS: Player[] = [
     "odis": 245,
     "t20is": 34,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/MClarkeDuncan021109-R106_%2850094589037%29.jpg/500px-MClarkeDuncan021109-R106_%2850094589037%29.jpg"
+    "photoUrl": "/players/michael-clarke.png"
   },
   {
     "id": "adam-gilchrist",
@@ -1135,7 +1135,7 @@ export const PLAYERS: Player[] = [
     "odis": 287,
     "t20is": 13,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Adam_Gilchrist_of_Australia_%28cropped%29.jpg/500px-Adam_Gilchrist_of_Australia_%28cropped%29.jpg"
+    "photoUrl": "/players/adam-gilchrist.png"
   },
   {
     "id": "matthew-hayden",
@@ -1151,7 +1151,7 @@ export const PLAYERS: Player[] = [
     "odis": 161,
     "t20is": 9,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Matthew_Hayden_Image.jpg/500px-Matthew_Hayden_Image.jpg"
+    "photoUrl": "/players/matthew-hayden.png"
   },
   {
     "id": "glenn-mcgrath",
@@ -1167,7 +1167,7 @@ export const PLAYERS: Player[] = [
     "odis": 250,
     "t20is": 2,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Glenn_McGrath_Portrait%2C_2011%2C_jjron.jpg/500px-Glenn_McGrath_Portrait%2C_2011%2C_jjron.jpg"
+    "photoUrl": "/players/glenn-mcgrath.png"
   },
   {
     "id": "andrew-symonds",
@@ -1183,7 +1183,7 @@ export const PLAYERS: Player[] = [
     "odis": 198,
     "t20is": 14,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Andrew_symonds_%28cropped%29.jpg/500px-Andrew_symonds_%28cropped%29.jpg"
+    "photoUrl": "/players/andrew-symonds.png"
   },
   {
     "id": "michael-hussey",
@@ -1199,7 +1199,7 @@ export const PLAYERS: Player[] = [
     "odis": 185,
     "t20is": 38,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Michael_Hussey_2022.jpg/500px-Michael_Hussey_2022.jpg"
+    "photoUrl": "/players/michael-hussey.png"
   },
   {
     "id": "david-hussey",
@@ -1215,7 +1215,7 @@ export const PLAYERS: Player[] = [
     "odis": 69,
     "t20is": 39,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/David_Hussey_2.jpg/500px-David_Hussey_2.jpg"
+    "photoUrl": "/players/david-hussey.png"
   },
   {
     "id": "brett-lee",
@@ -1231,7 +1231,7 @@ export const PLAYERS: Player[] = [
     "odis": 221,
     "t20is": 25,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Brett_lee_closeup2.jpg"
+    "photoUrl": "/players/brett-lee.png"
   },
   {
     "id": "doug-bollinger",
@@ -1247,7 +1247,7 @@ export const PLAYERS: Player[] = [
     "odis": 39,
     "t20is": 9,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/4/41/Doug_Bollinger.jpg"
+    "photoUrl": "/players/doug-bollinger.png"
   },
   {
     "id": "dirk-nannes",
@@ -1263,7 +1263,7 @@ export const PLAYERS: Player[] = [
     "odis": 1,
     "t20is": 17,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Dirk_nannes.jpg/500px-Dirk_nannes.jpg"
+    "photoUrl": "/players/dirk-nannes.png"
   },
   {
     "id": "aiden-blizzard",
@@ -1279,7 +1279,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Aiden_Blizzard.jpg/500px-Aiden_Blizzard.jpg"
+    "photoUrl": "/players/aiden-blizzard.png"
   },
   {
     "id": "adam-voges",
@@ -1295,7 +1295,7 @@ export const PLAYERS: Player[] = [
     "odis": 31,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Adam_Voges.jpg/500px-Adam_Voges.jpg"
+    "photoUrl": "/players/adam-voges.png"
   },
   {
     "id": "ryan-harris",
@@ -1311,7 +1311,7 @@ export const PLAYERS: Player[] = [
     "odis": 21,
     "t20is": 3,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Ryan_Harris_2014_%28cropped%29.jpg/500px-Ryan_Harris_2014_%28cropped%29.jpg"
+    "photoUrl": "/players/ryan-harris.png"
   },
   {
     "id": "chris-rogers",
@@ -1327,7 +1327,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/chris-rogers.png"
   },
   {
     "id": "jake-fraser-mcgurk",
@@ -1343,7 +1343,7 @@ export const PLAYERS: Player[] = [
     "odis": 7,
     "t20is": 8,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/8/89/Jake_Fraser_McGurk_2024_clip.png"
+    "photoUrl": "/players/jake-fraser-mcgurk.png"
   },
   {
     "id": "will-pucovski",
@@ -1359,7 +1359,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/will-pucovski.png"
   },
   {
     "id": "nathan-ellis",
@@ -1375,7 +1375,7 @@ export const PLAYERS: Player[] = [
     "odis": 10,
     "t20is": 18,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/nathan-ellis.png"
   },
   {
     "id": "tanveer-sangha",
@@ -1391,7 +1391,7 @@ export const PLAYERS: Player[] = [
     "odis": 2,
     "t20is": 5,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/tanveer-sangha.png"
   },
   {
     "id": "cooper-connolly",
@@ -1407,7 +1407,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/cooper-connolly.png"
   },
   {
     "id": "michael-bevan",
@@ -1423,7 +1423,7 @@ export const PLAYERS: Player[] = [
     "odis": 232,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/au.png"
+    "photoUrl": "/players/michael-bevan.png"
   },
   {
     "id": "simon-katich",
@@ -1439,7 +1439,7 @@ export const PLAYERS: Player[] = [
     "odis": 45,
     "t20is": 3,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Katich2.jpg"
+    "photoUrl": "/players/simon-katich.png"
   },
   {
     "id": "justin-langer",
@@ -1455,7 +1455,7 @@ export const PLAYERS: Player[] = [
     "odis": 8,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Justin_Langer_Portrait.png/500px-Justin_Langer_Portrait.png"
+    "photoUrl": "/players/justin-langer.png"
   },
   {
     "id": "shane-warne",
@@ -1471,7 +1471,7 @@ export const PLAYERS: Player[] = [
     "odis": 194,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Shane_Warne_February_2015.jpg/500px-Shane_Warne_February_2015.jpg"
+    "photoUrl": "/players/shane-warne.png"
   },
   {
     "id": "mahedi-hasan",
@@ -1487,7 +1487,7 @@ export const PLAYERS: Player[] = [
     "odis": 11,
     "t20is": 70,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/bd.png"
+    "photoUrl": "/players/mahedi-hasan.png"
   },
   {
     "id": "mehidy-hasan-miraz",
@@ -1503,7 +1503,7 @@ export const PLAYERS: Player[] = [
     "odis": 114,
     "t20is": 34,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/%E0%A6%AE%E0%A7%87%E0%A6%B9%E0%A7%87%E0%A6%A6%E0%A7%80_%E0%A6%B9%E0%A6%BE%E0%A6%B8%E0%A6%BE%E0%A6%A8_%E0%A6%AE%E0%A6%BF%E0%A6%B0%E0%A6%BE%E0%A6%9C_%28cropped%29.jpg/500px-%E0%A6%AE%E0%A7%87%E0%A6%B9%E0%A7%87%E0%A6%A6%E0%A7%80_%E0%A6%B9%E0%A6%BE%E0%A6%B8%E0%A6%BE%E0%A6%A8_%E0%A6%AE%E0%A6%BF%E0%A6%B0%E0%A6%BE%E0%A6%9C_%28cropped%29.jpg"
+    "photoUrl": "/players/mehidy-hasan-miraz.png"
   },
   {
     "id": "mustafizur-rahman",
@@ -1519,7 +1519,7 @@ export const PLAYERS: Player[] = [
     "odis": 101,
     "t20is": 99,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Mustafizur_Rahman_%284%29_%28cropped%29.jpg/500px-Mustafizur_Rahman_%284%29_%28cropped%29.jpg"
+    "photoUrl": "/players/mustafizur-rahman.png"
   },
   {
     "id": "shakib-al-hasan",
@@ -1535,7 +1535,7 @@ export const PLAYERS: Player[] = [
     "odis": 250,
     "t20is": 128,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Shakib_Al_Hasan_%284%29_%28cropped%29.jpg/500px-Shakib_Al_Hasan_%284%29_%28cropped%29.jpg"
+    "photoUrl": "/players/shakib-al-hasan.png"
   },
   {
     "id": "tamim-iqbal",
@@ -1551,7 +1551,7 @@ export const PLAYERS: Player[] = [
     "odis": 243,
     "t20is": 78,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Tamim_Iqbal_Khan.jpg/500px-Tamim_Iqbal_Khan.jpg"
+    "photoUrl": "/players/tamim-iqbal.png"
   },
   {
     "id": "mohammad-mahmudullah",
@@ -1567,7 +1567,7 @@ export const PLAYERS: Player[] = [
     "odis": 224,
     "t20is": 123,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Mahmudullah_Riyad_%282%29_%28cropped%29.jpg/500px-Mahmudullah_Riyad_%282%29_%28cropped%29.jpg"
+    "photoUrl": "/players/mohammad-mahmudullah.png"
   },
   {
     "id": "rubel-hossain",
@@ -1583,7 +1583,7 @@ export const PLAYERS: Player[] = [
     "odis": 101,
     "t20is": 28,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Rubel_Hossain_%282%29_%28cropped%29.jpg/500px-Rubel_Hossain_%282%29_%28cropped%29.jpg"
+    "photoUrl": "/players/rubel-hossain.png"
   },
   {
     "id": "soumya-sarkar",
@@ -1599,7 +1599,7 @@ export const PLAYERS: Player[] = [
     "odis": 61,
     "t20is": 78,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Soumya_Sarkar_%281%29_%28cropped%29.jpg/500px-Soumya_Sarkar_%281%29_%28cropped%29.jpg"
+    "photoUrl": "/players/soumya-sarkar.png"
   },
   {
     "id": "taskin-ahmed",
@@ -1615,7 +1615,7 @@ export const PLAYERS: Player[] = [
     "odis": 69,
     "t20is": 60,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/4/43/Taskin_Ahmed_in_2024_%28cropped%29.jpg"
+    "photoUrl": "/players/taskin-ahmed.png"
   },
   {
     "id": "litton-das",
@@ -1631,7 +1631,7 @@ export const PLAYERS: Player[] = [
     "odis": 86,
     "t20is": 78,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Liton_Das_%283%29_%28cropped%29.jpg/500px-Liton_Das_%283%29_%28cropped%29.jpg"
+    "photoUrl": "/players/litton-das.png"
   },
   {
     "id": "mashrafe-mortaza",
@@ -1647,7 +1647,7 @@ export const PLAYERS: Player[] = [
     "odis": 220,
     "t20is": 54,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Mashrafe_conference_3.jpg/500px-Mashrafe_conference_3.jpg"
+    "photoUrl": "/players/mashrafe-mortaza.png"
   },
   {
     "id": "mushfiqur-rahim",
@@ -1663,7 +1663,7 @@ export const PLAYERS: Player[] = [
     "odis": 275,
     "t20is": 102,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Mushfiqur_Rahim_2018_%28cropped%29.jpg/500px-Mushfiqur_Rahim_2018_%28cropped%29.jpg"
+    "photoUrl": "/players/mushfiqur-rahim.png"
   },
   {
     "id": "moeen-ali",
@@ -1679,7 +1679,7 @@ export const PLAYERS: Player[] = [
     "odis": 141,
     "t20is": 86,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/2018.01.06.17.47.32-Moeen_Ali_%2838876905344%29_%28cropped%29.jpg/500px-2018.01.06.17.47.32-Moeen_Ali_%2838876905344%29_%28cropped%29.jpg"
+    "photoUrl": "/players/moeen-ali.png"
   },
   {
     "id": "jake-ball",
@@ -1695,7 +1695,7 @@ export const PLAYERS: Player[] = [
     "odis": 18,
     "t20is": 2,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/jake-ball.png"
   },
   {
     "id": "stuart-broad",
@@ -1711,7 +1711,7 @@ export const PLAYERS: Player[] = [
     "odis": 121,
     "t20is": 56,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Stuart_broad.jpg/500px-Stuart_broad.jpg"
+    "photoUrl": "/players/stuart-broad.png"
   },
   {
     "id": "sam-curran",
@@ -1727,7 +1727,7 @@ export const PLAYERS: Player[] = [
     "odis": 33,
     "t20is": 42,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/The_Prime_Minister_welcomes_the_World_Cup_winning_cricketers_%2852764650104%29_-_Sam_Curran_%28cropped%29.jpg"
+    "photoUrl": "/players/sam-curran.png"
   },
   {
     "id": "keaton-jennings",
@@ -1743,7 +1743,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/1_27_Jennings_hundred.jpg/500px-1_27_Jennings_hundred.jpg"
+    "photoUrl": "/players/keaton-jennings.png"
   },
   {
     "id": "dawid-malan",
@@ -1759,7 +1759,7 @@ export const PLAYERS: Player[] = [
     "odis": 27,
     "t20is": 62,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/3_03_Malan_continues_%28cropped%29.jpg/500px-3_03_Malan_continues_%28cropped%29.jpg"
+    "photoUrl": "/players/dawid-malan.png"
   },
   {
     "id": "liam-plunkett",
@@ -1775,7 +1775,7 @@ export const PLAYERS: Player[] = [
     "odis": 89,
     "t20is": 22,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Liam_Plunkett_2017_%28cropped%29.jpg/500px-Liam_Plunkett_2017_%28cropped%29.jpg"
+    "photoUrl": "/players/liam-plunkett.png"
   },
   {
     "id": "joe-root",
@@ -1791,7 +1791,7 @@ export const PLAYERS: Player[] = [
     "odis": 178,
     "t20is": 32,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Joe_Root_HIP1487_%28cropped%29.jpg/500px-Joe_Root_HIP1487_%28cropped%29.jpg"
+    "photoUrl": "/players/joe-root.png"
   },
   {
     "id": "olly-stone",
@@ -1807,7 +1807,7 @@ export const PLAYERS: Player[] = [
     "odis": 9,
     "t20is": 1,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Olly_Stone.jpg/500px-Olly_Stone.jpg"
+    "photoUrl": "/players/olly-stone.png"
   },
   {
     "id": "david-willey",
@@ -1823,7 +1823,7 @@ export const PLAYERS: Player[] = [
     "odis": 78,
     "t20is": 49,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/David_Willey_%2851223172836%29_%28cropped%29.jpg/500px-David_Willey_%2851223172836%29_%28cropped%29.jpg"
+    "photoUrl": "/players/david-willey.png"
   },
   {
     "id": "james-anderson",
@@ -1839,7 +1839,7 @@ export const PLAYERS: Player[] = [
     "odis": 194,
     "t20is": 19,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/james-anderson.png"
   },
   {
     "id": "dominic-bess",
@@ -1855,7 +1855,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/3_12_Well_batted.jpg/500px-3_12_Well_batted.jpg"
+    "photoUrl": "/players/dominic-bess.png"
   },
   {
     "id": "jos-buttler",
@@ -1871,7 +1871,7 @@ export const PLAYERS: Player[] = [
     "odis": 188,
     "t20is": 121,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Jos_Buttler_in_2023.jpg/500px-Jos_Buttler_in_2023.jpg"
+    "photoUrl": "/players/jos-buttler.png"
   },
   {
     "id": "liam-dawson",
@@ -1887,7 +1887,7 @@ export const PLAYERS: Player[] = [
     "odis": 6,
     "t20is": 13,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/liam-dawson.png"
   },
   {
     "id": "chris-jordan",
@@ -1903,7 +1903,7 @@ export const PLAYERS: Player[] = [
     "odis": 34,
     "t20is": 93,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/chris-jordan.png"
   },
   {
     "id": "eoin-morgan",
@@ -1919,7 +1919,7 @@ export const PLAYERS: Player[] = [
     "odis": 248,
     "t20is": 115,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Eoin_Morgan_2.jpg/500px-Eoin_Morgan_2.jpg"
+    "photoUrl": "/players/eoin-morgan.png"
   },
   {
     "id": "ollie-pope",
@@ -1935,7 +1935,7 @@ export const PLAYERS: Player[] = [
     "odis": 1,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Ollie_Pope.jpg/500px-Ollie_Pope.jpg"
+    "photoUrl": "/players/ollie-pope.png"
   },
   {
     "id": "jason-roy",
@@ -1951,7 +1951,7 @@ export const PLAYERS: Player[] = [
     "odis": 116,
     "t20is": 64,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Jason_Roy_with_the_Sydney_Sixers.jpg/500px-Jason_Roy_with_the_Sydney_Sixers.jpg"
+    "photoUrl": "/players/jason-roy.png"
   },
   {
     "id": "chris-woakes",
@@ -1967,7 +1967,7 @@ export const PLAYERS: Player[] = [
     "odis": 122,
     "t20is": 33,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Chris_Woakes_2022.jpg/500px-Chris_Woakes_2022.jpg"
+    "photoUrl": "/players/chris-woakes.png"
   },
   {
     "id": "jonny-bairstow",
@@ -1983,7 +1983,7 @@ export const PLAYERS: Player[] = [
     "odis": 106,
     "t20is": 77,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/2_05_Bairstow_out.jpg/500px-2_05_Bairstow_out.jpg"
+    "photoUrl": "/players/jonny-bairstow.png"
   },
   {
     "id": "sam-billings",
@@ -1999,7 +1999,7 @@ export const PLAYERS: Player[] = [
     "odis": 30,
     "t20is": 41,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Sam_Billings_Kent_V_Surrey_2015_at_Kia_Oval_Cricket_Ground_%2827190750944%29.jpg/500px-Sam_Billings_Kent_V_Surrey_2015_at_Kia_Oval_Cricket_Ground_%2827190750944%29.jpg"
+    "photoUrl": "/players/sam-billings.png"
   },
   {
     "id": "alastair-cook",
@@ -2015,7 +2015,7 @@ export const PLAYERS: Player[] = [
     "odis": 92,
     "t20is": 4,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Alastair_Cook_vs_Upminster_CC.jpg/500px-Alastair_Cook_vs_Upminster_CC.jpg"
+    "photoUrl": "/players/alastair-cook.png"
   },
   {
     "id": "alex-hales",
@@ -2031,7 +2031,7 @@ export const PLAYERS: Player[] = [
     "odis": 70,
     "t20is": 75,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Alex_Hales_2.JPG/500px-Alex_Hales_2.JPG"
+    "photoUrl": "/players/alex-hales.png"
   },
   {
     "id": "jack-leach",
@@ -2047,7 +2047,7 @@ export const PLAYERS: Player[] = [
     "odis": 2,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/2_31_Hero%27s_return.jpg/500px-2_31_Hero%27s_return.jpg"
+    "photoUrl": "/players/jack-leach.png"
   },
   {
     "id": "craig-overton",
@@ -2063,7 +2063,7 @@ export const PLAYERS: Player[] = [
     "odis": 7,
     "t20is": 4,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Craig_Overton.jpg/500px-Craig_Overton.jpg"
+    "photoUrl": "/players/craig-overton.png"
   },
   {
     "id": "adil-rashid",
@@ -2079,7 +2079,7 @@ export const PLAYERS: Player[] = [
     "odis": 139,
     "t20is": 108,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/1_13_Adil_Rashid_%28cropped%29.jpg/500px-1_13_Adil_Rashid_%28cropped%29.jpg"
+    "photoUrl": "/players/adil-rashid.png"
   },
   {
     "id": "ben-stokes",
@@ -2095,7 +2095,7 @@ export const PLAYERS: Player[] = [
     "odis": 118,
     "t20is": 43,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/BEN_STOKES_%2811704837023%29_%28cropped%29.jpg/500px-BEN_STOKES_%2811704837023%29_%28cropped%29.jpg"
+    "photoUrl": "/players/ben-stokes.png"
   },
   {
     "id": "james-vince",
@@ -2111,7 +2111,7 @@ export const PLAYERS: Player[] = [
     "odis": 25,
     "t20is": 22,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/James_Vince_2023.jpg/500px-James_Vince_2023.jpg"
+    "photoUrl": "/players/james-vince.png"
   },
   {
     "id": "mark-wood",
@@ -2127,7 +2127,7 @@ export const PLAYERS: Player[] = [
     "odis": 68,
     "t20is": 33,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/mark-wood.png"
   },
   {
     "id": "tom-curran",
@@ -2143,7 +2143,7 @@ export const PLAYERS: Player[] = [
     "odis": 28,
     "t20is": 30,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Tom_Curran_cricketer.jpg/500px-Tom_Curran_cricketer.jpg"
+    "photoUrl": "/players/tom-curran.png"
   },
   {
     "id": "joe-denly",
@@ -2159,7 +2159,7 @@ export const PLAYERS: Player[] = [
     "odis": 16,
     "t20is": 13,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Denly2.jpg"
+    "photoUrl": "/players/joe-denly.png"
   },
   {
     "id": "rory-burns",
@@ -2175,7 +2175,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/3_06_Rory_Burns.jpg/500px-3_06_Rory_Burns.jpg"
+    "photoUrl": "/players/rory-burns.png"
   },
   {
     "id": "tymal-mills",
@@ -2191,7 +2191,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 18,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Tom_Craddock_%28left%29_and_Tymal_Mills_%28right%29_%28cropped%29.jpg/500px-Tom_Craddock_%28left%29_and_Tymal_Mills_%28right%29_%28cropped%29.jpg"
+    "photoUrl": "/players/tymal-mills.png"
   },
   {
     "id": "ravi-bopara",
@@ -2207,7 +2207,7 @@ export const PLAYERS: Player[] = [
     "odis": 120,
     "t20is": 38,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/9/99/Ravi_Bopara.jpg"
+    "photoUrl": "/players/ravi-bopara.png"
   },
   {
     "id": "jofra-archer",
@@ -2223,7 +2223,7 @@ export const PLAYERS: Player[] = [
     "odis": 21,
     "t20is": 15,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/d/de/Jofra_Archer_%283%29.jpg"
+    "photoUrl": "/players/jofra-archer.png"
   },
   {
     "id": "tim-bresnan",
@@ -2239,7 +2239,7 @@ export const PLAYERS: Player[] = [
     "odis": 85,
     "t20is": 34,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Tim_Bresnan_jogging_to_the_boundary_%28cropped%29.jpg/500px-Tim_Bresnan_jogging_to_the_boundary_%28cropped%29.jpg"
+    "photoUrl": "/players/tim-bresnan.png"
   },
   {
     "id": "ben-duckett",
@@ -2255,7 +2255,7 @@ export const PLAYERS: Player[] = [
     "odis": 10,
     "t20is": 13,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/3_31_Another_four_%28Ben_Duckett_cropped%29.jpg"
+    "photoUrl": "/players/ben-duckett.png"
   },
   {
     "id": "liam-livingstone",
@@ -2271,7 +2271,7 @@ export const PLAYERS: Player[] = [
     "odis": 20,
     "t20is": 47,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/liam-livingstone.png"
   },
   {
     "id": "ian-bell",
@@ -2287,7 +2287,7 @@ export const PLAYERS: Player[] = [
     "odis": 161,
     "t20is": 8,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/The_England_Cricket_Team_Ashes_2015_%28bell_cropped%29.jpg"
+    "photoUrl": "/players/ian-bell.png"
   },
   {
     "id": "owais-shah",
@@ -2303,7 +2303,7 @@ export const PLAYERS: Player[] = [
     "odis": 71,
     "t20is": 17,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/owais-shah.png"
   },
   {
     "id": "kevin-pietersen",
@@ -2319,7 +2319,7 @@ export const PLAYERS: Player[] = [
     "odis": 136,
     "t20is": 37,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Kevin_Pietersen_2014.jpg/500px-Kevin_Pietersen_2014.jpg"
+    "photoUrl": "/players/kevin-pietersen.png"
   },
   {
     "id": "steven-finn",
@@ -2335,7 +2335,7 @@ export const PLAYERS: Player[] = [
     "odis": 69,
     "t20is": 21,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Steven_Finn_%28cricketer%29%2C_%282014%29.jpg/500px-Steven_Finn_%28cricketer%29%2C_%282014%29.jpg"
+    "photoUrl": "/players/steven-finn.png"
   },
   {
     "id": "michael-vaughan",
@@ -2351,7 +2351,7 @@ export const PLAYERS: Player[] = [
     "odis": 86,
     "t20is": 2,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/The_Kia_Oval_England_v_Pakistan_-_Aug_2010_-_Michael_Vaughan_-_Channel_5%27s_Man_at_the_Cricket_%284908718949%29.jpg/500px-The_Kia_Oval_England_v_Pakistan_-_Aug_2010_-_Michael_Vaughan_-_Channel_5%27s_Man_at_the_Cricket_%284908718949%29.jpg"
+    "photoUrl": "/players/michael-vaughan.png"
   },
   {
     "id": "paul-collingwood",
@@ -2367,7 +2367,7 @@ export const PLAYERS: Player[] = [
     "odis": 197,
     "t20is": 36,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Former_England_batsman_Paul_Collingwood_at_Headingley_ahead_of_the_3rd_Ashes_Test_of_2019.jpg/500px-Former_England_batsman_Paul_Collingwood_at_Headingley_ahead_of_the_3rd_Ashes_Test_of_2019.jpg"
+    "photoUrl": "/players/paul-collingwood.png"
   },
   {
     "id": "andrew-flintoff",
@@ -2383,7 +2383,7 @@ export const PLAYERS: Player[] = [
     "odis": 141,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Rachel_and_cricketer_husband_Freddie_Flintoff_%2823820118063%29_%28cropped%29.jpg/500px-Rachel_and_cricketer_husband_Freddie_Flintoff_%2823820118063%29_%28cropped%29.jpg"
+    "photoUrl": "/players/andrew-flintoff.png"
   },
   {
     "id": "monty-panesar",
@@ -2399,7 +2399,7 @@ export const PLAYERS: Player[] = [
     "odis": 26,
     "t20is": 1,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Monty_Panesar_%282014%29_%2802%29.jpg/500px-Monty_Panesar_%282014%29_%2802%29.jpg"
+    "photoUrl": "/players/monty-panesar.png"
   },
   {
     "id": "andrew-strauss",
@@ -2415,7 +2415,7 @@ export const PLAYERS: Player[] = [
     "odis": 127,
     "t20is": 4,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Andrew_Strauss.JPG/500px-Andrew_Strauss.JPG"
+    "photoUrl": "/players/andrew-strauss.png"
   },
   {
     "id": "matt-prior",
@@ -2431,7 +2431,7 @@ export const PLAYERS: Player[] = [
     "odis": 68,
     "t20is": 10,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Matt_prior.jpg/500px-Matt_prior.jpg"
+    "photoUrl": "/players/matt-prior.png"
   },
   {
     "id": "graeme-swann",
@@ -2447,7 +2447,7 @@ export const PLAYERS: Player[] = [
     "odis": 79,
     "t20is": 39,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Graeme_Swann%2C_2009.jpg/500px-Graeme_Swann%2C_2009.jpg"
+    "photoUrl": "/players/graeme-swann.png"
   },
   {
     "id": "jonathan-trott",
@@ -2463,7 +2463,7 @@ export const PLAYERS: Player[] = [
     "odis": 68,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Jonathan_Trott1.jpg/500px-Jonathan_Trott1.jpg"
+    "photoUrl": "/players/jonathan-trott.png"
   },
   {
     "id": "james-tredwell",
@@ -2479,7 +2479,7 @@ export const PLAYERS: Player[] = [
     "odis": 45,
     "t20is": 17,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/James_Tredwell_playing_cricket.jpg/500px-James_Tredwell_playing_cricket.jpg"
+    "photoUrl": "/players/james-tredwell.png"
   },
   {
     "id": "reece-topley",
@@ -2495,7 +2495,7 @@ export const PLAYERS: Player[] = [
     "odis": 33,
     "t20is": 29,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/Reece_Topley_%28cropped%29.png"
+    "photoUrl": "/players/reece-topley.png"
   },
   {
     "id": "ben-foakes",
@@ -2511,7 +2511,7 @@ export const PLAYERS: Player[] = [
     "odis": 7,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Ben_Foakes_Cricketer.jpg"
+    "photoUrl": "/players/ben-foakes.png"
   },
   {
     "id": "philip-salt",
@@ -2527,7 +2527,7 @@ export const PLAYERS: Player[] = [
     "odis": 23,
     "t20is": 24,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/2_02_Phil_Salt.jpg/500px-2_02_Phil_Salt.jpg"
+    "photoUrl": "/players/philip-salt.png"
   },
   {
     "id": "jamie-overton",
@@ -2543,7 +2543,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 1,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Jamie_Overton.jpg"
+    "photoUrl": "/players/jamie-overton.png"
   },
   {
     "id": "harry-brook",
@@ -2559,7 +2559,7 @@ export const PLAYERS: Player[] = [
     "odis": 15,
     "t20is": 37,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Harry_Brook_County_cricket_cropped.jpg/500px-Harry_Brook_County_cricket_cropped.jpg"
+    "photoUrl": "/players/harry-brook.png"
   },
   {
     "id": "will-jacks",
@@ -2575,7 +2575,7 @@ export const PLAYERS: Player[] = [
     "odis": 11,
     "t20is": 11,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/4_20_Will_Jacks.jpg/500px-4_20_Will_Jacks.jpg"
+    "photoUrl": "/players/will-jacks.png"
   },
   {
     "id": "jamie-smith",
@@ -2591,7 +2591,7 @@ export const PLAYERS: Player[] = [
     "odis": 19,
     "t20is": 5,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Jamie_xx_-_8_June_2016_%28cropped%29.jpg/500px-Jamie_xx_-_8_June_2016_%28cropped%29.jpg"
+    "photoUrl": "/players/jamie-smith.png"
   },
   {
     "id": "zak-crawley",
@@ -2607,7 +2607,7 @@ export const PLAYERS: Player[] = [
     "odis": 8,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/1_03_Zak_Crawley_%28cropped%29.jpg/500px-1_03_Zak_Crawley_%28cropped%29.jpg"
+    "photoUrl": "/players/zak-crawley.png"
   },
   {
     "id": "josh-tongue",
@@ -2623,7 +2623,7 @@ export const PLAYERS: Player[] = [
     "odis": 2,
     "t20is": 1,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/josh-tongue.png"
   },
   {
     "id": "marcus-trescothick",
@@ -2639,7 +2639,7 @@ export const PLAYERS: Player[] = [
     "odis": 123,
     "t20is": 3,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Tresco_1.jpg"
+    "photoUrl": "/players/marcus-trescothick.png"
   },
   {
     "id": "gus-atkinson",
@@ -2655,7 +2655,7 @@ export const PLAYERS: Player[] = [
     "odis": 11,
     "t20is": 4,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/gb.png"
+    "photoUrl": "/players/gus-atkinson.png"
   },
   {
     "id": "rehan-ahmed",
@@ -2671,7 +2671,7 @@ export const PLAYERS: Player[] = [
     "odis": 6,
     "t20is": 12,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/3_57_Rehan_Ahmed.jpg/500px-3_57_Rehan_Ahmed.jpg"
+    "photoUrl": "/players/rehan-ahmed.png"
   },
   {
     "id": "virat-kohli",
@@ -2687,7 +2687,7 @@ export const PLAYERS: Player[] = [
     "odis": 292,
     "t20is": 115,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Virat_Kohli_in_PMO_New_Delhi.jpg/500px-Virat_Kohli_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/virat-kohli.png"
   },
   {
     "id": "lokesh-rahul",
@@ -2703,7 +2703,7 @@ export const PLAYERS: Player[] = [
     "odis": 75,
     "t20is": 72,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/KL_Rahul_at_Femina_Miss_India_2018_Grand_Finale_%28cropped%29.jpg"
+    "photoUrl": "/players/lokesh-rahul.png"
   },
   {
     "id": "prithvi-shaw",
@@ -2719,7 +2719,7 @@ export const PLAYERS: Player[] = [
     "odis": 9,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Prithvi_shaw.png"
+    "photoUrl": "/players/prithvi-shaw.png"
   },
   {
     "id": "mayank-agarwal",
@@ -2735,7 +2735,7 @@ export const PLAYERS: Player[] = [
     "odis": 5,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/2_38_Agarwal_mugshot.jpg/500px-2_38_Agarwal_mugshot.jpg"
+    "photoUrl": "/players/mayank-agarwal.png"
   },
   {
     "id": "cheteshwar-pujara",
@@ -2751,7 +2751,7 @@ export const PLAYERS: Player[] = [
     "odis": 5,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Cheteshwar_Pujara.jpg/500px-Cheteshwar_Pujara.jpg"
+    "photoUrl": "/players/cheteshwar-pujara.png"
   },
   {
     "id": "ajinkya-rahane",
@@ -2767,7 +2767,7 @@ export const PLAYERS: Player[] = [
     "odis": 90,
     "t20is": 20,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/Ajinkya_Rahane_2016_%28cropped%29.jpg"
+    "photoUrl": "/players/ajinkya-rahane.png"
   },
   {
     "id": "hanuma-vihari",
@@ -2783,7 +2783,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Hanuma_Vihari.png/500px-Hanuma_Vihari.png"
+    "photoUrl": "/players/hanuma-vihari.png"
   },
   {
     "id": "rishabh-pant",
@@ -2799,7 +2799,7 @@ export const PLAYERS: Player[] = [
     "odis": 30,
     "t20is": 66,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Rishabh_Pant.jpg/500px-Rishabh_Pant.jpg"
+    "photoUrl": "/players/rishabh-pant.png"
   },
   {
     "id": "ravichandran-ashwin",
@@ -2815,7 +2815,7 @@ export const PLAYERS: Player[] = [
     "odis": 116,
     "t20is": 65,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/The_Minister_of_State_for_Youth_Affairs_and_Sports_%28Independent_Charge%29%2C_Shri_Sarbananda_Sonowal_conferring_the_Arjuna_Award_on_cricketer_Ravichandran_Ashwin%2C_in_New_Delhi_on_July_31%2C_2015_cropped.jpg/500px-thumbnail.jpg"
+    "photoUrl": "/players/ravichandran-ashwin.png"
   },
   {
     "id": "ravindra-jadeja",
@@ -2831,7 +2831,7 @@ export const PLAYERS: Player[] = [
     "odis": 210,
     "t20is": 74,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2c/PM_Shri_Narendra_Modi_with_Ravindra_Jadeja_%28Cropped%29.jpg"
+    "photoUrl": "/players/ravindra-jadeja.png"
   },
   {
     "id": "kuldeep-yadav",
@@ -2847,7 +2847,7 @@ export const PLAYERS: Player[] = [
     "odis": 120,
     "t20is": 50,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Kuldeep_Yadav_in_PMO_New_Delhi.jpg/500px-Kuldeep_Yadav_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/kuldeep-yadav.png"
   },
   {
     "id": "mohammed-shami",
@@ -2863,7 +2863,7 @@ export const PLAYERS: Player[] = [
     "odis": 101,
     "t20is": 23,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Mohammed_Shami_Arjuna_Award_%28cropped%29.jpg/500px-Mohammed_Shami_Arjuna_Award_%28cropped%29.jpg"
+    "photoUrl": "/players/mohammed-shami.png"
   },
   {
     "id": "umesh-yadav",
@@ -2879,7 +2879,7 @@ export const PLAYERS: Player[] = [
     "odis": 75,
     "t20is": 9,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Umesh_Yadav.jpg"
+    "photoUrl": "/players/umesh-yadav.png"
   },
   {
     "id": "mohammed-siraj",
@@ -2895,7 +2895,7 @@ export const PLAYERS: Player[] = [
     "odis": 41,
     "t20is": 10,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/d/da/Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Mohammad_Siraj_%28cropped%29.jpg"
+    "photoUrl": "/players/mohammed-siraj.png"
   },
   {
     "id": "yashasvi-jaiswal",
@@ -2911,7 +2911,7 @@ export const PLAYERS: Player[] = [
     "odis": 1,
     "t20is": 23,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Yashasvi_Jaiswal_in_PMO_New_Delhi.jpg/500px-Yashasvi_Jaiswal_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/yashasvi-jaiswal.png"
   },
   {
     "id": "shardul-thakur",
@@ -2927,7 +2927,7 @@ export const PLAYERS: Player[] = [
     "odis": 47,
     "t20is": 25,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/shardul-thakur.png"
   },
   {
     "id": "yuzvendra-chahal",
@@ -2943,7 +2943,7 @@ export const PLAYERS: Player[] = [
     "odis": 72,
     "t20is": 80,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Yuzvendra_Chahal_in_PMO_New_Delhi.jpg/500px-Yuzvendra_Chahal_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/yuzvendra-chahal.png"
   },
   {
     "id": "mahendra-singh-dhoni",
@@ -2959,7 +2959,7 @@ export const PLAYERS: Player[] = [
     "odis": 350,
     "t20is": 98,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/MS_Dhoni_%28Prabhav_%2723_-_RiGI_2023%29.jpg/500px-MS_Dhoni_%28Prabhav_%2723_-_RiGI_2023%29.jpg"
+    "photoUrl": "/players/mahendra-singh-dhoni.png"
   },
   {
     "id": "dinesh-karthik",
@@ -2975,7 +2975,7 @@ export const PLAYERS: Player[] = [
     "odis": 94,
     "t20is": 60,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Dinesh.Karthik.jpg/500px-Dinesh.Karthik.jpg"
+    "photoUrl": "/players/dinesh-karthik.png"
   },
   {
     "id": "manish-pandey",
@@ -2991,7 +2991,7 @@ export const PLAYERS: Player[] = [
     "odis": 29,
     "t20is": 39,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Manish_Pandey_%283%29.jpg/500px-Manish_Pandey_%283%29.jpg"
+    "photoUrl": "/players/manish-pandey.png"
   },
   {
     "id": "suresh-raina",
@@ -3007,7 +3007,7 @@ export const PLAYERS: Player[] = [
     "odis": 226,
     "t20is": 78,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Suresh_Raina_grace_the_%27Salaam_Sachin%27_conclave.jpg/500px-Suresh_Raina_grace_the_%27Salaam_Sachin%27_conclave.jpg"
+    "photoUrl": "/players/suresh-raina.png"
   },
   {
     "id": "rohit-sharma",
@@ -3023,7 +3023,7 @@ export const PLAYERS: Player[] = [
     "odis": 282,
     "t20is": 159,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Shri_Rohit_Gurunath_Sharma_%28Cropped%29.jpg/500px-Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Shri_Rohit_Gurunath_Sharma_%28Cropped%29.jpg"
+    "photoUrl": "/players/rohit-sharma.png"
   },
   {
     "id": "deepak-chahar",
@@ -3039,7 +3039,7 @@ export const PLAYERS: Player[] = [
     "odis": 13,
     "t20is": 25,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Deepak_Chahar.jpg/500px-Deepak_Chahar.jpg"
+    "photoUrl": "/players/deepak-chahar.png"
   },
   {
     "id": "bhuvneshwar-kumar",
@@ -3055,7 +3055,7 @@ export const PLAYERS: Player[] = [
     "odis": 121,
     "t20is": 87,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Bhuvneshwar_kumar_With_Rashid_Zirak_%28Bhuvneshwar_Kumar_cropped%29.jpg/500px-Bhuvneshwar_kumar_With_Rashid_Zirak_%28Bhuvneshwar_Kumar_cropped%29.jpg"
+    "photoUrl": "/players/bhuvneshwar-kumar.png"
   },
   {
     "id": "hardik-pandya",
@@ -3071,7 +3071,7 @@ export const PLAYERS: Player[] = [
     "odis": 94,
     "t20is": 125,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hardik_Pandya_in_PMO_New_Delhi.jpg/500px-Hardik_Pandya_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/hardik-pandya.png"
   },
   {
     "id": "ambati-rayudu",
@@ -3087,7 +3087,7 @@ export const PLAYERS: Player[] = [
     "odis": 55,
     "t20is": 6,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/5/51/Ambati_Rayudu.jpg"
+    "photoUrl": "/players/ambati-rayudu.png"
   },
   {
     "id": "murali-vijay",
@@ -3103,7 +3103,7 @@ export const PLAYERS: Player[] = [
     "odis": 17,
     "t20is": 9,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Murali_Vijay_1_%28cropped%29.jpg/500px-Murali_Vijay_1_%28cropped%29.jpg"
+    "photoUrl": "/players/murali-vijay.png"
   },
   {
     "id": "jasprit-bumrah",
@@ -3119,7 +3119,7 @@ export const PLAYERS: Player[] = [
     "odis": 89,
     "t20is": 84,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Jasprit_Bumrah_in_PMO_New_Delhi.jpg/500px-Jasprit_Bumrah_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/jasprit-bumrah.png"
   },
   {
     "id": "shikhar-dhawan",
@@ -3135,7 +3135,7 @@ export const PLAYERS: Player[] = [
     "odis": 167,
     "t20is": 68,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/SHIKHAR_DHAWAN_%2816005494418%29.jpg/500px-SHIKHAR_DHAWAN_%2816005494418%29.jpg"
+    "photoUrl": "/players/shikhar-dhawan.png"
   },
   {
     "id": "kedar-jadhav",
@@ -3151,7 +3151,7 @@ export const PLAYERS: Player[] = [
     "odis": 73,
     "t20is": 9,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/kedar-jadhav.png"
   },
   {
     "id": "ishant-sharma",
@@ -3167,7 +3167,7 @@ export const PLAYERS: Player[] = [
     "odis": 80,
     "t20is": 14,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/0/06/Ishant_Sharma_4.jpg"
+    "photoUrl": "/players/ishant-sharma.png"
   },
   {
     "id": "khaleel-ahmed",
@@ -3183,7 +3183,7 @@ export const PLAYERS: Player[] = [
     "odis": 11,
     "t20is": 18,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/2_29_Khaleel_mugshot.jpg/500px-2_29_Khaleel_mugshot.jpg"
+    "photoUrl": "/players/khaleel-ahmed.png"
   },
   {
     "id": "axar-patel",
@@ -3199,7 +3199,7 @@ export const PLAYERS: Player[] = [
     "odis": 71,
     "t20is": 86,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ad/Axar_Patel_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/axar-patel.png"
   },
   {
     "id": "siddarth-kaul",
@@ -3215,7 +3215,7 @@ export const PLAYERS: Player[] = [
     "odis": 3,
     "t20is": 3,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/siddarth-kaul.png"
   },
   {
     "id": "rahul-dravid",
@@ -3231,7 +3231,7 @@ export const PLAYERS: Player[] = [
     "odis": 344,
     "t20is": 1,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/1/17/Rahul_Dravid_in_2024.jpg"
+    "photoUrl": "/players/rahul-dravid.png"
   },
   {
     "id": "yuvraj-singh",
@@ -3247,7 +3247,7 @@ export const PLAYERS: Player[] = [
     "odis": 304,
     "t20is": 58,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/8/81/Yuvraj_Singh_appointed_as_Ulysse_Nardin_watch_brand_ambassador.jpeg"
+    "photoUrl": "/players/yuvraj-singh.png"
   },
   {
     "id": "ajit-agarkar",
@@ -3263,7 +3263,7 @@ export const PLAYERS: Player[] = [
     "odis": 191,
     "t20is": 4,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/7/74/AjitAgarkar.jpg"
+    "photoUrl": "/players/ajit-agarkar.png"
   },
   {
     "id": "sourav-ganguly",
@@ -3279,7 +3279,7 @@ export const PLAYERS: Player[] = [
     "odis": 311,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Sourav_Ganguly_%28late_2010s%29.jpg/500px-Sourav_Ganguly_%28late_2010s%29.jpg"
+    "photoUrl": "/players/sourav-ganguly.png"
   },
   {
     "id": "harbhajan-singh",
@@ -3295,7 +3295,7 @@ export const PLAYERS: Player[] = [
     "odis": 236,
     "t20is": 28,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Shri_Harbhajan_Singh_2015.jpg/500px-Shri_Harbhajan_Singh_2015.jpg"
+    "photoUrl": "/players/harbhajan-singh.png"
   },
   {
     "id": "zaheer-khan",
@@ -3311,7 +3311,7 @@ export const PLAYERS: Player[] = [
     "odis": 200,
     "t20is": 17,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/2/27/Zaheer_Khan_at_the_CPAA_show_2018_%28cropped%29.jpg"
+    "photoUrl": "/players/zaheer-khan.png"
   },
   {
     "id": "anil-kumble",
@@ -3327,7 +3327,7 @@ export const PLAYERS: Player[] = [
     "odis": 271,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/d/de/Anil_Kumble_%281%29.jpg"
+    "photoUrl": "/players/anil-kumble.png"
   },
   {
     "id": "munaf-patel",
@@ -3343,7 +3343,7 @@ export const PLAYERS: Player[] = [
     "odis": 70,
     "t20is": 3,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Munaf_Patel_2.jpg/500px-Munaf_Patel_2.jpg"
+    "photoUrl": "/players/munaf-patel.png"
   },
   {
     "id": "irfan-pathan",
@@ -3359,7 +3359,7 @@ export const PLAYERS: Player[] = [
     "odis": 120,
     "t20is": 24,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Irfan_Pathan72.jpg"
+    "photoUrl": "/players/irfan-pathan.png"
   },
   {
     "id": "virender-sehwag",
@@ -3375,7 +3375,7 @@ export const PLAYERS: Player[] = [
     "odis": 251,
     "t20is": 19,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Virender_Sehwag_at_the_NDTV_Marks_for_Sports_event_13.jpg/500px-Virender_Sehwag_at_the_NDTV_Marks_for_Sports_event_13.jpg"
+    "photoUrl": "/players/virender-sehwag.png"
   },
   {
     "id": "shanthakumaran-sreesanth",
@@ -3391,7 +3391,7 @@ export const PLAYERS: Player[] = [
     "odis": 53,
     "t20is": 10,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Sreesanth_1.jpg/500px-Sreesanth_1.jpg"
+    "photoUrl": "/players/shanthakumaran-sreesanth.png"
   },
   {
     "id": "sachin-tendulkar",
@@ -3407,7 +3407,7 @@ export const PLAYERS: Player[] = [
     "odis": 463,
     "t20is": 1,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/The_cricket_legend_Sachin_Tendulkar_at_the_Oval_Maidan_in_Mumbai_During_the_Duke_and_Duchess_of_Cambridge_Visit%2826271019082%29.jpg/500px-The_cricket_legend_Sachin_Tendulkar_at_the_Oval_Maidan_in_Mumbai_During_the_Duke_and_Duchess_of_Cambridge_Visit%2826271019082%29.jpg"
+    "photoUrl": "/players/sachin-tendulkar.png"
   },
   {
     "id": "robin-uthappa",
@@ -3423,7 +3423,7 @@ export const PLAYERS: Player[] = [
     "odis": 46,
     "t20is": 13,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Robin_Uthappa_1.jpg/500px-Robin_Uthappa_1.jpg"
+    "photoUrl": "/players/robin-uthappa.png"
   },
   {
     "id": "gautam-gambhir",
@@ -3439,7 +3439,7 @@ export const PLAYERS: Player[] = [
     "odis": 147,
     "t20is": 37,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Padma_Shri_Gautam_Gambhir_%28cropped%29.jpg/500px-Padma_Shri_Gautam_Gambhir_%28cropped%29.jpg"
+    "photoUrl": "/players/gautam-gambhir.png"
   },
   {
     "id": "yusuf-pathan",
@@ -3455,7 +3455,7 @@ export const PLAYERS: Player[] = [
     "odis": 57,
     "t20is": 22,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Yusuf_Pathan.jpg/500px-Yusuf_Pathan.jpg"
+    "photoUrl": "/players/yusuf-pathan.png"
   },
   {
     "id": "ashish-nehra",
@@ -3471,7 +3471,7 @@ export const PLAYERS: Player[] = [
     "odis": 120,
     "t20is": 27,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Ashish_Nehra_%286160488612%29_%28cropped%29.jpg"
+    "photoUrl": "/players/ashish-nehra.png"
   },
   {
     "id": "piyush-chawla",
@@ -3487,7 +3487,7 @@ export const PLAYERS: Player[] = [
     "odis": 25,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Piyush_Chawla_2019.jpg/500px-Piyush_Chawla_2019.jpg"
+    "photoUrl": "/players/piyush-chawla.png"
   },
   {
     "id": "stuart-binny",
@@ -3503,7 +3503,7 @@ export const PLAYERS: Player[] = [
     "odis": 14,
     "t20is": 3,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Stuart_Binny_%282019%29.jpg/500px-Stuart_Binny_%282019%29.jpg"
+    "photoUrl": "/players/stuart-binny.png"
   },
   {
     "id": "mohit-sharma",
@@ -3519,7 +3519,7 @@ export const PLAYERS: Player[] = [
     "odis": 26,
     "t20is": 8,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Maj._Mohit_Sharma_%281_Para_SF%29_%28cropped%29.jpg/500px-Maj._Mohit_Sharma_%281_Para_SF%29_%28cropped%29.jpg"
+    "photoUrl": "/players/mohit-sharma.png"
   },
   {
     "id": "varun-aaron",
@@ -3535,7 +3535,7 @@ export const PLAYERS: Player[] = [
     "odis": 9,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Varun_Aaron.jpg/500px-Varun_Aaron.jpg"
+    "photoUrl": "/players/varun-aaron.png"
   },
   {
     "id": "amit-mishra",
@@ -3551,7 +3551,7 @@ export const PLAYERS: Player[] = [
     "odis": 42,
     "t20is": 15,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/7/73/Amit_Mishra.jpg"
+    "photoUrl": "/players/amit-mishra.png"
   },
   {
     "id": "krunal-pandya",
@@ -3567,7 +3567,7 @@ export const PLAYERS: Player[] = [
     "odis": 5,
     "t20is": 19,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Krunal_Pandya_and_Hardik_Pandya_%28cropped%29_%28cropped%29.jpg"
+    "photoUrl": "/players/krunal-pandya.png"
   },
   {
     "id": "lakshmipathy-balaji",
@@ -3583,7 +3583,7 @@ export const PLAYERS: Player[] = [
     "odis": 30,
     "t20is": 5,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Shubek_Gill_%28right%29_with_L_Balaji_%28left%29.jpg/500px-Shubek_Gill_%28right%29_with_L_Balaji_%28left%29.jpg"
+    "photoUrl": "/players/lakshmipathy-balaji.png"
   },
   {
     "id": "ashok-dinda",
@@ -3599,7 +3599,7 @@ export const PLAYERS: Player[] = [
     "odis": 13,
     "t20is": 9,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/ashok-dinda.png"
   },
   {
     "id": "manoj-tiwary",
@@ -3615,7 +3615,7 @@ export const PLAYERS: Player[] = [
     "odis": 12,
     "t20is": 3,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Manoj_Tiwary.jpg/500px-Manoj_Tiwary.jpg"
+    "photoUrl": "/players/manoj-tiwary.png"
   },
   {
     "id": "jaydev-unadkat",
@@ -3631,7 +3631,7 @@ export const PLAYERS: Player[] = [
     "odis": 8,
     "t20is": 10,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/2_09_Jaydev_Unadkat_1.jpg/500px-2_09_Jaydev_Unadkat_1.jpg"
+    "photoUrl": "/players/jaydev-unadkat.png"
   },
   {
     "id": "shreyas-iyer",
@@ -3647,7 +3647,7 @@ export const PLAYERS: Player[] = [
     "odis": 59,
     "t20is": 51,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Shreyas_Iyer_snapped_at_the_airport_%28Cropped%29.jpg"
+    "photoUrl": "/players/shreyas-iyer.png"
   },
   {
     "id": "nitish-rana",
@@ -3663,7 +3663,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 5,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/nitish-rana.png"
   },
   {
     "id": "parthiv-patel",
@@ -3679,7 +3679,7 @@ export const PLAYERS: Player[] = [
     "odis": 38,
     "t20is": 2,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Parthiv_Patel.jpg/500px-Parthiv_Patel.jpg"
+    "photoUrl": "/players/parthiv-patel.png"
   },
   {
     "id": "suryakumar-yadav",
@@ -3695,7 +3695,7 @@ export const PLAYERS: Player[] = [
     "odis": 37,
     "t20is": 100,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Suryakumar_Yadav_in_PMO_New_Delhi.jpg/500px-Suryakumar_Yadav_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/suryakumar-yadav.png"
   },
   {
     "id": "sanju-samson",
@@ -3711,7 +3711,7 @@ export const PLAYERS: Player[] = [
     "odis": 16,
     "t20is": 53,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Sanju_Samson_in_PMO_New_Delhi.jpg/500px-Sanju_Samson_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/sanju-samson.png"
   },
   {
     "id": "rajat-bhatia",
@@ -3727,7 +3727,7 @@ export const PLAYERS: Player[] = [
     "odis": 2,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/rajat-bhatia.png"
   },
   {
     "id": "karun-nair",
@@ -3743,7 +3743,7 @@ export const PLAYERS: Player[] = [
     "odis": 2,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Karun_nair_With_Rashid_Zirak.jpg"
+    "photoUrl": "/players/karun-nair.png"
   },
   {
     "id": "deepak-hooda",
@@ -3759,7 +3759,7 @@ export const PLAYERS: Player[] = [
     "odis": 10,
     "t20is": 21,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/deepak-hooda.png"
   },
   {
     "id": "rahul-tewatia",
@@ -3775,7 +3775,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/rahul-tewatia.png"
   },
   {
     "id": "wriddhiman-saha",
@@ -3791,7 +3791,7 @@ export const PLAYERS: Player[] = [
     "odis": 9,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Wriddhiman_Saha.jpg/500px-Wriddhiman_Saha.jpg"
+    "photoUrl": "/players/wriddhiman-saha.png"
   },
   {
     "id": "jitesh-sharma",
@@ -3807,7 +3807,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 16,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/jitesh-sharma.png"
   },
   {
     "id": "ishan-kishan",
@@ -3823,7 +3823,7 @@ export const PLAYERS: Player[] = [
     "odis": 27,
     "t20is": 32,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Ishan_Kishan.jpg/500px-Ishan_Kishan.jpg"
+    "photoUrl": "/players/ishan-kishan.png"
   },
   {
     "id": "rp-singh",
@@ -3839,7 +3839,7 @@ export const PLAYERS: Player[] = [
     "odis": 58,
     "t20is": 10,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/R._P._Singh.jpg/500px-R._P._Singh.jpg"
+    "photoUrl": "/players/rp-singh.png"
   },
   {
     "id": "avesh-khan",
@@ -3855,7 +3855,7 @@ export const PLAYERS: Player[] = [
     "odis": 8,
     "t20is": 19,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/avesh-khan.png"
   },
   {
     "id": "navdeep-saini",
@@ -3871,7 +3871,7 @@ export const PLAYERS: Player[] = [
     "odis": 8,
     "t20is": 11,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/navdeep-saini.png"
   },
   {
     "id": "shashank-singh",
@@ -3887,7 +3887,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/shashank-singh.png"
   },
   {
     "id": "rinku-singh",
@@ -3903,7 +3903,7 @@ export const PLAYERS: Player[] = [
     "odis": 2,
     "t20is": 36,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/rinku-singh.png"
   },
   {
     "id": "rahul-chahar",
@@ -3919,7 +3919,7 @@ export const PLAYERS: Player[] = [
     "odis": 1,
     "t20is": 6,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/rahul-chahar.png"
   },
   {
     "id": "rahul-tripathi",
@@ -3935,7 +3935,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 5,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/rahul-tripathi.png"
   },
   {
     "id": "shubman-gill",
@@ -3951,7 +3951,7 @@ export const PLAYERS: Player[] = [
     "odis": 61,
     "t20is": 36,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/Shubman_Gill_2023_%28cropped%29.jpg"
+    "photoUrl": "/players/shubman-gill.png"
   },
   {
     "id": "prasidh-krishna",
@@ -3967,7 +3967,7 @@ export const PLAYERS: Player[] = [
     "odis": 23,
     "t20is": 5,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/prasidh-krishna.png"
   },
   {
     "id": "ruturaj-gaikwad",
@@ -3983,7 +3983,7 @@ export const PLAYERS: Player[] = [
     "odis": 6,
     "t20is": 19,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/2/27/Ruturaj_Gaikwad.jpeg"
+    "photoUrl": "/players/ruturaj-gaikwad.png"
   },
   {
     "id": "varun-chakaravarthy",
@@ -3999,7 +3999,7 @@ export const PLAYERS: Player[] = [
     "odis": 4,
     "t20is": 34,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/varun-chakaravarthy.png"
   },
   {
     "id": "arshdeep-singh",
@@ -4015,7 +4015,7 @@ export const PLAYERS: Player[] = [
     "odis": 15,
     "t20is": 73,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Arshdeep_Singh_Family_%28Cropped%29.jpg/500px-Prime_Minister_Of_Bharat_Shri_Narendra_Damodardas_Modi_with_Arshdeep_Singh_Family_%28Cropped%29.jpg"
+    "photoUrl": "/players/arshdeep-singh.png"
   },
   {
     "id": "riyan-parag",
@@ -4031,7 +4031,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/riyan-parag.png"
   },
   {
     "id": "devdutt-padikkal",
@@ -4047,7 +4047,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 2,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Devdutt_Paddikal_%28cropped%29.jpg/500px-Devdutt_Paddikal_%28cropped%29.jpg"
+    "photoUrl": "/players/devdutt-padikkal.png"
   },
   {
     "id": "shivam-dube",
@@ -4063,7 +4063,7 @@ export const PLAYERS: Player[] = [
     "odis": 4,
     "t20is": 51,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Shivam_Dube_in_PMO_New_Delhi.jpg/500px-Shivam_Dube_in_PMO_New_Delhi.jpg"
+    "photoUrl": "/players/shivam-dube.png"
   },
   {
     "id": "tushar-deshpande",
@@ -4079,7 +4079,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 2,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Tushar_Deshpande.jpg/500px-Tushar_Deshpande.jpg"
+    "photoUrl": "/players/tushar-deshpande.png"
   },
   {
     "id": "tilak-varma",
@@ -4095,7 +4095,7 @@ export const PLAYERS: Player[] = [
     "odis": 5,
     "t20is": 40,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/tilak-varma.png"
   },
   {
     "id": "nehal-wadhera",
@@ -4111,7 +4111,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/nehal-wadhera.png"
   },
   {
     "id": "ravi-bishnoi",
@@ -4127,7 +4127,7 @@ export const PLAYERS: Player[] = [
     "odis": 1,
     "t20is": 21,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/ravi-bishnoi.png"
   },
   {
     "id": "rajat-patidar",
@@ -4143,7 +4143,7 @@ export const PLAYERS: Player[] = [
     "odis": 1,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/rajat-patidar.png"
   },
   {
     "id": "b-sai-sudharsan",
@@ -4159,7 +4159,7 @@ export const PLAYERS: Player[] = [
     "odis": 3,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/b-sai-sudharsan.png"
   },
   {
     "id": "ayush-badoni",
@@ -4175,7 +4175,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/ayush-badoni.png"
   },
   {
     "id": "mayank-yadav",
@@ -4191,7 +4191,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 3,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/mayank-yadav.png"
   },
   {
     "id": "yash-dayal",
@@ -4207,7 +4207,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/yash-dayal.png"
   },
   {
     "id": "suyash-sharma",
@@ -4223,7 +4223,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Suyash_Sharma.png"
+    "photoUrl": "/players/suyash-sharma.png"
   },
   {
     "id": "washington-sundar",
@@ -4239,7 +4239,7 @@ export const PLAYERS: Player[] = [
     "odis": 29,
     "t20is": 58,
     "category": "IPL",
-    "photoUrl": "https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316600/316605.png"
+    "photoUrl": "/players/washington-sundar.png"
   },
   {
     "id": "harshit-rana",
@@ -4255,7 +4255,7 @@ export const PLAYERS: Player[] = [
     "odis": 15,
     "t20is": 6,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/in.png"
+    "photoUrl": "/players/harshit-rana.png"
   },
   {
     "id": "mark-chapman",
@@ -4271,7 +4271,7 @@ export const PLAYERS: Player[] = [
     "odis": 32,
     "t20is": 101,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Mark_David_Chapman%2C_NYPD_mugshot.jpg/500px-Mark_David_Chapman%2C_NYPD_mugshot.jpg"
+    "photoUrl": "/players/mark-chapman.png"
   },
   {
     "id": "martin-guptill",
@@ -4287,7 +4287,7 @@ export const PLAYERS: Player[] = [
     "odis": 198,
     "t20is": 122,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Martin_Guptill_2_%28cropped%29.jpg/500px-Martin_Guptill_2_%28cropped%29.jpg"
+    "photoUrl": "/players/martin-guptill.png"
   },
   {
     "id": "tom-latham",
@@ -4303,7 +4303,7 @@ export const PLAYERS: Player[] = [
     "odis": 147,
     "t20is": 26,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/tom-latham.png"
   },
   {
     "id": "henry-nicholls",
@@ -4319,7 +4319,7 @@ export const PLAYERS: Player[] = [
     "odis": 75,
     "t20is": 10,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/henry-nicholls.png"
   },
   {
     "id": "tim-seifert",
@@ -4335,7 +4335,7 @@ export const PLAYERS: Player[] = [
     "odis": 3,
     "t20is": 51,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/tim-seifert.png"
   },
   {
     "id": "ross-taylor",
@@ -4351,7 +4351,7 @@ export const PLAYERS: Player[] = [
     "odis": 236,
     "t20is": 106,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Ross_Taylor_CNZM_%28cropped%29.jpg/500px-Ross_Taylor_CNZM_%28cropped%29.jpg"
+    "photoUrl": "/players/ross-taylor.png"
   },
   {
     "id": "colin-de-grandhomme",
@@ -4367,7 +4367,7 @@ export const PLAYERS: Player[] = [
     "odis": 45,
     "t20is": 41,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/2018.02.03.20.52.20-AUSvNZL_T20_NZL_innings%2C_SCG_%2838618201470%29_%28de_Grandhomme_cropped%29.jpg/500px-2018.02.03.20.52.20-AUSvNZL_T20_NZL_innings%2C_SCG_%2838618201470%29_%28de_Grandhomme_cropped%29.jpg"
+    "photoUrl": "/players/colin-de-grandhomme.png"
   },
   {
     "id": "matt-henry",
@@ -4383,7 +4383,7 @@ export const PLAYERS: Player[] = [
     "odis": 82,
     "t20is": 13,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/matt-henry.png"
   },
   {
     "id": "glenn-phillips",
@@ -4399,7 +4399,7 @@ export const PLAYERS: Player[] = [
     "odis": 47,
     "t20is": 84,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/glenn-phillips.png"
   },
   {
     "id": "ish-sodhi",
@@ -4415,7 +4415,7 @@ export const PLAYERS: Player[] = [
     "odis": 54,
     "t20is": 133,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/2018.02.03.20.52.20-AUSvNZL_T20_NZL_innings%2C_SCG_%2838618201470%29_%28Sodhi_cropped%29.jpg/500px-2018.02.03.20.52.20-AUSvNZL_T20_NZL_innings%2C_SCG_%2838618201470%29_%28Sodhi_cropped%29.jpg"
+    "photoUrl": "/players/ish-sodhi.png"
   },
   {
     "id": "neil-wagner",
@@ -4431,7 +4431,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/2_37_Neil_Wagner.jpg/500px-2_37_Neil_Wagner.jpg"
+    "photoUrl": "/players/neil-wagner.png"
   },
   {
     "id": "kane-williamson",
@@ -4447,7 +4447,7 @@ export const PLAYERS: Player[] = [
     "odis": 175,
     "t20is": 93,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Kane_Williamson_in_2019.jpg"
+    "photoUrl": "/players/kane-williamson.png"
   },
   {
     "id": "trent-boult",
@@ -4463,7 +4463,7 @@ export const PLAYERS: Player[] = [
     "odis": 114,
     "t20is": 61,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/2018.02.03.22.23.14-AUSvNZL_T20_AUS_innings%2C_SCG_%2839533156665%29.jpg/500px-2018.02.03.22.23.14-AUSvNZL_T20_AUS_innings%2C_SCG_%2839533156665%29.jpg"
+    "photoUrl": "/players/trent-boult.png"
   },
   {
     "id": "lockie-ferguson",
@@ -4479,7 +4479,7 @@ export const PLAYERS: Player[] = [
     "odis": 65,
     "t20is": 43,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Lockie_Ferguson.jpg/500px-Lockie_Ferguson.jpg"
+    "photoUrl": "/players/lockie-ferguson.png"
   },
   {
     "id": "mitchell-santner",
@@ -4495,7 +4495,7 @@ export const PLAYERS: Player[] = [
     "odis": 124,
     "t20is": 123,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/mitchell-santner.png"
   },
   {
     "id": "tim-southee",
@@ -4511,7 +4511,7 @@ export const PLAYERS: Player[] = [
     "odis": 161,
     "t20is": 125,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Tim_Southee_ONZM_%28cropped%29.jpg/500px-Tim_Southee_ONZM_%28cropped%29.jpg"
+    "photoUrl": "/players/tim-southee.png"
   },
   {
     "id": "brendon-mccullum",
@@ -4527,7 +4527,7 @@ export const PLAYERS: Player[] = [
     "odis": 260,
     "t20is": 71,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Brendon_McCullum_ONZM_%28cropped%29.jpg"
+    "photoUrl": "/players/brendon-mccullum.png"
   },
   {
     "id": "mitchell-mcclenaghan",
@@ -4543,7 +4543,7 @@ export const PLAYERS: Player[] = [
     "odis": 48,
     "t20is": 29,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/mitchell-mcclenaghan.png"
   },
   {
     "id": "corey-anderson",
@@ -4559,7 +4559,7 @@ export const PLAYERS: Player[] = [
     "odis": 49,
     "t20is": 42,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/CoreyAnderson.jpg/500px-CoreyAnderson.jpg"
+    "photoUrl": "/players/corey-anderson.png"
   },
   {
     "id": "ajaz-patel",
@@ -4575,7 +4575,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 7,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/1_33_Ajaz_Patel.jpg/500px-1_33_Ajaz_Patel.jpg"
+    "photoUrl": "/players/ajaz-patel.png"
   },
   {
     "id": "daniel-vettori",
@@ -4591,7 +4591,7 @@ export const PLAYERS: Player[] = [
     "odis": 295,
     "t20is": 34,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Daniel_Vettori_ONZM_%28cropped%29.jpg/500px-Daniel_Vettori_ONZM_%28cropped%29.jpg"
+    "photoUrl": "/players/daniel-vettori.png"
   },
   {
     "id": "kyle-jamieson",
@@ -4607,7 +4607,7 @@ export const PLAYERS: Player[] = [
     "odis": 23,
     "t20is": 24,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Kyle_Jamieson_2015_%28cropped%29.jpg/500px-Kyle_Jamieson_2015_%28cropped%29.jpg"
+    "photoUrl": "/players/kyle-jamieson.png"
   },
   {
     "id": "jacob-duffy",
@@ -4623,7 +4623,7 @@ export const PLAYERS: Player[] = [
     "odis": 19,
     "t20is": 39,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/1_01_Jacob_Duffy.jpg/500px-1_01_Jacob_Duffy.jpg"
+    "photoUrl": "/players/jacob-duffy.png"
   },
   {
     "id": "michael-bracewell",
@@ -4639,7 +4639,7 @@ export const PLAYERS: Player[] = [
     "odis": 43,
     "t20is": 47,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/michael-bracewell.png"
   },
   {
     "id": "devon-conway",
@@ -4655,7 +4655,7 @@ export const PLAYERS: Player[] = [
     "odis": 43,
     "t20is": 63,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/nz.png"
+    "photoUrl": "/players/devon-conway.png"
   },
   {
     "id": "rachin-ravindra",
@@ -4671,7 +4671,7 @@ export const PLAYERS: Player[] = [
     "odis": 39,
     "t20is": 39,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Rachin_Ravindra.jpg/500px-Rachin_Ravindra.jpg"
+    "photoUrl": "/players/rachin-ravindra.png"
   },
   {
     "id": "daryl-mitchell",
@@ -4687,7 +4687,7 @@ export const PLAYERS: Player[] = [
     "odis": 59,
     "t20is": 91,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/DarylMitchellEmmysSept09.jpg/500px-DarylMitchellEmmysSept09.jpg"
+    "photoUrl": "/players/daryl-mitchell.png"
   },
   {
     "id": "ahmed-shehzad",
@@ -4703,7 +4703,7 @@ export const PLAYERS: Player[] = [
     "odis": 81,
     "t20is": 59,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Ahmed_Shehzad.png"
+    "photoUrl": "/players/ahmed-shehzad.png"
   },
   {
     "id": "sarfraz-ahmed",
@@ -4719,7 +4719,7 @@ export const PLAYERS: Player[] = [
     "odis": 117,
     "t20is": 61,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Sarfaraz_Ahmed_%281%29.jpg/500px-Sarfaraz_Ahmed_%281%29.jpg"
+    "photoUrl": "/players/sarfraz-ahmed.png"
   },
   {
     "id": "fakhar-zaman",
@@ -4735,7 +4735,7 @@ export const PLAYERS: Player[] = [
     "odis": 92,
     "t20is": 115,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Fakhar_Zaman%2C_Pakistan_vs_Sri_Lanka%2C_1st_ODI%2C_2017.jpg"
+    "photoUrl": "/players/fakhar-zaman.png"
   },
   {
     "id": "imam-ul-haq",
@@ -4751,7 +4751,7 @@ export const PLAYERS: Player[] = [
     "odis": 75,
     "t20is": 2,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/4_12_Imam-ul-Haq_mugshot.jpg/500px-4_12_Imam-ul-Haq_mugshot.jpg"
+    "photoUrl": "/players/imam-ul-haq.png"
   },
   {
     "id": "babar-azam",
@@ -4767,7 +4767,7 @@ export const PLAYERS: Player[] = [
     "odis": 140,
     "t20is": 136,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Babar_azam_2023.jpg/500px-Babar_azam_2023.jpg"
+    "photoUrl": "/players/babar-azam.png"
   },
   {
     "id": "shadab-khan",
@@ -4783,7 +4783,7 @@ export const PLAYERS: Player[] = [
     "odis": 70,
     "t20is": 114,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Shadab_Khan.png"
+    "photoUrl": "/players/shadab-khan.png"
   },
   {
     "id": "hasan-ali",
@@ -4799,7 +4799,7 @@ export const PLAYERS: Player[] = [
     "odis": 68,
     "t20is": 57,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/AbulHasanAliNadwi_Autograph.jpg"
+    "photoUrl": "/players/hasan-ali.png"
   },
   {
     "id": "wahab-riaz",
@@ -4815,7 +4815,7 @@ export const PLAYERS: Player[] = [
     "odis": 91,
     "t20is": 36,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/d/da/Wahab_Riaz.jpg"
+    "photoUrl": "/players/wahab-riaz.png"
   },
   {
     "id": "mohammad-rizwan",
@@ -4831,7 +4831,7 @@ export const PLAYERS: Player[] = [
     "odis": 100,
     "t20is": 106,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/M_Rizwan.jpg"
+    "photoUrl": "/players/mohammad-rizwan.png"
   },
   {
     "id": "mohammad-hafeez",
@@ -4847,7 +4847,7 @@ export const PLAYERS: Player[] = [
     "odis": 218,
     "t20is": 119,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Mohammad_Hafeez_in_2017.png/500px-Mohammad_Hafeez_in_2017.png"
+    "photoUrl": "/players/mohammad-hafeez.png"
   },
   {
     "id": "mohammad-amir",
@@ -4863,7 +4863,7 @@ export const PLAYERS: Player[] = [
     "odis": 61,
     "t20is": 50,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/0/06/Mohammad_Amir.png"
+    "photoUrl": "/players/mohammad-amir.png"
   },
   {
     "id": "shoaib-malik",
@@ -4879,7 +4879,7 @@ export const PLAYERS: Player[] = [
     "odis": 287,
     "t20is": 124,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Shoaib_Malik_answering_RAPID_FIRE_questions_%28PCB%29_01.jpg/500px-Shoaib_Malik_answering_RAPID_FIRE_questions_%28PCB%29_01.jpg"
+    "photoUrl": "/players/shoaib-malik.png"
   },
   {
     "id": "mohammad-nawaz",
@@ -4895,7 +4895,7 @@ export const PLAYERS: Player[] = [
     "odis": 44,
     "t20is": 88,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/pk.png"
+    "photoUrl": "/players/mohammad-nawaz.png"
   },
   {
     "id": "sahibzada-farhan",
@@ -4911,7 +4911,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 37,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/pk.png"
+    "photoUrl": "/players/sahibzada-farhan.png"
   },
   {
     "id": "shaheen-afridi",
@@ -4927,7 +4927,7 @@ export const PLAYERS: Player[] = [
     "odis": 71,
     "t20is": 96,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Shaheen_Afridi_%282%29.jpg/500px-Shaheen_Afridi_%282%29.jpg"
+    "photoUrl": "/players/shaheen-afridi.png"
   },
   {
     "id": "shahid-afridi",
@@ -4943,7 +4943,7 @@ export const PLAYERS: Player[] = [
     "odis": 398,
     "t20is": 99,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Shahid_Afridi_in_2017_%283x4_cropped%29.jpg/500px-Shahid_Afridi_in_2017_%283x4_cropped%29.jpg"
+    "photoUrl": "/players/shahid-afridi.png"
   },
   {
     "id": "mohammad-irfan",
@@ -4959,7 +4959,7 @@ export const PLAYERS: Player[] = [
     "odis": 60,
     "t20is": 22,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Mohammad_Irfan.jpg"
+    "photoUrl": "/players/mohammad-irfan.png"
   },
   {
     "id": "sohail-tanvir",
@@ -4975,7 +4975,7 @@ export const PLAYERS: Player[] = [
     "odis": 62,
     "t20is": 57,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Sohail_Tanvir_with_a_native_eagle_in_the_UAE.jpg/500px-Sohail_Tanvir_with_a_native_eagle_in_the_UAE.jpg"
+    "photoUrl": "/players/sohail-tanvir.png"
   },
   {
     "id": "agha-salman",
@@ -4991,7 +4991,7 @@ export const PLAYERS: Player[] = [
     "odis": 47,
     "t20is": 42,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/pk.png"
+    "photoUrl": "/players/agha-salman.png"
   },
   {
     "id": "umar-akmal",
@@ -5007,7 +5007,7 @@ export const PLAYERS: Player[] = [
     "odis": 121,
     "t20is": 84,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Umar_akmal_profile.jpg/500px-Umar_akmal_profile.jpg"
+    "photoUrl": "/players/umar-akmal.png"
   },
   {
     "id": "kamran-akmal",
@@ -5023,7 +5023,7 @@ export const PLAYERS: Player[] = [
     "odis": 157,
     "t20is": 58,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Kamran_Akmal_%282010%29.jpg/500px-Kamran_Akmal_%282010%29.jpg"
+    "photoUrl": "/players/kamran-akmal.png"
   },
   {
     "id": "shan-masood",
@@ -5039,7 +5039,7 @@ export const PLAYERS: Player[] = [
     "odis": 9,
     "t20is": 19,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/1_26_Shan_Masood.jpg/500px-1_26_Shan_Masood.jpg"
+    "photoUrl": "/players/shan-masood.png"
   },
   {
     "id": "imad-wasim",
@@ -5055,7 +5055,7 @@ export const PLAYERS: Player[] = [
     "odis": 55,
     "t20is": 66,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Imad_Wasim_1.jpg"
+    "photoUrl": "/players/imad-wasim.png"
   },
   {
     "id": "misbah-ul-haq",
@@ -5071,7 +5071,7 @@ export const PLAYERS: Player[] = [
     "odis": 162,
     "t20is": 39,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/Misbah-ul-Haq.png"
+    "photoUrl": "/players/misbah-ul-haq.png"
   },
   {
     "id": "saeed-ajmal",
@@ -5087,7 +5087,7 @@ export const PLAYERS: Player[] = [
     "odis": 113,
     "t20is": 64,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Farid_with_Saeed_%28cropped%29.jpg"
+    "photoUrl": "/players/saeed-ajmal.png"
   },
   {
     "id": "iftikhar-ahmed",
@@ -5103,7 +5103,7 @@ export const PLAYERS: Player[] = [
     "odis": 28,
     "t20is": 49,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/pk.png"
+    "photoUrl": "/players/iftikhar-ahmed.png"
   },
   {
     "id": "abrar-ahmad",
@@ -5119,7 +5119,7 @@ export const PLAYERS: Player[] = [
     "odis": 14,
     "t20is": 31,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/pk.png"
+    "photoUrl": "/players/abrar-ahmad.png"
   },
   {
     "id": "saud-shakeel",
@@ -5135,7 +5135,7 @@ export const PLAYERS: Player[] = [
     "odis": 19,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/1_37_Saud_Shakeel.jpg/500px-1_37_Saud_Shakeel.jpg"
+    "photoUrl": "/players/saud-shakeel.png"
   },
   {
     "id": "inzamam-ul-haq",
@@ -5151,7 +5151,7 @@ export const PLAYERS: Player[] = [
     "odis": 378,
     "t20is": 1,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Inzamam-ul-Haq.jpg/500px-Inzamam-ul-Haq.jpg"
+    "photoUrl": "/players/inzamam-ul-haq.png"
   },
   {
     "id": "younis-khan",
@@ -5167,7 +5167,7 @@ export const PLAYERS: Player[] = [
     "odis": 265,
     "t20is": 25,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Younus_Khan_2010.jpg"
+    "photoUrl": "/players/younis-khan.png"
   },
   {
     "id": "shoaib-akhtar",
@@ -5183,7 +5183,7 @@ export const PLAYERS: Player[] = [
     "odis": 163,
     "t20is": 15,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Khizer_Ahmed_and_mentor_Shoaib_Akhtar_%28cropped%29.jpg/500px-Khizer_Ahmed_and_mentor_Shoaib_Akhtar_%28cropped%29.jpg"
+    "photoUrl": "/players/shoaib-akhtar.png"
   },
   {
     "id": "naseem-shah",
@@ -5199,7 +5199,7 @@ export const PLAYERS: Player[] = [
     "odis": 34,
     "t20is": 34,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Naseem-Shah_%28cropped%29.png"
+    "photoUrl": "/players/naseem-shah.png"
   },
   {
     "id": "haris-rauf",
@@ -5215,7 +5215,7 @@ export const PLAYERS: Player[] = [
     "odis": 54,
     "t20is": 94,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/1_53_Haris_Rauf.jpg/500px-1_53_Haris_Rauf.jpg"
+    "photoUrl": "/players/haris-rauf.png"
   },
   {
     "id": "saim-ayub",
@@ -5231,7 +5231,7 @@ export const PLAYERS: Player[] = [
     "odis": 17,
     "t20is": 58,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/pk.png"
+    "photoUrl": "/players/saim-ayub.png"
   },
   {
     "id": "jean-paul-duminy",
@@ -5247,7 +5247,7 @@ export const PLAYERS: Player[] = [
     "odis": 199,
     "t20is": 81,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/JP_DUMINY_%2815681049126%29.jpg/500px-JP_DUMINY_%2815681049126%29.jpg"
+    "photoUrl": "/players/jean-paul-duminy.png"
   },
   {
     "id": "reeza-hendricks",
@@ -5263,7 +5263,7 @@ export const PLAYERS: Player[] = [
     "odis": 38,
     "t20is": 90,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/REEZA_HENDRICKS_%2815519916117%29.jpg/500px-REEZA_HENDRICKS_%2815519916117%29.jpg"
+    "photoUrl": "/players/reeza-hendricks.png"
   },
   {
     "id": "imran-tahir",
@@ -5279,7 +5279,7 @@ export const PLAYERS: Player[] = [
     "odis": 107,
     "t20is": 38,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Imran_Tahir.jpg/500px-Imran_Tahir.jpg"
+    "photoUrl": "/players/imran-tahir.png"
   },
   {
     "id": "heinrich-klaasen",
@@ -5295,7 +5295,7 @@ export const PLAYERS: Player[] = [
     "odis": 54,
     "t20is": 43,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/heinrich-klaasen.png"
   },
   {
     "id": "aiden-markram",
@@ -5311,7 +5311,7 @@ export const PLAYERS: Player[] = [
     "odis": 68,
     "t20is": 39,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Aiden_Markram_%28cropped%29.jpg/500px-Aiden_Markram_%28cropped%29.jpg"
+    "photoUrl": "/players/aiden-markram.png"
   },
   {
     "id": "lungi-ngidi",
@@ -5327,7 +5327,7 @@ export const PLAYERS: Player[] = [
     "odis": 56,
     "t20is": 40,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Lungi_Ngidi_2022.jpg/500px-Lungi_Ngidi_2022.jpg"
+    "photoUrl": "/players/lungi-ngidi.png"
   },
   {
     "id": "andile-phehlukwayo",
@@ -5343,7 +5343,7 @@ export const PLAYERS: Player[] = [
     "odis": 78,
     "t20is": 40,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/andile-phehlukwayo.png"
   },
   {
     "id": "kagiso-rabada",
@@ -5359,7 +5359,7 @@ export const PLAYERS: Player[] = [
     "odis": 101,
     "t20is": 56,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Rabada.jpg/500px-Rabada.jpg"
+    "photoUrl": "/players/kagiso-rabada.png"
   },
   {
     "id": "tabraiz-shamsi",
@@ -5375,7 +5375,7 @@ export const PLAYERS: Player[] = [
     "odis": 55,
     "t20is": 70,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/tabraiz-shamsi.png"
   },
   {
     "id": "dale-steyn",
@@ -5391,7 +5391,7 @@ export const PLAYERS: Player[] = [
     "odis": 125,
     "t20is": 47,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Dale_Steyn_YM.jpg"
+    "photoUrl": "/players/dale-steyn.png"
   },
   {
     "id": "dean-elgar",
@@ -5407,7 +5407,7 @@ export const PLAYERS: Player[] = [
     "odis": 8,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/3_27_Dean_Elgar_mugshot.jpg/500px-3_27_Dean_Elgar_mugshot.jpg"
+    "photoUrl": "/players/dean-elgar.png"
   },
   {
     "id": "faf-du-plessis",
@@ -5423,7 +5423,7 @@ export const PLAYERS: Player[] = [
     "odis": 143,
     "t20is": 50,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/faf-du-plessis.png"
   },
   {
     "id": "quinton-de-kock",
@@ -5439,7 +5439,7 @@ export const PLAYERS: Player[] = [
     "odis": 155,
     "t20is": 80,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/QUINTON_DE_KOCK_%2815681398316%29.jpg/500px-QUINTON_DE_KOCK_%2815681398316%29.jpg"
+    "photoUrl": "/players/quinton-de-kock.png"
   },
   {
     "id": "david-miller",
@@ -5455,7 +5455,7 @@ export const PLAYERS: Player[] = [
     "odis": 178,
     "t20is": 133,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/david-miller.png"
   },
   {
     "id": "rassie-van-der-dussen",
@@ -5471,7 +5471,7 @@ export const PLAYERS: Player[] = [
     "odis": 71,
     "t20is": 57,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/rassie-van-der-dussen.png"
   },
   {
     "id": "hashim-amla",
@@ -5487,7 +5487,7 @@ export const PLAYERS: Player[] = [
     "odis": 181,
     "t20is": 44,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/HASHIM_AMLA_%283175887080%29.jpg/500px-HASHIM_AMLA_%283175887080%29.jpg"
+    "photoUrl": "/players/hashim-amla.png"
   },
   {
     "id": "ab-de-villiers",
@@ -5503,7 +5503,7 @@ export const PLAYERS: Player[] = [
     "odis": 228,
     "t20is": 78,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/AB_de_villiers_%28cropped%29.jpg/500px-AB_de_villiers_%28cropped%29.jpg"
+    "photoUrl": "/players/ab-de-villiers.png"
   },
   {
     "id": "anrich-nortje",
@@ -5519,7 +5519,7 @@ export const PLAYERS: Player[] = [
     "odis": 22,
     "t20is": 31,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/anrich-nortje.png"
   },
   {
     "id": "keshav-maharaj",
@@ -5535,7 +5535,7 @@ export const PLAYERS: Player[] = [
     "odis": 56,
     "t20is": 43,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/New_face_6-_Keshav_Maharaj.jpg/500px-New_face_6-_Keshav_Maharaj.jpg"
+    "photoUrl": "/players/keshav-maharaj.png"
   },
   {
     "id": "albie-morkel",
@@ -5551,7 +5551,7 @@ export const PLAYERS: Player[] = [
     "odis": 58,
     "t20is": 50,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Albie_Morkel_2.jpg/500px-Albie_Morkel_2.jpg"
+    "photoUrl": "/players/albie-morkel.png"
   },
   {
     "id": "vernon-philander",
@@ -5567,7 +5567,7 @@ export const PLAYERS: Player[] = [
     "odis": 30,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Vernon-philander.jpg/500px-Vernon-philander.jpg"
+    "photoUrl": "/players/vernon-philander.png"
   },
   {
     "id": "temba-bavuma",
@@ -5583,7 +5583,7 @@ export const PLAYERS: Player[] = [
     "odis": 38,
     "t20is": 36,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/2_46_Wood_faces_Morris.jpg/500px-2_46_Wood_faces_Morris.jpg"
+    "photoUrl": "/players/temba-bavuma.png"
   },
   {
     "id": "ryan-rickelton",
@@ -5599,7 +5599,7 @@ export const PLAYERS: Player[] = [
     "odis": 17,
     "t20is": 21,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/2_40_Ryan_Rickleton.jpg/500px-2_40_Ryan_Rickleton.jpg"
+    "photoUrl": "/players/ryan-rickelton.png"
   },
   {
     "id": "chris-morris",
@@ -5615,7 +5615,7 @@ export const PLAYERS: Player[] = [
     "odis": 42,
     "t20is": 23,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Chris_Morris_2010.jpg/500px-Chris_Morris_2010.jpg"
+    "photoUrl": "/players/chris-morris.png"
   },
   {
     "id": "morne-morkel",
@@ -5631,7 +5631,7 @@ export const PLAYERS: Player[] = [
     "odis": 117,
     "t20is": 44,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Morne_Morkel.jpg/500px-Morne_Morkel.jpg"
+    "photoUrl": "/players/morne-morkel.png"
   },
   {
     "id": "rilee-rossouw",
@@ -5647,7 +5647,7 @@ export const PLAYERS: Player[] = [
     "odis": 36,
     "t20is": 29,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/RILEE_ROSSOUW_%2815706681502%29.jpg/500px-RILEE_ROSSOUW_%2815706681502%29.jpg"
+    "photoUrl": "/players/rilee-rossouw.png"
   },
   {
     "id": "graeme-smith",
@@ -5663,7 +5663,7 @@ export const PLAYERS: Player[] = [
     "odis": 71,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Graemesmith.jpg/500px-Graemesmith.jpg"
+    "photoUrl": "/players/graeme-smith.png"
   },
   {
     "id": "mark-boucher",
@@ -5679,7 +5679,7 @@ export const PLAYERS: Player[] = [
     "odis": 295,
     "t20is": 25,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Markboucher.jpg/500px-Markboucher.jpg"
+    "photoUrl": "/players/mark-boucher.png"
   },
   {
     "id": "herschelle-gibbs",
@@ -5695,7 +5695,7 @@ export const PLAYERS: Player[] = [
     "odis": 248,
     "t20is": 23,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Herschelle_Gibbs.jpg/500px-Herschelle_Gibbs.jpg"
+    "photoUrl": "/players/herschelle-gibbs.png"
   },
   {
     "id": "jacques-kallis",
@@ -5711,7 +5711,7 @@ export const PLAYERS: Player[] = [
     "odis": 328,
     "t20is": 25,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Jacques_Kallis_6.jpg/500px-Jacques_Kallis_6.jpg"
+    "photoUrl": "/players/jacques-kallis.png"
   },
   {
     "id": "corbin-bosch",
@@ -5727,7 +5727,7 @@ export const PLAYERS: Player[] = [
     "odis": 12,
     "t20is": 15,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/corbin-bosch.png"
   },
   {
     "id": "nandre-burger",
@@ -5743,7 +5743,7 @@ export const PLAYERS: Player[] = [
     "odis": 14,
     "t20is": 8,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/nandre-burger.png"
   },
   {
     "id": "senuran-muthusamy",
@@ -5759,7 +5759,7 @@ export const PLAYERS: Player[] = [
     "odis": 5,
     "t20is": 5,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/senuran-muthusamy.png"
   },
   {
     "id": "gerald-coetzee",
@@ -5775,7 +5775,7 @@ export const PLAYERS: Player[] = [
     "odis": 14,
     "t20is": 4,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/gerald-coetzee.png"
   },
   {
     "id": "marco-jansen",
@@ -5791,7 +5791,7 @@ export const PLAYERS: Player[] = [
     "odis": 32,
     "t20is": 24,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Marco_Jansen_2022.jpg/500px-Marco_Jansen_2022.jpg"
+    "photoUrl": "/players/marco-jansen.png"
   },
   {
     "id": "tristan-stubbs",
@@ -5807,7 +5807,7 @@ export const PLAYERS: Player[] = [
     "odis": 15,
     "t20is": 44,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/za.png"
+    "photoUrl": "/players/tristan-stubbs.png"
   },
   {
     "id": "jonty-rhodes",
@@ -5823,7 +5823,7 @@ export const PLAYERS: Player[] = [
     "odis": 245,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/JONTY_RHODES.jpg/500px-JONTY_RHODES.jpg"
+    "photoUrl": "/players/jonty-rhodes.png"
   },
   {
     "id": "rangana-herath",
@@ -5839,7 +5839,7 @@ export const PLAYERS: Player[] = [
     "odis": 71,
     "t20is": 12,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Lords_-_June_2011_-_E_v_SL_-_Rangana_Herath_Delivers_%285858562848%29.jpg/500px-Lords_-_June_2011_-_E_v_SL_-_Rangana_Herath_Delivers_%285858562848%29.jpg"
+    "photoUrl": "/players/rangana-herath.png"
   },
   {
     "id": "dimuth-karunaratne",
@@ -5855,7 +5855,7 @@ export const PLAYERS: Player[] = [
     "odis": 50,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/2_07_Dimuth_Karunaratne.jpg/500px-2_07_Dimuth_Karunaratne.jpg"
+    "photoUrl": "/players/dimuth-karunaratne.png"
   },
   {
     "id": "kusal-mendis",
@@ -5871,7 +5871,7 @@ export const PLAYERS: Player[] = [
     "odis": 154,
     "t20is": 100,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/kusal-mendis.png"
   },
   {
     "id": "kusal-perera",
@@ -5887,7 +5887,7 @@ export const PLAYERS: Player[] = [
     "odis": 116,
     "t20is": 93,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/kusal-perera.png"
   },
   {
     "id": "upul-tharanga",
@@ -5903,7 +5903,7 @@ export const PLAYERS: Player[] = [
     "odis": 235,
     "t20is": 26,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Upul-Tharanga%2C_Sri_Lanka_vs_Pakistan%2C_1st_ODI%2C_2017.jpg"
+    "photoUrl": "/players/upul-tharanga.png"
   },
   {
     "id": "dushmantha-chameera",
@@ -5919,7 +5919,7 @@ export const PLAYERS: Player[] = [
     "odis": 58,
     "t20is": 71,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/dushmantha-chameera.png"
   },
   {
     "id": "dhananjaya-de-silva",
@@ -5935,7 +5935,7 @@ export const PLAYERS: Player[] = [
     "odis": 93,
     "t20is": 48,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/dhananjaya-de-silva.png"
   },
   {
     "id": "lasith-malinga",
@@ -5951,7 +5951,7 @@ export const PLAYERS: Player[] = [
     "odis": 226,
     "t20is": 84,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Lasith_Malinga_tossing_a_cricket_ball_at_practice.jpg/500px-Lasith_Malinga_tossing_a_cricket_ball_at_practice.jpg"
+    "photoUrl": "/players/lasith-malinga.png"
   },
   {
     "id": "thisara-perera",
@@ -5967,7 +5967,7 @@ export const PLAYERS: Player[] = [
     "odis": 166,
     "t20is": 84,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Thisara_Perera_2.JPG/500px-Thisara_Perera_2.JPG"
+    "photoUrl": "/players/thisara-perera.png"
   },
   {
     "id": "dasun-shanaka",
@@ -5983,7 +5983,7 @@ export const PLAYERS: Player[] = [
     "odis": 71,
     "t20is": 124,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/dasun-shanaka.png"
   },
   {
     "id": "dinesh-chandimal",
@@ -5999,7 +5999,7 @@ export const PLAYERS: Player[] = [
     "odis": 157,
     "t20is": 68,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Dinesh_Chandimal_2.JPG/500px-Dinesh_Chandimal_2.JPG"
+    "photoUrl": "/players/dinesh-chandimal.png"
   },
   {
     "id": "niroshan-dickwella",
@@ -6015,7 +6015,7 @@ export const PLAYERS: Player[] = [
     "odis": 55,
     "t20is": 28,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/niroshan-dickwella.png"
   },
   {
     "id": "angelo-mathews",
@@ -6031,7 +6031,7 @@ export const PLAYERS: Player[] = [
     "odis": 226,
     "t20is": 78,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Angelo_Mathews_%285338334462%29.jpg"
+    "photoUrl": "/players/angelo-mathews.png"
   },
   {
     "id": "kamindu-mendis",
@@ -6047,7 +6047,7 @@ export const PLAYERS: Player[] = [
     "odis": 27,
     "t20is": 36,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/kamindu-mendis.png"
   },
   {
     "id": "tillakaratne-dilshan",
@@ -6063,7 +6063,7 @@ export const PLAYERS: Player[] = [
     "odis": 330,
     "t20is": 80,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Tillakaratne_Dilshan_portrait.jpg/500px-Tillakaratne_Dilshan_portrait.jpg"
+    "photoUrl": "/players/tillakaratne-dilshan.png"
   },
   {
     "id": "ajantha-mendis",
@@ -6079,7 +6079,7 @@ export const PLAYERS: Player[] = [
     "odis": 87,
     "t20is": 39,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Mendis_bowling.jpg/500px-Mendis_bowling.jpg"
+    "photoUrl": "/players/ajantha-mendis.png"
   },
   {
     "id": "kumar-sangakkara",
@@ -6095,7 +6095,7 @@ export const PLAYERS: Player[] = [
     "odis": 404,
     "t20is": 56,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Kumar_Sangakkara_bat_in_hand.JPG/500px-Kumar_Sangakkara_bat_in_hand.JPG"
+    "photoUrl": "/players/kumar-sangakkara.png"
   },
   {
     "id": "mahela-jayawardene",
@@ -6111,7 +6111,7 @@ export const PLAYERS: Player[] = [
     "odis": 448,
     "t20is": 55,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Mahela_Jayawardene_3.JPG/500px-Mahela_Jayawardene_3.JPG"
+    "photoUrl": "/players/mahela-jayawardene.png"
   },
   {
     "id": "sanath-jayasuriya",
@@ -6127,7 +6127,7 @@ export const PLAYERS: Player[] = [
     "odis": 445,
     "t20is": 31,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/1/16/Sanath_jayasuriya_portrait.jpg"
+    "photoUrl": "/players/sanath-jayasuriya.png"
   },
   {
     "id": "nuwan-kulasekara",
@@ -6143,7 +6143,7 @@ export const PLAYERS: Player[] = [
     "odis": 184,
     "t20is": 58,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Nuwan_Kulasekara.jpg/500px-Nuwan_Kulasekara.jpg"
+    "photoUrl": "/players/nuwan-kulasekara.png"
   },
   {
     "id": "muttiah-muralitharan",
@@ -6159,7 +6159,7 @@ export const PLAYERS: Player[] = [
     "odis": 350,
     "t20is": 12,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Photograph_of_Muttiah_Muralitharan.jpg"
+    "photoUrl": "/players/muttiah-muralitharan.png"
   },
   {
     "id": "chaminda-vaas",
@@ -6175,7 +6175,7 @@ export const PLAYERS: Player[] = [
     "odis": 322,
     "t20is": 6,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Chaminda_Vaas.jpg/500px-Chaminda_Vaas.jpg"
+    "photoUrl": "/players/chaminda-vaas.png"
   },
   {
     "id": "lahiru-thirimanne",
@@ -6191,7 +6191,7 @@ export const PLAYERS: Player[] = [
     "odis": 127,
     "t20is": 26,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/lahiru-thirimanne.png"
   },
   {
     "id": "sachithra-senanayake",
@@ -6207,7 +6207,7 @@ export const PLAYERS: Player[] = [
     "odis": 49,
     "t20is": 24,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/sachithra-senanayake.png"
   },
   {
     "id": "wanindu-hasaranga",
@@ -6223,7 +6223,7 @@ export const PLAYERS: Player[] = [
     "odis": 69,
     "t20is": 94,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Waniya.jpg/500px-Waniya.jpg"
+    "photoUrl": "/players/wanindu-hasaranga.png"
   },
   {
     "id": "pathum-nissanka",
@@ -6239,7 +6239,7 @@ export const PLAYERS: Player[] = [
     "odis": 77,
     "t20is": 84,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/lk.png"
+    "photoUrl": "/players/pathum-nissanka.png"
   },
   {
     "id": "jason-holder",
@@ -6255,7 +6255,7 @@ export const PLAYERS: Player[] = [
     "odis": 138,
     "t20is": 89,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Jason_Holder.jpg/500px-Jason_Holder.jpg"
+    "photoUrl": "/players/jason-holder.png"
   },
   {
     "id": "devendra-bishoo",
@@ -6271,7 +6271,7 @@ export const PLAYERS: Player[] = [
     "odis": 42,
     "t20is": 7,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Devendra_Bishoo.jpg"
+    "photoUrl": "/players/devendra-bishoo.png"
   },
   {
     "id": "kraigg-brathwaite",
@@ -6287,7 +6287,7 @@ export const PLAYERS: Player[] = [
     "odis": 10,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Kraigg_Brathwaite_batting_at_Perth_Stadium%2C_First_Test_Australia_versus_West_Indies%2C_2_December_2022_02.jpg/500px-Kraigg_Brathwaite_batting_at_Perth_Stadium%2C_First_Test_Australia_versus_West_Indies%2C_2_December_2022_02.jpg"
+    "photoUrl": "/players/kraigg-brathwaite.png"
   },
   {
     "id": "roston-chase",
@@ -6303,7 +6303,7 @@ export const PLAYERS: Player[] = [
     "odis": 69,
     "t20is": 52,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Roston_Chase_batting_at_Perth_Stadium%2C_First_Test_Australia_versus_West_Indies%2C_2_December_2022_09.jpg/500px-Roston_Chase_batting_at_Perth_Stadium%2C_First_Test_Australia_versus_West_Indies%2C_2_December_2022_09.jpg"
+    "photoUrl": "/players/roston-chase.png"
   },
   {
     "id": "shimron-hetmyer",
@@ -6319,7 +6319,7 @@ export const PLAYERS: Player[] = [
     "odis": 57,
     "t20is": 75,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Shimron_Hetmyer.jpg/500px-Shimron_Hetmyer.jpg"
+    "photoUrl": "/players/shimron-hetmyer.png"
   },
   {
     "id": "shai-hope",
@@ -6335,7 +6335,7 @@ export const PLAYERS: Player[] = [
     "odis": 148,
     "t20is": 60,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Shai_Hope.jpg/500px-Shai_Hope.jpg"
+    "photoUrl": "/players/shai-hope.png"
   },
   {
     "id": "kemar-roach",
@@ -6351,7 +6351,7 @@ export const PLAYERS: Player[] = [
     "odis": 95,
     "t20is": 11,
     "category": "IPL",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Kemar_Roach_%28cropped%29.jpg/500px-Kemar_Roach_%28cropped%29.jpg"
+    "photoUrl": "/players/kemar-roach.png"
   },
   {
     "id": "alzarri-joseph",
@@ -6367,7 +6367,7 @@ export const PLAYERS: Player[] = [
     "odis": 81,
     "t20is": 45,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/alzarri-joseph.png"
   },
   {
     "id": "evin-lewis",
@@ -6383,7 +6383,7 @@ export const PLAYERS: Player[] = [
     "odis": 70,
     "t20is": 67,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/evin-lewis.png"
   },
   {
     "id": "rovman-powell",
@@ -6399,7 +6399,7 @@ export const PLAYERS: Player[] = [
     "odis": 51,
     "t20is": 110,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/rovman-powell.png"
   },
   {
     "id": "marlon-samuels",
@@ -6415,7 +6415,7 @@ export const PLAYERS: Player[] = [
     "odis": 207,
     "t20is": 67,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Chicago_Tornadoes_Marlon_Samuels.jpg"
+    "photoUrl": "/players/marlon-samuels.png"
   },
   {
     "id": "carlos-brathwaite",
@@ -6431,7 +6431,7 @@ export const PLAYERS: Player[] = [
     "odis": 44,
     "t20is": 41,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/2/20/Carlos_Brathwaite.jpg"
+    "photoUrl": "/players/carlos-brathwaite.png"
   },
   {
     "id": "darren-bravo",
@@ -6447,7 +6447,7 @@ export const PLAYERS: Player[] = [
     "odis": 122,
     "t20is": 26,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/darren-bravo.png"
   },
   {
     "id": "kieron-pollard",
@@ -6463,7 +6463,7 @@ export const PLAYERS: Player[] = [
     "odis": 123,
     "t20is": 101,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Kieron_Pollard.jpg/500px-Kieron_Pollard.jpg"
+    "photoUrl": "/players/kieron-pollard.png"
   },
   {
     "id": "andre-russell",
@@ -6479,7 +6479,7 @@ export const PLAYERS: Player[] = [
     "odis": 56,
     "t20is": 86,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Andre_Russell_%281%29.jpg"
+    "photoUrl": "/players/andre-russell.png"
   },
   {
     "id": "sherfane-rutherford",
@@ -6495,7 +6495,7 @@ export const PLAYERS: Player[] = [
     "odis": 22,
     "t20is": 46,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/sherfane-rutherford.png"
   },
   {
     "id": "chris-gayle",
@@ -6511,7 +6511,7 @@ export const PLAYERS: Player[] = [
     "odis": 301,
     "t20is": 79,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Two_views_of_Chris_Gayle_%2848020785077%29.jpg/500px-Two_views_of_Chris_Gayle_%2848020785077%29.jpg"
+    "photoUrl": "/players/chris-gayle.png"
   },
   {
     "id": "dwayne-bravo",
@@ -6527,7 +6527,7 @@ export const PLAYERS: Player[] = [
     "odis": 122,
     "t20is": 26,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Bravo_at_IIFA_2017_Green_Carpet.jpg/500px-Bravo_at_IIFA_2017_Green_Carpet.jpg"
+    "photoUrl": "/players/dwayne-bravo.png"
   },
   {
     "id": "samuel-badree",
@@ -6543,7 +6543,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 52,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/samuel-badree.png"
   },
   {
     "id": "sheldon-cottrell",
@@ -6559,7 +6559,7 @@ export const PLAYERS: Player[] = [
     "odis": 38,
     "t20is": 45,
     "category": "Legend",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/sheldon-cottrell.png"
   },
   {
     "id": "alick-athanaze",
@@ -6575,7 +6575,7 @@ export const PLAYERS: Player[] = [
     "odis": 17,
     "t20is": 15,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/alick-athanaze.png"
   },
   {
     "id": "justin-greaves",
@@ -6591,7 +6591,7 @@ export const PLAYERS: Player[] = [
     "odis": 21,
     "t20is": 2,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Justin_Greaves_%28cropped%29.jpg/500px-Justin_Greaves_%28cropped%29.jpg"
+    "photoUrl": "/players/justin-greaves.png"
   },
   {
     "id": "brandon-king",
@@ -6607,7 +6607,7 @@ export const PLAYERS: Player[] = [
     "odis": 58,
     "t20is": 78,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/brandon-king.png"
   },
   {
     "id": "nicholas-pooran",
@@ -6623,7 +6623,7 @@ export const PLAYERS: Player[] = [
     "odis": 61,
     "t20is": 106,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/nicholas-pooran.png"
   },
   {
     "id": "lendl-simmons",
@@ -6639,7 +6639,7 @@ export const PLAYERS: Player[] = [
     "odis": 68,
     "t20is": 68,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Lendl_Simmons.jpg/500px-Lendl_Simmons.jpg"
+    "photoUrl": "/players/lendl-simmons.png"
   },
   {
     "id": "sunil-narine",
@@ -6655,7 +6655,7 @@ export const PLAYERS: Player[] = [
     "odis": 65,
     "t20is": 51,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Sunil_Narine.jpg"
+    "photoUrl": "/players/sunil-narine.png"
   },
   {
     "id": "dwayne-smith",
@@ -6671,7 +6671,7 @@ export const PLAYERS: Player[] = [
     "odis": 105,
     "t20is": 33,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/DWAYNE_SMITH.jpg/500px-DWAYNE_SMITH.jpg"
+    "photoUrl": "/players/dwayne-smith.png"
   },
   {
     "id": "darren-sammy",
@@ -6687,7 +6687,7 @@ export const PLAYERS: Player[] = [
     "odis": 126,
     "t20is": 68,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/DARREN_SAMMY.jpg/500px-DARREN_SAMMY.jpg"
+    "photoUrl": "/players/darren-sammy.png"
   },
   {
     "id": "brian-lara",
@@ -6703,7 +6703,7 @@ export const PLAYERS: Player[] = [
     "odis": 299,
     "t20is": 0,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/9/92/Brian_Lara_at_2012_Mumbai_Marathon_pre_bash.jpg"
+    "photoUrl": "/players/brian-lara.png"
   },
   {
     "id": "shivnarine-chanderpaul",
@@ -6719,7 +6719,7 @@ export const PLAYERS: Player[] = [
     "odis": 268,
     "t20is": 22,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/0/03/Shivnarine_Chanderpaul.jpg"
+    "photoUrl": "/players/shivnarine-chanderpaul.png"
   },
   {
     "id": "ravi-rampaul",
@@ -6735,7 +6735,7 @@ export const PLAYERS: Player[] = [
     "odis": 92,
     "t20is": 27,
     "category": "Legend",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/2/27/Ravi_Rampaul.jpg"
+    "photoUrl": "/players/ravi-rampaul.png"
   },
   {
     "id": "odean-smith",
@@ -6751,7 +6751,7 @@ export const PLAYERS: Player[] = [
     "odis": 9,
     "t20is": 27,
     "category": "IPL",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/odean-smith.png"
   },
   {
     "id": "rahkeem-cornwall",
@@ -6767,7 +6767,7 @@ export const PLAYERS: Player[] = [
     "odis": 0,
     "t20is": 0,
     "category": "International",
-    "photoUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Rahkeem_Cornwall_collects_first-ever_CPL_century_%28cropped%29.png"
+    "photoUrl": "/players/rahkeem-cornwall.png"
   },
   {
     "id": "jayden-seales",
@@ -6783,6 +6783,6 @@ export const PLAYERS: Player[] = [
     "odis": 29,
     "t20is": 9,
     "category": "International",
-    "photoUrl": "https://cdn.sportmonks.com/images/countries/png/short/westindies.png"
+    "photoUrl": "/players/jayden-seales.png"
   }
 ];

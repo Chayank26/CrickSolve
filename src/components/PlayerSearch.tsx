@@ -30,7 +30,9 @@ export function PlayerSearch() {
   const isGameOver = gameStatus !== 'IN_PROGRESS';
 
   // Resolve target player across full player pool
-  let targetPlayer = getDailyTargetPlayer(currentDate, 'International');
+  const todayStr = new Date().toISOString().split('T')[0];
+  const activeDate = gameMode === 'daily' ? (currentDate || todayStr) : currentDate;
+  let targetPlayer = getDailyTargetPlayer(activeDate, 'International');
   if (gameMode === 'unlimited' && unlimitedTargetId) {
     const found = PLAYERS.find((p) => p.id === unlimitedTargetId);
     if (found) targetPlayer = found;
