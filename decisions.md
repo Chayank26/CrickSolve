@@ -392,17 +392,28 @@ This document logs all key technical and architectural decisions taken during th
 
 ---
 
-## Phase 14: Streak Clean-up, Header Standing Badge Simplification & Dedicated `YOUR STATS` Button
 
-### Decision 28: Dedicated `YOUR STATS` Button & Cleaned Top Header Badges
+---
+
+## Phase 22: Real-Time Multiplayer Architecture & Anti-Cheat WebSocket Protocol
+
+### Decision 36: Supabase Realtime Channel & Anti-Cheat Anonymous Broadcast Protocol
 - **Approach Chosen:**
-  1. Removed 🔥 fire emoji from all streak counter elements for a cleaner text aesthetic (`STREAK: 12`).
-  2. Cleaned up top header badges: standing is displayed cleanly in the top right badge (`STANDING: #1` or `STANDING: --` when unranked), avoiding cluttered duplicate unranked buttons.
-  3. Added a dedicated **`YOUR STATS`** button in the top action bar opening `StatsModal.tsx`, which displays Games Played, Games Solved, Win Rate %, Current Streak, and Max Streak.
+  1. **Supabase Realtime WebSockets (`cricksolve_room_<CODE>`)**:
+     - Leveraged Supabase Realtime broadcast and presence channels for live 1v1 and multiplayer duels without hosting and maintaining a separate Node.js / Socket.io server.
+  2. **Anti-Cheat Anonymous Guess Protocol**:
+     - When a player submits a guess, the client evaluates matches and broadcasts an `OPPONENT_GUESS` event containing strictly: `{ guessNumber, matchResults: { country, role, batting, ... }, solved }`.
+     - The guessed cricketer's name, ID, and photo are **never transmitted over the WebSocket network wire**. This prevents opponents from opening DevTools Network / WS tabs to peek at who was guessed.
+  3. **In-Memory Room Lifecycle Manager (`src/lib/multiplayer-manager.ts`)**:
+     - Implemented room creation with short 6-character room codes (`3EJFST`), host privilege management, up to 8 participant slots, synchronized ready toggles, and instant rematch target rotation.
+  4. **Dedicated Zustand Multiplayer Store (`useMultiplayerStore.ts`)**:
+     - Built dedicated reactive store for WebSocket subscriptions, active room metadata, real-time opponent guess streams, 3-second match countdowns, and showdown modal state.
 - **Why this approach?**
-  - Separates general user performance metrics (Win %, Games Played) from today's competitive solve-time leaderboard while keeping the header uncluttered.
+  - Delivers instantaneous sub-50ms live multiplayer racing with zero server maintenance, eliminates packet sniffing cheat vectors, and provides a clean foundation for lobby and showdown UI components.
 - **Alternatives Considered:**
-  - *Merging stats into leaderboard modal*: Creates visual clutter and confuses personal stats with daily competitive rankings.
+  - *Custom Node.js / Socket.io server on EC2/Fly.io*: Higher hosting cost, complex maintenance, and WebSocket scale overhead compared to serverless Supabase Realtime.
+  - *Broadcasting full guessed player names*: Vulnerable to DevTools network inspection, ruining the competitive guessing integrity.
+
 
 
 

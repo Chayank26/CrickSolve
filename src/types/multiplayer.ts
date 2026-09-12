@@ -1,0 +1,62 @@
+import { AttributeMatchResult, NumericMatchResult } from './game';
+
+export type RoomStatus = 'waiting' | 'countdown' | 'in_progress' | 'finished';
+
+export type ParticipantRole = 'host' | 'guest';
+
+export interface RoomParticipant {
+  userId: string;
+  nickname: string;
+  role: ParticipantRole;
+  isReady: boolean;
+  guessesCount: number;
+  isSolved: boolean;
+  solveTimeMs?: number;
+  recentGuessMatches?: {
+    attributeMatches: AttributeMatchResult;
+    numericMatches: NumericMatchResult;
+  };
+  connectedAt: number;
+}
+
+export interface MultiplayerRoom {
+  id: string;
+  roomCode: string;
+  hostId: string;
+  hostName: string;
+  status: RoomStatus;
+  targetPlayerId: string;
+  participants: RoomParticipant[];
+  createdAt: number;
+  startedAt?: number;
+  finishedAt?: number;
+  winnerUserId?: string;
+  winnerNickname?: string;
+}
+
+// Supabase Realtime Broadcast Payloads
+export interface RealtimeOpponentGuessPayload {
+  userId: string;
+  guessNumber: number;
+  attributeMatches: AttributeMatchResult;
+  numericMatches: NumericMatchResult;
+  isCorrect: boolean;
+}
+
+export interface RealtimeCountdownPayload {
+  countdownSeconds: number;
+  targetStartTimeMs: number;
+}
+
+export interface RealtimeMatchFinishPayload {
+  winnerUserId: string;
+  winnerNickname: string;
+  tries: number;
+  solveTimeMs: number;
+  targetPlayerId: string;
+}
+
+export interface RealtimeRematchPayload {
+  newTargetPlayerId: string;
+  timestamp: number;
+}

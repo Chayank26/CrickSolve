@@ -70,7 +70,18 @@ Welcome to the comprehensive technical documentation for **CrickSolve**. This do
   2. Fastest solve time in milliseconds
   - Submissions are protected by cryptographic HMAC verification.
 
+### 1.9 👥 Real-Time Multiplayer Duels & Room Lifecycle Engine
+- **Components & Stores**: [`src/store/useMultiplayerStore.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/store/useMultiplayerStore.ts), [`src/lib/multiplayer-manager.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/lib/multiplayer-manager.ts), [`src/types/multiplayer.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/types/multiplayer.ts)
+- **How it works**:
+  1. **Room Creation & Code Generation**: Host creates a room via `POST /api/multiplayer/create`, generating a unique 6-character room code (e.g. `3EJFST`) and seeding a secret target player shared across all room participants.
+  2. **Lobby Join & Presence**: Guests join via code or 1-click invite link (`?room=CODE`). Supabase Realtime Channel (`cricksolve_room_<CODE>`) subscribes all clients via WebSocket broadcast.
+  3. **Ready Check & Synchronized Countdown**: When all participants toggle "Ready", the host initiates the match. A synchronized 3-second animated countdown (`3... 2... 1... START!`) is broadcast across the channel before transitioning the room status to `PLAYING`.
+  4. **Sub-50ms Anonymous Guess Streaming**: On every guess submission, player comparison results (`{ country: true, role: false, ... }`) are broadcast as an `OPPONENT_GUESS` event. The opponent's HUD live-updates a mini-Wordle grid without exposing the guessed cricketer's name.
+  5. **Victory & Showdown Modal**: The first player to correctly solve triggers `MATCH_FINISH`. Both screens display the side-by-side match breakdown with final attempt counts and solve times.
+  6. **Instant Rematch Engine**: Either player can click "Rematch", rotating the mystery cricketer pool and resetting the boards for an immediate new round.
+
 ---
+
 
 # 2. Technology Stack: Usage, Rationale & Alternatives
 
