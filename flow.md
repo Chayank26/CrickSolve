@@ -71,7 +71,7 @@ Welcome to the comprehensive technical documentation for **CrickSolve**. This do
   - Submissions are protected by cryptographic HMAC verification.
 
 ### 1.9 👥 Real-Time Multiplayer Duels & Room Lifecycle Engine
-- **Components & Stores**: [`src/store/useMultiplayerStore.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/store/useMultiplayerStore.ts), [`src/lib/multiplayer-manager.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/lib/multiplayer-manager.ts), [`src/types/multiplayer.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/types/multiplayer.ts)
+- **Components & Stores**: [`src/components/MultiplayerLobbyModal.tsx`](file:///Users/chayankbhargava/Projects/CrickSolve/src/components/MultiplayerLobbyModal.tsx), [`src/store/useMultiplayerStore.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/store/useMultiplayerStore.ts), [`src/lib/multiplayer-manager.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/lib/multiplayer-manager.ts), [`src/types/multiplayer.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/types/multiplayer.ts)
 - **How it works**:
   1. **Room Creation & Code Generation**: Host creates a room via `POST /api/multiplayer/create`, generating a unique 6-character room code (e.g. `3EJFST`) and seeding a secret target player shared across all room participants.
   2. **Lobby Join & Presence**: Guests join via code or 1-click invite link (`?room=CODE`). Supabase Realtime Channel (`cricksolve_room_<CODE>`) subscribes all clients via WebSocket broadcast.

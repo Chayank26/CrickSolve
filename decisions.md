@@ -410,9 +410,28 @@ This document logs all key technical and architectural decisions taken during th
      - Built dedicated reactive store for WebSocket subscriptions, active room metadata, real-time opponent guess streams, 3-second match countdowns, and showdown modal state.
 - **Why this approach?**
   - Delivers instantaneous sub-50ms live multiplayer racing with zero server maintenance, eliminates packet sniffing cheat vectors, and provides a clean foundation for lobby and showdown UI components.
+---
+
+## Phase 23: Multiplayer Lobby UI, 1-Click Invite Links & Synchronized Countdown
+
+### Decision 37: Neubrutalism Lobby Modal, URL Room Pre-fill & 3-2-1 Synchronized Countdown Overlay
+- **Approach Chosen:**
+  1. **Neubrutalist Lobby Modal (`src/components/MultiplayerLobbyModal.tsx`)**:
+     - Designed tabbed interface (`CREATE ROOM` / `JOIN ROOM`) with high-contrast Neubrutalist styling (`border-4 border-black`, `#CCFF00`, `#7E22CE`, `shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]`).
+     - Features 6-character room code showcase with instant 1-click `COPY INVITE LINK` (`?room=CODE`) with copied toast feedback.
+  2. **1-Click Shareable URL Parameter Detection**:
+     - Automatically scans `window.location.search` for `?room=CODE` on mount. If present, automatically opens the Multiplayer modal in `JOIN ROOM` mode with the code pre-filled.
+  3. **Participant Badge Grid & Synchronized Ready Check**:
+     - Renders participant cards displaying Host Crown 👑 / Challenger Swords ⚔️ badges and real-time Ready toggles (🟢 `READY` in Neon Lime vs ⏳ `WAITING`).
+     - Host "START BATTLE 🚀" action button is strictly gated until $\ge 2$ players are in the room and all have marked themselves ready.
+  4. **Full-Screen 3-2-1 Synchronized Countdown Overlay**:
+     - Built animated overlay with Framer Motion spring popping (`3... 2... 1... START!`) and audio chimes, synchronizing all players before closing the lobby and launching the match simultaneously.
+- **Why this approach?**
+  - Creates an intuitive, frictionless onboarding flow for friends to challenge each other via a simple WhatsApp / Twitter link, ensuring everyone begins guessing at the exact same second.
 - **Alternatives Considered:**
-  - *Custom Node.js / Socket.io server on EC2/Fly.io*: Higher hosting cost, complex maintenance, and WebSocket scale overhead compared to serverless Supabase Realtime.
-  - *Broadcasting full guessed player names*: Vulnerable to DevTools network inspection, ruining the competitive guessing integrity.
+  - *Launching the game immediately without countdown*: Creates an unfair advantage for the host who clicked the start button.
+  - *Requiring manual room code entry*: Higher friction than 1-click shareable URL parameters.
+
 
 
 

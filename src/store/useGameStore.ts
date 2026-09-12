@@ -48,7 +48,7 @@ interface GameState {
   gamesWon: number;
 
   // Modals
-  activeModal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | 'continue' | null;
+  activeModal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | 'continue' | 'multiplayer' | null;
 
   // Actions
   setGameMode: (mode: GameMode) => void;
@@ -64,7 +64,7 @@ interface GameState {
   unlockAttributeByHint: (attrKey: string, attrLabel: string, attrValue: string) => void;
   revealAttributeHint: (attrLabel: string, attrValue: string) => void;
   toggleSound: () => void;
-  setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | 'continue' | null) => void;
+  setActiveModal: (modal: 'howTo' | 'stats' | 'calendar' | 'share' | 'result' | 'leaderboard' | 'hintPicker' | 'continue' | 'multiplayer' | null) => void;
   closeHowTo: () => void;
   resetGame: (newTargetId?: string) => void;
   syncDailyDate: (dateStr: string) => void;

@@ -12,6 +12,7 @@ import { ShareGridModal } from '@/components/ShareGridModal';
 import { LeaderboardModal } from '@/components/LeaderboardModal';
 import { AttributeHintPickerModal } from '@/components/AttributeHintPickerModal';
 import { ContinueModal } from '@/components/ContinueModal';
+import { MultiplayerLobbyModal } from '@/components/MultiplayerLobbyModal';
 
 export default function Home() {
   return (
@@ -44,6 +45,8 @@ export default function Home() {
       <LeaderboardModal />
       <AttributeHintPickerModal />
       <ContinueModal />
+      <MultiplayerLobbyModal />
     </div>
   );
 }
+
