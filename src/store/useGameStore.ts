@@ -194,22 +194,26 @@ export const useGameStore = create<GameState>()(
           newGamesPlayed = gamesPlayed + 1;
           newGamesWon = gamesWon + 1;
 
-          // Streak Logic
-          const todayStr = currentDate || new Date().toISOString().split('T')[0];
-          const y = new Date();
-          y.setDate(y.getDate() - 1);
-          const yesterdayStr = y.toISOString().split('T')[0];
+          // Streak Logic (Only for today's daily puzzle)
+          const realTodayStr = new Date().toISOString().split('T')[0];
+          const isPlayingToday = (currentDate || realTodayStr) === realTodayStr;
 
-          if (lastSolvedDate === yesterdayStr) {
-            newStreak = streak + 1;
-          } else if (lastSolvedDate === todayStr) {
-            newStreak = streak;
-          } else {
-            newStreak = 1;
+          if (isPlayingToday) {
+            const y = new Date();
+            y.setDate(y.getDate() - 1);
+            const yesterdayStr = y.toISOString().split('T')[0];
+
+            if (lastSolvedDate === yesterdayStr) {
+              newStreak = streak + 1;
+            } else if (lastSolvedDate === realTodayStr) {
+              newStreak = streak;
+            } else {
+              newStreak = 1;
+            }
+
+            newMaxStreak = Math.max(newStreak, maxStreak);
+            newLastSolvedDate = realTodayStr;
           }
-
-          newMaxStreak = Math.max(newStreak, maxStreak);
-          newLastSolvedDate = todayStr;
         } else if (updatedGuesses.length === 7 && !bonusChanceTaken) {
           // Trigger Bonus 8th Chance Modal on 7th wrong guess
           set({
@@ -222,7 +226,10 @@ export const useGameStore = create<GameState>()(
           return;
         } else if (updatedGuesses.length >= (bonusChanceTaken ? 8 : 7)) {
           newStatus = 'LOST';
-          newStreak = 0;
+          const realTodayStr = new Date().toISOString().split('T')[0];
+          if ((currentDate || realTodayStr) === realTodayStr) {
+            newStreak = 0;
+          }
           newGamesPlayed = gamesPlayed + 1;
         }
 
@@ -291,10 +298,12 @@ export const useGameStore = create<GameState>()(
       },
 
       syncDailyDate: (dateStr) => {
-        const { currentDate } = get();
-        if (currentDate !== dateStr) {
+        const { currentDate, gameMode } = get();
+        if (currentDate !== dateStr || gameMode !== 'daily') {
           set({
             currentDate: dateStr,
+            gameMode: 'daily',
+            unlimitedTargetId: null,
             guesses: [],
             gameStatus: 'IN_PROGRESS',
             bonusChanceTaken: false,
@@ -318,11 +327,7 @@ export const useGameStore = create<GameState>()(
           if (state.category !== 'International') {
             useGameStore.setState({ category: 'International' });
           }
-          if (state.gameMode === 'daily' && state.currentDate !== todayStr) {
-            setTimeout(() => {
-              useGameStore.getState().syncDailyDate(todayStr);
-            }, 0);
-          } else if (state.gameMode === 'unlimited' && !state.unlimitedTargetId) {
+          if (state.gameMode === 'unlimited' && !state.unlimitedTargetId) {
             const dailyTargetId = getDailyTargetPlayer(todayStr, 'International').id;
             const initialUnlimited = getRandomPlayerId(dailyTargetId);
             useGameStore.setState({ unlimitedTargetId: initialUnlimited });

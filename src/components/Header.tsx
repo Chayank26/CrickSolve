@@ -13,12 +13,16 @@ export function Header() {
     setActiveModal,
     gameMode,
     setGameMode,
+    currentDate,
+    syncDailyDate,
     startTimeMs,
     endTimeMs,
     gameStatus,
   } = useGameStore();
 
   const [elapsedMs, setElapsedMs] = useState(0);
+  const todayStr = new Date().toISOString().split('T')[0];
+  const isPastGame = gameMode === 'daily' && currentDate !== todayStr;
 
   useEffect(() => {
     if (!startTimeMs) {
@@ -61,9 +65,9 @@ export function Header() {
             <span>TIME: {formatMmSs(elapsedMs)}</span>
           </div>
 
-          {/* Daily Puzzle # */}
+          {/* Mode Indicator Badge */}
           <div className="bg-white border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black">
-            DAILY #142
+            {gameMode === 'unlimited' ? 'UNLIMITED' : isPastGame ? `PAST: ${currentDate}` : 'DAILY PUZZLE'}
           </div>
 
           {/* Streak */}
@@ -90,9 +94,13 @@ export function Header() {
         {/* Mode Tabs */}
         <div className="flex items-center flex-wrap gap-3">
           <button
-            onClick={() => setGameMode('daily')}
+            onClick={() => {
+              if (gameMode !== 'daily' || currentDate !== todayStr) {
+                syncDailyDate(todayStr);
+              }
+            }}
             className={`px-5 py-2 text-xs md:text-sm font-black border-3 border-black uppercase transition-all ${
-              gameMode === 'daily'
+              gameMode === 'daily' && !isPastGame
                 ? 'bg-[#7E22CE] text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
                 : 'bg-white text-black hover:bg-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
             }`}
@@ -113,7 +121,11 @@ export function Header() {
 
           <button
             onClick={() => setActiveModal('calendar')}
-            className="bg-white text-black hover:bg-slate-100 px-5 py-2 text-xs md:text-sm font-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase transition-all"
+            className={`px-5 py-2 text-xs md:text-sm font-black border-3 border-black uppercase transition-all ${
+              isPastGame
+                ? 'bg-[#7E22CE] text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                : 'bg-white text-black hover:bg-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+            }`}
           >
             PAST GAMES
           </button>
