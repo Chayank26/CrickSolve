@@ -86,6 +86,7 @@ export function PlayerSearch() {
             date: currentDate,
             category,
             mode: gameMode,
+            targetPlayerId: targetPlayer.id,
             sessionToken,
             attemptNumber: guesses.length + 1,
           }),

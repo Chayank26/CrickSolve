@@ -1,10 +1,17 @@
 import { PLAYERS } from '@/data/players';
 import { GuessEvaluation, PlayerCategory } from '@/types/game';
+import { getDailyTargetPlayer } from '@/lib/game-engine';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type GameMode = 'daily' | 'unlimited';
 export type GameStatus = 'IN_PROGRESS' | 'WON' | 'LOST';
+
+function getRandomPlayerId(excludeId?: string | null): string {
+  const pool = PLAYERS.filter((p) => p.id !== excludeId);
+  const picked = pool[Math.floor(Math.random() * pool.length)] || PLAYERS[0];
+  return picked.id;
+}
 
 interface GameState {
   // Config & Mode
@@ -97,7 +104,23 @@ export const useGameStore = create<GameState>()(
       activeModal: 'howTo',
 
       setGameMode: (mode) => {
-        set({ gameMode: mode, guesses: [], gameStatus: 'IN_PROGRESS', bonusChanceTaken: false, unlockedHint: null, isHintSelecting: false, manuallyUnlockedAttributes: {}, startTimeMs: null, endTimeMs: null, sessionToken: null, victoryToken: null });
+        const todayStr = get().currentDate || new Date().toISOString().split('T')[0];
+        const currentDailyId = getDailyTargetPlayer(todayStr, 'International').id;
+        const newUnlimitedId = mode === 'unlimited' ? getRandomPlayerId(currentDailyId) : null;
+        set({
+          gameMode: mode,
+          unlimitedTargetId: newUnlimitedId,
+          guesses: [],
+          gameStatus: 'IN_PROGRESS',
+          bonusChanceTaken: false,
+          unlockedHint: null,
+          isHintSelecting: false,
+          manuallyUnlockedAttributes: {},
+          startTimeMs: null,
+          endTimeMs: null,
+          sessionToken: null,
+          victoryToken: null,
+        });
       },
 
       setCategory: (category) => {
@@ -241,6 +264,17 @@ export const useGameStore = create<GameState>()(
       },
 
       resetGame: (newTargetId) => {
+        const { gameMode, unlimitedTargetId, currentDate } = get();
+        let nextTargetId = newTargetId || null;
+        if (gameMode === 'unlimited' && !newTargetId) {
+          const todayStr = currentDate || new Date().toISOString().split('T')[0];
+          const dailyTargetId = getDailyTargetPlayer(todayStr, 'International').id;
+          // Filter out both current unlimited ID and daily target ID to guarantee a new random player
+          const pool = PLAYERS.filter((p) => p.id !== unlimitedTargetId && p.id !== dailyTargetId);
+          const chosen = pool[Math.floor(Math.random() * pool.length)] || PLAYERS[0];
+          nextTargetId = chosen.id;
+        }
+
         set({
           guesses: [],
           gameStatus: 'IN_PROGRESS',
@@ -252,7 +286,7 @@ export const useGameStore = create<GameState>()(
           endTimeMs: null,
           sessionToken: null,
           victoryToken: null,
-          unlimitedTargetId: newTargetId || null,
+          unlimitedTargetId: nextTargetId,
         });
       },
 
@@ -288,6 +322,10 @@ export const useGameStore = create<GameState>()(
             setTimeout(() => {
               useGameStore.getState().syncDailyDate(todayStr);
             }, 0);
+          } else if (state.gameMode === 'unlimited' && !state.unlimitedTargetId) {
+            const dailyTargetId = getDailyTargetPlayer(todayStr, 'International').id;
+            const initialUnlimited = getRandomPlayerId(dailyTargetId);
+            useGameStore.setState({ unlimitedTargetId: initialUnlimited });
           }
         }
       },
@@ -295,6 +333,7 @@ export const useGameStore = create<GameState>()(
         gameMode: state.gameMode,
         category: state.category,
         currentDate: state.currentDate,
+        unlimitedTargetId: state.unlimitedTargetId,
         guesses: state.guesses,
         gameStatus: state.gameStatus,
         sessionToken: state.sessionToken,
