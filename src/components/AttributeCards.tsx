@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useGameStore } from '@/store/useGameStore';
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { getDailyTargetPlayer } from '@/lib/game-engine';
 import { PLAYERS } from '@/data/players';
 import { Lock, Sparkles, Eye, CheckCircle2, Lightbulb, X } from 'lucide-react';
@@ -20,14 +21,15 @@ export function AttributeCards() {
     manuallyUnlockedAttributes,
     unlockAttributeByHint,
   } = useGameStore();
+  const { room, reveal } = useMultiplayerStore();
 
   const [flippingAttrKey, setFlippingAttrKey] = useState<string | null>(null);
 
   // Resolve target player for daily/unlimited mode
   const todayStr = new Date().toISOString().split('T')[0];
   const activeDate = gameMode === 'daily' ? (currentDate || todayStr) : currentDate;
-  let targetPlayer = getDailyTargetPlayer(activeDate, 'International');
-  if (gameMode === 'unlimited' && unlimitedTargetId) {
+  let targetPlayer = room ? null : getDailyTargetPlayer(activeDate, 'International');
+  if (!room && gameMode === 'unlimited' && unlimitedTargetId) {
     const found = PLAYERS.find((p) => p.id === unlimitedTargetId);
     if (found) targetPlayer = found;
   }
@@ -42,43 +44,53 @@ export function AttributeCards() {
   const matchedRole = guesses.some((g) => g.attributeMatches.role);
   const matchedIpl = guesses.some((g) => g.attributeMatches.iplTeam);
   const matchedRetired = guesses.some((g) => g.attributeMatches.retired);
+  const revealedAttributes = guesses.reduce<Record<string, string>>((values, guess) => {
+    Object.entries(guess.revealedAttributes || {}).forEach(([key, value]) => {
+      if (value) values[key] = value;
+    });
+    return values;
+  }, {});
+  const getAttributeValue = (key: string, soloValue: string): string => {
+    if (!room) return soloValue;
+    return revealedAttributes[key] || '';
+  };
 
   const attributes = [
     {
       key: 'country',
       label: 'COUNTRY',
       matched: matchedCountry || !!manuallyUnlockedAttributes.country,
-      value: targetPlayer.country,
+      value: getAttributeValue('country', targetPlayer?.country || ''),
     },
     {
       key: 'battingHand',
       label: 'BATTING HAND',
       matched: matchedBatting || !!manuallyUnlockedAttributes.battingHand,
-      value: targetPlayer.battingHand,
+      value: getAttributeValue('battingHand', targetPlayer?.battingHand || ''),
     },
     {
       key: 'bowlingType',
       label: 'BOWLING STYLE',
       matched: matchedBowling || !!manuallyUnlockedAttributes.bowlingType,
-      value: targetPlayer.bowlingType,
+      value: getAttributeValue('bowlingType', targetPlayer?.bowlingType || ''),
     },
     {
       key: 'role',
       label: 'ROLE',
       matched: matchedRole || !!manuallyUnlockedAttributes.role,
-      value: targetPlayer.role,
+      value: getAttributeValue('role', targetPlayer?.role || ''),
     },
     {
       key: 'iplTeam',
       label: 'IPL TEAM',
       matched: matchedIpl || !!manuallyUnlockedAttributes.iplTeam,
-      value: targetPlayer.iplTeam === 'None' ? 'NOT IN IPL' : targetPlayer.iplTeam,
+      value: getAttributeValue('iplTeam', targetPlayer?.iplTeam === 'None' ? 'NOT IN IPL' : targetPlayer?.iplTeam || ''),
     },
     {
       key: 'retired',
       label: 'RETIRED',
       matched: matchedRetired || !!manuallyUnlockedAttributes.retired,
-      value: targetPlayer.retired ? 'YES' : 'NO',
+      value: getAttributeValue('retired', targetPlayer?.retired ? 'YES' : 'NO'),
     },
   ];
 
@@ -87,10 +99,10 @@ export function AttributeCards() {
   let blurAmount = Math.max(0, 24 - attemptCount * 4);
   if (isSolved || isFailed) blurAmount = 0;
 
-  const photoUrl = targetPlayer.photoUrl || 'https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316600/316605.png';
+  const photoUrl = reveal?.photoUrl || targetPlayer?.photoUrl;
 
   const handleCardClick = (key: string, label: string, value: string, isMatched: boolean) => {
-    if (!isHintSelecting || isMatched) return;
+    if (!isHintSelecting || isMatched || room) return;
 
     setFlippingAttrKey(key);
     setTimeout(() => {
@@ -221,17 +233,21 @@ export function AttributeCards() {
 
         {/* Big Center-Aligned Silhouette Image */}
         <div className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 rounded-none border-4 border-black overflow-hidden bg-slate-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center group my-1">
-          <motion.img
-            src={photoUrl}
-            alt="Mystery Cricketer Silhouette"
-            animate={{ filter: `blur(${blurAmount}px)` }}
-            transition={{ duration: 0.4 }}
-            className={`w-full h-full object-cover transition-all ${
-              !isSolved && !isFailed
-                ? 'brightness-50 contrast-150 scale-105'
-                : 'brightness-100 scale-100'
-            }`}
-          />
+          {photoUrl ? (
+            <motion.img
+              src={photoUrl}
+              alt="Mystery Cricketer Silhouette"
+              animate={{ filter: `blur(${blurAmount}px)` }}
+              transition={{ duration: 0.4 }}
+              className={`w-full h-full object-cover transition-all ${
+                !isSolved && !isFailed
+                  ? 'brightness-50 contrast-150 scale-105'
+                  : 'brightness-100 scale-100'
+              }`}
+            />
+          ) : (
+            <div className="w-full h-full bg-black" aria-label="Mystery silhouette unavailable" />
+          )}
           {!isSolved && !isFailed && (
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
               <div className="bg-black/80 border-2 border-[#CCFF00] p-2 rounded-full shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">

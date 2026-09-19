@@ -8,6 +8,7 @@ import { Trophy, Share2, RotateCcw, AlertCircle, Timer, X } from 'lucide-react';
 import { LeaderboardEntry } from '@/types/game';
 import { getDailyTargetPlayer } from '@/lib/game-engine';
 import { PLAYERS } from '@/data/players';
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 
 export function ResultModal() {
   const {
@@ -25,6 +26,7 @@ export function ResultModal() {
     victoryToken,
     setNickname,
   } = useGameStore();
+  const { room, reveal } = useMultiplayerStore();
 
   const [inputName, setInputName] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -51,8 +53,8 @@ export function ResultModal() {
   if (activeModal !== 'result' || (!isWon && !isLost)) return null;
 
   const activeDate = currentDate || new Date().toISOString().split('T')[0];
-  let targetPlayer = getDailyTargetPlayer(activeDate, 'International');
-  if (gameMode === 'unlimited' && unlimitedTargetId) {
+  let targetPlayer = room ? null : getDailyTargetPlayer(activeDate, 'International');
+  if (!room && gameMode === 'unlimited' && unlimitedTargetId) {
     const custom = PLAYERS.find((p) => p.id === unlimitedTargetId);
     if (custom) targetPlayer = custom;
   }
@@ -155,18 +157,18 @@ export function ResultModal() {
         </div>
 
         {/* Mystery Player Card */}
-        {targetPlayer && (
+        {(reveal || targetPlayer) && (
           <div className="bg-[#7E22CE] text-white border-3 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4 text-left">
             <img
-              src={targetPlayer.photoUrl}
-              alt={targetPlayer.name}
+              src={(reveal || targetPlayer)?.photoUrl}
+              alt={(reveal || targetPlayer)?.name}
               className="w-16 h-16 border-2 border-black object-cover bg-slate-200 flex-shrink-0"
             />
             <div>
               <div className="text-xs font-black uppercase text-[#CCFF00]">MYSTERY CRICKETER</div>
-              <div className="text-lg font-black uppercase tracking-tight">{targetPlayer.name}</div>
+              <div className="text-lg font-black uppercase tracking-tight">{(reveal || targetPlayer)?.name}</div>
               <div className="text-xs font-bold opacity-90 mt-0.5">
-                {targetPlayer.country} • {targetPlayer.role}
+                {(reveal || targetPlayer)?.country} • {(reveal || targetPlayer)?.role}
               </div>
             </div>
           </div>

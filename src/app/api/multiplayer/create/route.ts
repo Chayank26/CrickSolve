@@ -1,4 +1,4 @@
-import { createRoom } from '@/lib/multiplayer-manager';
+import { createRoom, toPublicRoom } from '@/lib/multiplayer-manager';
 import { createMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { NextResponse } from 'next/server';
 
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      room,
+      room: toPublicRoom(room),
       membershipToken: createMultiplayerMembershipToken(room.roomCode, hostId, 'host'),
     });
   } catch (err: unknown) {

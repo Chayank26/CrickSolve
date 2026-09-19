@@ -1,11 +1,12 @@
 import { evaluatePlayerGuess, getDailyTargetPlayer } from '@/lib/game-engine';
+import { PLAYERS } from '@/data/players';
 import {
   createSessionToken,
   createVictoryToken,
   verifyMultiplayerMembershipToken,
   verifySessionToken,
 } from '@/lib/server-crypto';
-import { getRoom } from '@/lib/multiplayer-manager';
+import { getRoom, recordRoomGuess } from '@/lib/multiplayer-manager';
 import { PlayerCategory } from '@/types/game';
 import { NextResponse } from 'next/server';
 
@@ -46,6 +47,8 @@ export async function POST(request: Request) {
 
     // 2. Resolve multiplayer target and attempt sequence server-side
     let actualTargetId = targetPlayerId;
+    let multiplayerRoomCode: string | null = null;
+    let multiplayerTargetPlayer = null;
     if (roomCode) {
       if (!membershipToken || !verifyMultiplayerMembershipToken(membershipToken, roomCode, userId)) {
         return NextResponse.json({ error: 'Valid room membership is required' }, { status: 401 });
@@ -64,6 +67,8 @@ export async function POST(request: Request) {
       }
 
       actualTargetId = room.targetPlayerId;
+      multiplayerRoomCode = roomCode;
+      multiplayerTargetPlayer = PLAYERS.find((player) => player.id === actualTargetId) || null;
     }
 
     if (mode === 'daily' && !roomCode) {
@@ -82,6 +87,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid player ID' }, { status: 404 });
     }
 
+    if (multiplayerRoomCode) {
+      await recordRoomGuess(multiplayerRoomCode, userId, evaluation.isCorrect);
+      if (multiplayerTargetPlayer) {
+        evaluation.revealedAttributes = {
+          country: evaluation.attributeMatches.country ? multiplayerTargetPlayer.country : undefined,
+          battingHand: evaluation.attributeMatches.battingHand ? multiplayerTargetPlayer.battingHand : undefined,
+          bowlingType: evaluation.attributeMatches.bowlingType ? multiplayerTargetPlayer.bowlingType : undefined,
+          role: evaluation.attributeMatches.role ? multiplayerTargetPlayer.role : undefined,
+          iplTeam: evaluation.attributeMatches.iplTeam ? multiplayerTargetPlayer.iplTeam : undefined,
+          retired: evaluation.attributeMatches.retired ? (multiplayerTargetPlayer.retired ? 'YES' : 'NO') : undefined,
+        };
+      }
+    }
+
     // 4. If win, issue encrypted victory token and calculate solve time
     let victoryToken: string | undefined = undefined;
     let solveTimeMs: number | undefined = undefined;
@@ -98,6 +117,16 @@ export async function POST(request: Request) {
       solveTimeMs,
       mode,
       attemptNumber,
+      multiplayerReveal:
+        multiplayerRoomCode && multiplayerTargetPlayer && evaluation.isCorrect
+          ? {
+              id: multiplayerTargetPlayer.id,
+              name: multiplayerTargetPlayer.name,
+              country: multiplayerTargetPlayer.country,
+              role: multiplayerTargetPlayer.role,
+              photoUrl: multiplayerTargetPlayer.photoUrl,
+            }
+          : undefined,
     });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Server evaluation failed';

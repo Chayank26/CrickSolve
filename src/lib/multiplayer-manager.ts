@@ -1,6 +1,6 @@
 import { randomInt } from 'crypto';
 import { PLAYERS } from '@/data/players';
-import { MultiplayerRoom, RoomParticipant, RoomStatus } from '@/types/multiplayer';
+import { MultiplayerRoom, PublicMultiplayerRoom, RoomParticipant, RoomStatus } from '@/types/multiplayer';
 import { getStoredRoom, saveStoredRoom } from '@/lib/multiplayer-room-store';
 
 function generateRoomCode(): string {
@@ -16,6 +16,11 @@ export function pickRandomMysteryPlayerId(excludeId?: string): string {
   const pool = PLAYERS.filter((p) => p.id !== excludeId);
   const picked = pool[Math.floor(Math.random() * pool.length)] || PLAYERS[0];
   return picked.id;
+}
+
+export function toPublicRoom(room: MultiplayerRoom): PublicMultiplayerRoom {
+  const { targetPlayerId: _targetPlayerId, ...publicRoom } = room;
+  return publicRoom;
 }
 
 export async function createRoom(hostId: string, hostName: string): Promise<MultiplayerRoom> {
@@ -94,6 +99,30 @@ export async function joinRoom(
 
   await saveStoredRoom(room);
   return { room };
+}
+
+export async function recordRoomGuess(
+  roomCode: string,
+  userId: string,
+  isSolved: boolean
+): Promise<MultiplayerRoom | null> {
+  const room = await getStoredRoom(roomCode);
+  if (!room) return null;
+
+  const participant = room.participants.find((item) => item.userId === userId);
+  if (!participant) return null;
+
+  participant.guessesCount += 1;
+  participant.isSolved = isSolved;
+  if (isSolved && !room.winnerUserId) {
+    room.winnerUserId = userId;
+    room.winnerNickname = participant.nickname;
+    room.status = 'finished';
+    room.finishedAt = Date.now();
+  }
+
+  await saveStoredRoom(room);
+  return room;
 }
 
 export async function updateRoomStatus(roomCode: string, status: RoomStatus): Promise<MultiplayerRoom | null> {

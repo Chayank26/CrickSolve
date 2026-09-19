@@ -478,6 +478,21 @@ This document logs all key technical and architectural decisions taken during th
 - **Deferred:**
   - The legacy client board still receives and renders `targetPlayerId`. Removing it requires replacing local target-derived attributes and silhouette data with server-produced, non-spoiling hints. That work is explicitly deferred to the next phase.
 
+## Phase 27: Target-Secrecy Contract
+
+### Decision 41: Public Room Projections and Server-Issued Reveals
+- **Approach Chosen:**
+  1. Added a `PublicMultiplayerRoom` type that omits `targetPlayerId`.
+  2. Projected private room records before returning them from create, join, lookup, rematch, and status APIs.
+  3. Removed target IDs from realtime match-finish and rematch payloads.
+  4. Returned only matched attribute values from multiplayer guess responses.
+  5. Returned the target identity and photo only after a server-accepted winning guess, then delivered the safe reveal to both clients through the match-finish event.
+  6. Changed multiplayer attribute cards and result UI to use server-issued data rather than resolving a room target locally.
+- **Why this approach?**
+  - It preserves the existing Wordle-like clue experience while removing the most direct answer leak from room responses, client room state, and realtime events.
+- **Tradeoff:**
+  - Client-side player search remains intentionally public for now. Full answer secrecy would require moving search and player metadata behind a server API or shipping a carefully reduced public index.
+
 
 
 

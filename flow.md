@@ -176,6 +176,20 @@ Phase 2 adds a signed membership boundary around room operations and multiplayer
 
 The final target-secrecy step is intentionally separate: the board must stop deriving locked attributes and the silhouette from a client-held target and instead consume server-produced hints. Until that refactor is complete, multiplayer target data remains exposed to the browser despite server-side guess authority.
 
+### 1.12 Phase 3 Target-Secrecy Flow
+
+The multiplayer client no longer receives the private room target through room APIs or realtime events:
+
+1. The server stores the target in the private room record.
+2. Create, join, lookup, rematch, and status responses return a public room projection without `targetPlayerId`.
+3. A multiplayer guess is evaluated against the private target after membership and attempt validation.
+4. The response includes only the attribute values that the submitted guess actually matched.
+5. The client stores those matched values in its guess evaluation and renders them in the attribute cards.
+6. The target identity and photo are returned only after a server-accepted winning guess, then delivered to both match clients so each result modal can reveal them.
+7. Realtime opponent events carry match flags and winner metadata, but no target ID.
+
+The searchable player dataset is still client-visible by product choice. This phase removes direct multiplayer room and board target leaks, while a future server-backed search phase would be needed to hide every player record from inspection.
+
 ### 📊 What Happens Today if 100,000 Users Play at the Same Time?
 1. **Frontend Assets (HTML/CSS/JS)**: ✅ **100% Stable**. Served from Edge CDNs (Vercel Edge Network / Cloudflare). 100,000 requests for the bundle are cached globally at edge nodes near users with 0 load on the origin server.
 2. **Search Autocomplete**: ✅ **100% Stable**. Handled entirely client-side by `Fuse.js` in browser memory. 0 server requests are fired during typing.

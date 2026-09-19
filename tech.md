@@ -82,3 +82,14 @@ Phase 1 changes the room manager to asynchronous storage operations and enforces
 Required production environment variables now include `CRICKSOLVE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN`.
 
 Phase 2 does not yet remove `targetPlayerId` from the legacy room payload because the current client-rendered board uses it to display multiplayer attributes and the silhouette. Target secrecy requires a board contract based on server-produced hints and is the next phase.
+
+### Phase 3: Target-Secrecy Contract
+
+| Technology | Role in Phase 3 | Current Behavior |
+| :--- | :--- | :--- |
+| **Public room projection** | Sanitize room responses | Multiplayer create, join, lookup, rematch, and status responses omit the private `targetPlayerId`. |
+| **Server-issued matched attributes** | Preserve gameplay clues without target access | Multiplayer guess responses include only attribute values confirmed by that guess, never the full target profile. |
+| **Terminal multiplayer reveal** | Reveal the result safely | The server returns the target identity, country, role, and photo only after a server-accepted winning guess, then the match-finish event delivers it to both clients. |
+| **Private room record** | Preserve server authority | The target remains available only inside server-side room storage and evaluation code. |
+
+The general client player search dataset remains public by the current product decision, so a determined user can still inspect player records. Phase 3 closes the room-response and client-target-state leaks but does not yet move search behind a server API.

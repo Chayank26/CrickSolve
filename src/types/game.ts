@@ -54,6 +54,7 @@ export interface GuessEvaluation {
   sessionToken?: string;
   victoryToken?: string;
   solveTimeMs?: number;
+  revealedAttributes?: Partial<Record<keyof AttributeMatchResult, string>>;
 }
 
 export interface DailyPuzzle {

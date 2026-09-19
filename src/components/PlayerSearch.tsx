@@ -25,7 +25,7 @@ export function PlayerSearch() {
     startHintSelection,
   } = useGameStore();
 
-  const { room, membershipToken, userId, broadcastGuess, broadcastFinish } = useMultiplayerStore();
+  const { room, membershipToken, userId, setReveal, broadcastGuess, broadcastFinish } = useMultiplayerStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -100,6 +100,7 @@ export function PlayerSearch() {
           }),
         });
         const data = await res.json();
+        if (room && data.multiplayerReveal) setReveal(data.multiplayerReveal);
         let evalResult = data.evaluation;
         if (evalResult) {
           addGuess({
@@ -108,7 +109,7 @@ export function PlayerSearch() {
             victoryToken: data.victoryToken,
             solveTimeMs: data.solveTimeMs,
           });
-        } else {
+        } else if (!room) {
           // Fallback local evaluation
           evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
           if (evalResult) addGuess(evalResult);
@@ -124,11 +125,12 @@ export function PlayerSearch() {
           );
           if (evalResult.isCorrect) {
             const solveTime = startTimeMs ? Math.max(0, Date.now() - startTimeMs) : 0;
-            broadcastFinish(guesses.length + 1, solveTime);
+            broadcastFinish(guesses.length + 1, solveTime, data.multiplayerReveal);
           }
         }
       } catch {
         // Fallback local evaluation
+        if (room) return;
         const evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
         if (evalResult) {
           addGuess(evalResult);

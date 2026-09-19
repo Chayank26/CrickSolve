@@ -68,11 +68,9 @@ export function MultiplayerLobbyModal() {
     if (countdown === null && room?.status === 'in_progress') {
       // Close modal and set game mode to multiplayer
       setActiveModal(null);
-      // Reset local game board with target player from room
-      if (room.targetPlayerId) {
-        setGameMode('unlimited');
-        resetGame(room.targetPlayerId);
-      }
+      // Multiplayer guesses are evaluated by the room API; no target is sent to the client.
+      setGameMode('unlimited');
+      resetGame();
     }
   }, [countdown, room, setActiveModal, setGameMode, resetGame, soundEnabled]);
 

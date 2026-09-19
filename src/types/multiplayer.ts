@@ -34,6 +34,16 @@ export interface MultiplayerRoom {
   winnerNickname?: string;
 }
 
+export type PublicMultiplayerRoom = Omit<MultiplayerRoom, 'targetPlayerId'>;
+
+export interface MultiplayerReveal {
+  id: string;
+  name: string;
+  country: string;
+  role: string;
+  photoUrl: string;
+}
+
 // Supabase Realtime Broadcast Payloads
 export interface RealtimeOpponentGuessPayload {
   userId: string;
@@ -53,10 +63,9 @@ export interface RealtimeMatchFinishPayload {
   winnerNickname: string;
   tries: number;
   solveTimeMs: number;
-  targetPlayerId: string;
+  reveal?: MultiplayerReveal;
 }
 
 export interface RealtimeRematchPayload {
-  newTargetPlayerId: string;
   timestamp: number;
 }

@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
 import {
   MultiplayerRoom,
+  MultiplayerReveal,
+  PublicMultiplayerRoom,
   RealtimeCountdownPayload,
   RealtimeMatchFinishPayload,
   RealtimeOpponentGuessPayload,
@@ -19,7 +21,8 @@ interface MultiplayerState {
   membershipToken: string | null;
 
   // Active Room State
-  room: MultiplayerRoom | null;
+  room: PublicMultiplayerRoom | null;
+  reveal: MultiplayerReveal | null;
   channel: RealtimeChannel | null;
   isConnecting: boolean;
   error: string | null;
@@ -36,6 +39,7 @@ interface MultiplayerState {
 
   // Actions
   setNickname: (name: string) => void;
+  setReveal: (reveal: MultiplayerReveal | null) => void;
   createRoom: (hostName?: string) => Promise<boolean>;
   joinRoom: (roomCode: string, guestName?: string) => Promise<boolean>;
   toggleReady: () => void;
@@ -46,7 +50,7 @@ interface MultiplayerState {
     numericMatches: NumericMatchResult,
     isCorrect: boolean
   ) => void;
-  broadcastFinish: (tries: number, solveTimeMs: number) => void;
+  broadcastFinish: (tries: number, solveTimeMs: number, reveal?: MultiplayerReveal) => void;
   requestRematch: () => Promise<void>;
   leaveRoom: () => void;
   cleanupChannel: () => void;
@@ -73,6 +77,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   nickname: 'Cricketer',
   membershipToken: null,
   room: null,
+  reveal: null,
   channel: null,
   isConnecting: false,
   error: null,
@@ -84,6 +89,8 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     const clean = name.trim() || 'Cricketer';
     set({ nickname: clean });
   },
+
+  setReveal: (reveal) => set({ reveal }),
 
   createRoom: async (hostName) => {
     const { userId, nickname } = get();
@@ -150,7 +157,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       p.userId === userId ? { ...p, isReady: !p.isReady } : p
     );
 
-    const updatedRoom: MultiplayerRoom = {
+    const updatedRoom: PublicMultiplayerRoom = {
       ...room,
       participants: updatedParticipants,
     };
@@ -233,7 +240,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     }
   },
 
-  broadcastFinish: (tries, solveTimeMs) => {
+  broadcastFinish: (tries, solveTimeMs, reveal) => {
     const { userId, nickname, room, channel } = get();
     if (!room) return;
 
@@ -242,7 +249,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       winnerNickname: nickname,
       tries,
       solveTimeMs,
-      targetPlayerId: room.targetPlayerId,
+      reveal,
     };
 
     set({
@@ -288,6 +295,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
           countdown: null,
           isMatchActive: false,
           matchWinner: null,
+          reveal: null,
         });
 
         if (channel) {
@@ -295,7 +303,6 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
             type: 'broadcast',
             event: 'REMATCH',
             payload: {
-              newTargetPlayerId: data.room.targetPlayerId,
               timestamp: Date.now(),
             } as RealtimeRematchPayload,
           });
@@ -310,6 +317,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     get().cleanupChannel();
     set({
       room: null,
+      reveal: null,
       channel: null,
       membershipToken: null,
       countdown: null,
@@ -398,6 +406,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
         const { room } = get();
         set({
           matchWinner: payload,
+          reveal: payload.reveal || null,
           isMatchActive: false,
           room: room
             ? {
@@ -425,7 +434,6 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
             room: {
               ...room,
               status: 'waiting',
-              targetPlayerId: payload.newTargetPlayerId,
               participants: resetParticipants,
               winnerUserId: undefined,
               winnerNickname: undefined,
