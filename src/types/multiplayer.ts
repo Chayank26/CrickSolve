@@ -28,6 +28,8 @@ export interface MultiplayerRoom {
   targetPlayerId: string;
   participants: RoomParticipant[];
   createdAt: number;
+  roundId: string;
+  revision: number;
   startedAt?: number;
   finishedAt?: number;
   winnerUserId?: string;
@@ -46,6 +48,9 @@ export interface MultiplayerReveal {
 
 // Supabase Realtime Broadcast Payloads
 export interface RealtimeOpponentGuessPayload {
+  roomCode: string;
+  roundId: string;
+  revision: number;
   userId: string;
   guessNumber: number;
   attributeMatches: AttributeMatchResult;
@@ -54,11 +59,17 @@ export interface RealtimeOpponentGuessPayload {
 }
 
 export interface RealtimeCountdownPayload {
+  roomCode: string;
+  roundId: string;
+  revision: number;
   countdownSeconds: number;
   targetStartTimeMs: number;
 }
 
 export interface RealtimeMatchFinishPayload {
+  roomCode: string;
+  roundId: string;
+  revision: number;
   winnerUserId: string;
   winnerNickname: string;
   tries: number;
@@ -67,5 +78,15 @@ export interface RealtimeMatchFinishPayload {
 }
 
 export interface RealtimeRematchPayload {
+  roomCode: string;
+  roundId: string;
+  revision: number;
   timestamp: number;
+}
+
+export interface RealtimeRoomUpdatePayload {
+  roomCode: string;
+  roundId: string;
+  revision: number;
+  room: PublicMultiplayerRoom;
 }

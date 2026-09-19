@@ -1,4 +1,4 @@
-import { getRoom, rematchRoomForUser, toPublicRoom, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
+import { getRoom, rematchRoomForUser, toPublicRoom, toggleReadyForUser, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
 import { verifyMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { RoomStatus } from '@/types/multiplayer';
 import { NextResponse } from 'next/server';
@@ -53,6 +53,14 @@ export async function PATCH(request: Request) {
       }
       const room = result.room;
       return NextResponse.json({ success: true, room: toPublicRoom(room) });
+    }
+
+    if (action === 'ready') {
+      const result = await toggleReadyForUser(roomCode, userId);
+      if (result.error || !result.room) {
+        return NextResponse.json({ error: result.error || 'Unable to update readiness' }, { status: 403 });
+      }
+      return NextResponse.json({ success: true, room: toPublicRoom(result.room) });
     }
 
     if (status) {

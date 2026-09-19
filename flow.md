@@ -190,6 +190,18 @@ The multiplayer client no longer receives the private room target through room A
 
 The searchable player dataset is still client-visible by product choice. This phase removes direct multiplayer room and board target leaks, while a future server-backed search phase would be needed to hide every player record from inspection.
 
+### 1.13 Phase 4 Revisioned Realtime Flow
+
+1. A player toggles readiness through the signed room API; the server verifies membership and persists the new state.
+2. The host starts the countdown through the same API; the server verifies that both players are ready before changing status.
+3. The server-owned room includes a unique `roundId` and increments `revision` for each persisted mutation.
+4. Realtime events include the room code, round ID, and revision that produced the event.
+5. Clients reject events from another room, an earlier round, or an already-applied revision.
+6. Each accepted multiplayer guess updates the participant counter and matched tiles in the server room record, then returns the new public room snapshot.
+7. The client applies that snapshot before publishing the corresponding HUD event, keeping the event revision aligned with server state.
+
+This phase improves convergence and removes client-only readiness state. Realtime channel authorization is still required before broadcasts can be treated as fully trusted server-origin events.
+
 ### 📊 What Happens Today if 100,000 Users Play at the Same Time?
 1. **Frontend Assets (HTML/CSS/JS)**: ✅ **100% Stable**. Served from Edge CDNs (Vercel Edge Network / Cloudflare). 100,000 requests for the bundle are cached globally at edge nodes near users with 0 load on the origin server.
 2. **Search Autocomplete**: ✅ **100% Stable**. Handled entirely client-side by `Fuse.js` in browser memory. 0 server requests are fired during typing.

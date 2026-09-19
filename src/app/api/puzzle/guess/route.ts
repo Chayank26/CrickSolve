@@ -6,7 +6,7 @@ import {
   verifyMultiplayerMembershipToken,
   verifySessionToken,
 } from '@/lib/server-crypto';
-import { getRoom, recordRoomGuess } from '@/lib/multiplayer-manager';
+import { getRoom, recordRoomGuess, toPublicRoom } from '@/lib/multiplayer-manager';
 import { PlayerCategory } from '@/types/game';
 import { NextResponse } from 'next/server';
 
@@ -49,6 +49,7 @@ export async function POST(request: Request) {
     let actualTargetId = targetPlayerId;
     let multiplayerRoomCode: string | null = null;
     let multiplayerTargetPlayer = null;
+    let updatedRoom = null;
     if (roomCode) {
       if (!membershipToken || !verifyMultiplayerMembershipToken(membershipToken, roomCode, userId)) {
         return NextResponse.json({ error: 'Valid room membership is required' }, { status: 401 });
@@ -88,7 +89,16 @@ export async function POST(request: Request) {
     }
 
     if (multiplayerRoomCode) {
-      await recordRoomGuess(multiplayerRoomCode, userId, evaluation.isCorrect);
+      updatedRoom = await recordRoomGuess(
+        multiplayerRoomCode,
+        userId,
+        evaluation.isCorrect,
+        evaluation.attributeMatches,
+        evaluation.numericMatches
+      );
+      if (!updatedRoom) {
+        return NextResponse.json({ error: 'Unable to persist the multiplayer guess' }, { status: 503 });
+      }
       if (multiplayerTargetPlayer) {
         evaluation.revealedAttributes = {
           country: evaluation.attributeMatches.country ? multiplayerTargetPlayer.country : undefined,
@@ -117,6 +127,7 @@ export async function POST(request: Request) {
       solveTimeMs,
       mode,
       attemptNumber,
+      room: multiplayerRoomCode && updatedRoom ? toPublicRoom(updatedRoom) : undefined,
       multiplayerReveal:
         multiplayerRoomCode && multiplayerTargetPlayer && evaluation.isCorrect
           ? {

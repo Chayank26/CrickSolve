@@ -93,3 +93,14 @@ Phase 2 does not yet remove `targetPlayerId` from the legacy room payload becaus
 | **Private room record** | Preserve server authority | The target remains available only inside server-side room storage and evaluation code. |
 
 The general client player search dataset remains public by the current product decision, so a determined user can still inspect player records. Phase 3 closes the room-response and client-target-state leaks but does not yet move search behind a server API.
+
+### Phase 4: Revisioned Realtime Protocol
+
+| Technology | Role in Phase 4 | Current Behavior |
+| :--- | :--- | :--- |
+| **Server-backed readiness mutation** | Authoritative lobby state | Ready toggles are persisted through the authorized room API instead of being accepted from local client state. |
+| **Server-owned `roundId`** | Match identity | Every room starts with a unique round ID, and every rematch rotates it. Events from an earlier round are rejected by clients. |
+| **Monotonic room `revision`** | Event ordering | Room mutations and accepted guesses advance a revision. Clients ignore stale or duplicate events. |
+| **Realtime event envelopes** | Transport consistency | Countdown, room update, guess, finish, and rematch events carry room code, round ID, and revision metadata. |
+
+Supabase Realtime remains an event transport and is not yet an authenticated server-origin channel. Later hardening should configure channel authorization or route authoritative event publication through a trusted server process.

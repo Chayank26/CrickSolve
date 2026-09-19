@@ -8,6 +8,7 @@ import {
   RealtimeMatchFinishPayload,
   RealtimeOpponentGuessPayload,
   RealtimeRematchPayload,
+  RealtimeRoomUpdatePayload,
   RoomParticipant,
   RoomStatus,
 } from '@/types/multiplayer';
@@ -40,10 +41,11 @@ interface MultiplayerState {
   // Actions
   setNickname: (name: string) => void;
   setReveal: (reveal: MultiplayerReveal | null) => void;
+  setRoomSnapshot: (room: PublicMultiplayerRoom) => void;
   createRoom: (hostName?: string) => Promise<boolean>;
   joinRoom: (roomCode: string, guestName?: string) => Promise<boolean>;
   toggleReady: () => void;
-  startMatchCountdown: () => void;
+  startMatchCountdown: () => Promise<void>;
   broadcastGuess: (
     guessNumber: number,
     attributeMatches: AttributeMatchResult,
@@ -91,6 +93,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   setReveal: (reveal) => set({ reveal }),
+  setRoomSnapshot: (room) => set({ room }),
 
   createRoom: async (hostName) => {
     const { userId, nickname } = get();
@@ -149,35 +152,46 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     }
   },
 
-  toggleReady: () => {
-    const { room, userId, channel } = get();
+  toggleReady: async () => {
+    const { room, userId, membershipToken, channel } = get();
     if (!room) return;
 
-    const updatedParticipants = room.participants.map((p) =>
-      p.userId === userId ? { ...p, isReady: !p.isReady } : p
-    );
+    const response = await fetch('/api/multiplayer/room', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        roomCode: room.roomCode,
+        userId,
+        membershipToken,
+        action: 'ready',
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.room) {
+      set({ error: data.error || 'Unable to update readiness' });
+      return;
+    }
 
-    const updatedRoom: PublicMultiplayerRoom = {
-      ...room,
-      participants: updatedParticipants,
-    };
-
-    set({ room: updatedRoom });
-
+    set({ room: data.room, error: null });
     if (channel) {
       channel.send({
         type: 'broadcast',
-        event: 'PARTICIPANT_UPDATE',
-        payload: { participants: updatedParticipants },
+        event: 'ROOM_UPDATED',
+        payload: {
+          roomCode: data.room.roomCode,
+          roundId: data.room.roundId,
+          revision: data.room.revision,
+          room: data.room,
+        } satisfies RealtimeRoomUpdatePayload,
       });
     }
   },
 
-  startMatchCountdown: () => {
+  startMatchCountdown: async () => {
     const { room, channel, userId, membershipToken } = get();
     if (!room) return;
 
-    void fetch('/api/multiplayer/room', {
+    const response = await fetch('/api/multiplayer/room', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -187,8 +201,17 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
         status: 'countdown',
       }),
     });
+    const data = await response.json();
+    if (!response.ok || !data.room) {
+      set({ error: data.error || 'Unable to start the match' });
+      return;
+    }
+    set({ room: data.room, error: null });
 
     const countdownPayload: RealtimeCountdownPayload = {
+      roomCode: data.room.roomCode,
+      roundId: data.room.roundId,
+      revision: data.room.revision,
       countdownSeconds: 3,
       targetStartTimeMs: Date.now() + 3000,
     };
@@ -210,6 +233,9 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     if (!room) return;
 
     const payload: RealtimeOpponentGuessPayload = {
+      roomCode: room.roomCode,
+      roundId: room.roundId,
+      revision: room.revision,
       userId,
       guessNumber,
       attributeMatches,
@@ -245,6 +271,9 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     if (!room) return;
 
     const payload: RealtimeMatchFinishPayload = {
+      roomCode: room.roomCode,
+      roundId: room.roundId,
+      revision: room.revision,
       winnerUserId: userId,
       winnerNickname: nickname,
       tries,
@@ -303,6 +332,9 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
             type: 'broadcast',
             event: 'REMATCH',
             payload: {
+              roomCode: data.room.roomCode,
+              roundId: data.room.roundId,
+              revision: data.room.revision,
               timestamp: Date.now(),
             } as RealtimeRematchPayload,
           });
@@ -374,11 +406,13 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
 
     channel
       .on('broadcast', { event: 'MATCH_COUNTDOWN' }, ({ payload }: { payload: RealtimeCountdownPayload }) => {
+        const { room } = get();
+        if (!room || payload.roomCode !== room.roomCode || payload.roundId !== room.roundId || payload.revision < room.revision) return;
         get()._runCountdown(payload.countdownSeconds || 3);
       })
       .on('broadcast', { event: 'OPPONENT_GUESS' }, ({ payload }: { payload: RealtimeOpponentGuessPayload }) => {
         const { room } = get();
-        if (!room) return;
+        if (!room || payload.roomCode !== room.roomCode || payload.roundId !== room.roundId || payload.revision <= room.revision) return;
 
         const updatedParticipants = room.participants.map((p) =>
           p.userId === payload.userId
@@ -394,16 +428,16 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
             : p
         );
 
-        set({ room: { ...room, participants: updatedParticipants } });
+        set({ room: { ...room, participants: updatedParticipants, revision: payload.revision } });
       })
-      .on('broadcast', { event: 'PARTICIPANT_UPDATE' }, ({ payload }: { payload: { participants: RoomParticipant[] } }) => {
+      .on('broadcast', { event: 'ROOM_UPDATED' }, ({ payload }: { payload: RealtimeRoomUpdatePayload }) => {
         const { room } = get();
-        if (room) {
-          set({ room: { ...room, participants: payload.participants } });
-        }
+        if (!room || payload.roomCode !== room.roomCode || payload.roundId !== room.roundId || payload.revision <= room.revision) return;
+        set({ room: payload.room });
       })
       .on('broadcast', { event: 'MATCH_FINISH' }, ({ payload }: { payload: RealtimeMatchFinishPayload }) => {
         const { room } = get();
+        if (!room || payload.roomCode !== room.roomCode || payload.roundId !== room.roundId || payload.revision < room.revision) return;
         set({
           matchWinner: payload,
           reveal: payload.reveal || null,
@@ -412,6 +446,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
             ? {
                 ...room,
                 status: 'finished',
+                revision: payload.revision,
                 winnerUserId: payload.winnerUserId,
                 winnerNickname: payload.winnerNickname,
               }
@@ -420,7 +455,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       })
       .on('broadcast', { event: 'REMATCH' }, ({ payload }: { payload: RealtimeRematchPayload }) => {
         const { room } = get();
-        if (room) {
+        if (room && payload.roomCode === room.roomCode && payload.revision > room.revision) {
           const resetParticipants = room.participants.map((p) => ({
             ...p,
             isReady: p.role === 'host',
@@ -433,6 +468,8 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
           set({
             room: {
               ...room,
+              roundId: payload.roundId,
+              revision: payload.revision,
               status: 'waiting',
               participants: resetParticipants,
               winnerUserId: undefined,

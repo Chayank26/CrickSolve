@@ -25,7 +25,7 @@ export function PlayerSearch() {
     startHintSelection,
   } = useGameStore();
 
-  const { room, membershipToken, userId, setReveal, broadcastGuess, broadcastFinish } = useMultiplayerStore();
+  const { room, membershipToken, userId, setReveal, setRoomSnapshot, broadcastGuess, broadcastFinish } = useMultiplayerStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -100,6 +100,7 @@ export function PlayerSearch() {
           }),
         });
         const data = await res.json();
+        if (room && data.room) setRoomSnapshot(data.room);
         if (room && data.multiplayerReveal) setReveal(data.multiplayerReveal);
         let evalResult = data.evaluation;
         if (evalResult) {

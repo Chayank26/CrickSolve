@@ -493,6 +493,21 @@ This document logs all key technical and architectural decisions taken during th
 - **Tradeoff:**
   - Client-side player search remains intentionally public for now. Full answer secrecy would require moving search and player metadata behind a server API or shipping a carefully reduced public index.
 
+## Phase 28: Revisioned Realtime Protocol
+
+### Decision 42: Server-Backed Lobby State and Round-Scoped Events
+- **Approach Chosen:**
+  1. Moved readiness changes through the authorized room API.
+  2. Added server-owned `roundId` and monotonic `revision` fields to room records.
+  3. Persisted accepted guess results, participant counters, and matched tiles in the room record.
+  4. Added room code, round ID, and revision envelopes to realtime events.
+  5. Rejected stale, duplicate, cross-room, and cross-round events in the client store.
+  6. Returned the authoritative public room snapshot with accepted multiplayer guesses.
+- **Why this approach?**
+  - The room API becomes the source of truth for lobby and guess state, while revisioned events keep both clients convergent across duplicate messages, reconnects, and rematches.
+- **Remaining limitation:**
+  - Supabase broadcast events are still client-publishable in the current configuration. Channel authorization or trusted server-origin publication remains a later security phase.
+
 
 
 
