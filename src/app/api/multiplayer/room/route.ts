@@ -1,4 +1,5 @@
-import { getRoom, rematchRoom, updateRoomStatus } from '@/lib/multiplayer-manager';
+import { getRoom, rematchRoomForUser, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
+import { verifyMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { RoomStatus } from '@/types/multiplayer';
 import { NextResponse } from 'next/server';
 
@@ -6,9 +7,15 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
+    const userId = searchParams.get('userId');
+    const membershipToken = searchParams.get('membershipToken');
 
     if (!code) {
       return NextResponse.json({ error: 'Room code is required' }, { status: 400 });
+    }
+
+    if (!userId || !membershipToken || !verifyMultiplayerMembershipToken(membershipToken, code, userId)) {
+      return NextResponse.json({ error: 'Valid room membership is required' }, { status: 401 });
     }
 
     const room = await getRoom(code);
@@ -29,21 +36,31 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { roomCode, action, status } = body;
+    const { roomCode, action, status, userId, membershipToken } = body;
 
     if (!roomCode) {
       return NextResponse.json({ error: 'Room code is required' }, { status: 400 });
     }
 
+    if (!userId || !membershipToken || !verifyMultiplayerMembershipToken(membershipToken, roomCode, userId)) {
+      return NextResponse.json({ error: 'Valid room membership is required' }, { status: 401 });
+    }
+
     if (action === 'rematch') {
-      const room = await rematchRoom(roomCode);
-      if (!room) return NextResponse.json({ error: 'Room not found' }, { status: 404 });
+      const result = await rematchRoomForUser(roomCode, userId);
+      if (result.error || !result.room) {
+        return NextResponse.json({ error: result.error || 'Unable to start rematch' }, { status: 403 });
+      }
+      const room = result.room;
       return NextResponse.json({ success: true, room });
     }
 
     if (status) {
-      const room = await updateRoomStatus(roomCode, status as RoomStatus);
-      if (!room) return NextResponse.json({ error: 'Room not found' }, { status: 404 });
+      const result = await updateRoomStatusForUser(roomCode, userId, status as RoomStatus);
+      if (result.error || !result.room) {
+        return NextResponse.json({ error: result.error || 'Unable to update room' }, { status: 403 });
+      }
+      const room = result.room;
       return NextResponse.json({ success: true, room });
     }
 

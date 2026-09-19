@@ -1,7 +1,11 @@
-import { createHmac, timingSafeEqual } from 'crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 import { PlayerCategory } from '@/types/game';
 
-const SECRET_KEY = process.env.CRICKSOLVE_SECRET_KEY || 'cricksolve-server-secret-salt-key-2026';
+const SECRET_KEY =
+  process.env.CRICKSOLVE_SECRET_KEY ||
+  (process.env.NODE_ENV === 'production'
+    ? ''
+    : randomBytes(32).toString('hex'));
 
 export interface SessionPayload {
   date: string;
@@ -18,7 +22,15 @@ export interface VictoryPayload {
   userId: string;
 }
 
+export interface MultiplayerMembershipPayload {
+  roomCode: string;
+  userId: string;
+  role: 'host' | 'guest';
+  expiresAt: number;
+}
+
 function signPayload(payload: object): string {
+  if (!SECRET_KEY) throw new Error('CRICKSOLVE_SECRET_KEY is required in production');
   const jsonStr = JSON.stringify(payload);
   const b64Payload = Buffer.from(jsonStr).toString('base64url');
   const signature = createHmac('sha256', SECRET_KEY).update(b64Payload).digest('base64url');
@@ -27,6 +39,7 @@ function signPayload(payload: object): string {
 
 function verifyPayload<T>(token: string): T | null {
   try {
+    if (!SECRET_KEY) return null;
     if (!token || typeof token !== 'string') return null;
     const parts = token.split('.');
     if (parts.length !== 2) return null;
@@ -45,6 +58,32 @@ function verifyPayload<T>(token: string): T | null {
   } catch {
     return null;
   }
+}
+
+export function createMultiplayerMembershipToken(
+  roomCode: string,
+  userId: string,
+  role: 'host' | 'guest',
+  expiresAt: number = Date.now() + 6 * 60 * 60 * 1000
+): string {
+  return signPayload({
+    roomCode: roomCode.toUpperCase().trim(),
+    userId,
+    role,
+    expiresAt,
+  } satisfies MultiplayerMembershipPayload);
+}
+
+export function verifyMultiplayerMembershipToken(
+  token: string,
+  roomCode: string,
+  userId: string
+): MultiplayerMembershipPayload | null {
+  const payload = verifyPayload<MultiplayerMembershipPayload>(token);
+  if (!payload) return null;
+  if (payload.roomCode !== roomCode.toUpperCase().trim()) return null;
+  if (payload.userId !== userId || payload.expiresAt <= Date.now()) return null;
+  return payload;
 }
 
 export function createSessionToken(

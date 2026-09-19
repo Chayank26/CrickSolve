@@ -69,3 +69,16 @@ This document lists every technology, library, database, and tool used in the Cr
 | **Node `crypto.randomInt`** | Room-code generation | Generates six-character room codes with cryptographic randomness instead of `Math.random()`. |
 
 Phase 1 changes the room manager to asynchronous storage operations and enforces the agreed strict 1v1 capacity. It does not yet remove `targetPlayerId` from API responses or authorize room mutations; those are Phase 2 concerns.
+
+### Phase 2: Multiplayer Authority and Membership
+
+| Technology | Role in Phase 2 | Current Behavior |
+| :--- | :--- | :--- |
+| **Signed HMAC membership tokens** | Anonymous room authorization | Create and join responses issue six-hour tokens bound to room code, user ID, and role. Protected room operations verify the token server-side. |
+| **Server-derived multiplayer guesses** | Match authority | Multiplayer guess requests resolve the room target on the server, require an active match, require room membership, and validate the next attempt number. |
+| **Authorized room transitions** | Lifecycle authority | Only the host can change room status; only a room participant can request a rematch. Countdown and active-match transitions are persisted through the room API. |
+| **Production secret enforcement** | Token integrity | Production requires `CRICKSOLVE_SECRET_KEY`; development uses an ephemeral process key when no secret is configured. |
+
+Required production environment variables now include `CRICKSOLVE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN`.
+
+Phase 2 does not yet remove `targetPlayerId` from the legacy room payload because the current client-rendered board uses it to display multiplayer attributes and the silhouette. Target secrecy requires a board contract based on server-produced hints and is the next phase.

@@ -25,7 +25,7 @@ export function PlayerSearch() {
     startHintSelection,
   } = useGameStore();
 
-  const { room, broadcastGuess, broadcastFinish } = useMultiplayerStore();
+  const { room, membershipToken, userId, broadcastGuess, broadcastFinish } = useMultiplayerStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -92,6 +92,9 @@ export function PlayerSearch() {
             category,
             mode: gameMode,
             targetPlayerId: targetPlayer.id,
+            roomCode: room?.roomCode,
+            membershipToken,
+            userId,
             sessionToken,
             attemptNumber: guesses.length + 1,
           }),

@@ -1,5 +1,11 @@
 import { evaluatePlayerGuess, getDailyTargetPlayer } from '@/lib/game-engine';
-import { createSessionToken, createVictoryToken, verifySessionToken } from '@/lib/server-crypto';
+import {
+  createSessionToken,
+  createVictoryToken,
+  verifyMultiplayerMembershipToken,
+  verifySessionToken,
+} from '@/lib/server-crypto';
+import { getRoom } from '@/lib/multiplayer-manager';
 import { PlayerCategory } from '@/types/game';
 import { NextResponse } from 'next/server';
 
@@ -12,6 +18,8 @@ export async function POST(request: Request) {
       category = 'International',
       mode = 'daily',
       targetPlayerId,
+      roomCode,
+      membershipToken,
       attemptNumber = 1,
       sessionToken: clientSessionToken,
       userId = 'user_anon',
@@ -36,9 +44,29 @@ export async function POST(request: Request) {
 
     const startTimeMs = session ? session.startTimeMs : Date.now();
 
-    // 2. Resolve target player server-side
+    // 2. Resolve multiplayer target and attempt sequence server-side
     let actualTargetId = targetPlayerId;
-    if (mode === 'daily') {
+    if (roomCode) {
+      if (!membershipToken || !verifyMultiplayerMembershipToken(membershipToken, roomCode, userId)) {
+        return NextResponse.json({ error: 'Valid room membership is required' }, { status: 401 });
+      }
+
+      const room = await getRoom(roomCode);
+      const participant = room?.participants.find((item) => item.userId === userId);
+      if (!room || !participant) {
+        return NextResponse.json({ error: 'You are not a member of this room' }, { status: 403 });
+      }
+      if (room.status !== 'in_progress') {
+        return NextResponse.json({ error: 'The match is not active' }, { status: 409 });
+      }
+      if (attemptNumber !== participant.guessesCount + 1) {
+        return NextResponse.json({ error: 'Invalid attempt number' }, { status: 409 });
+      }
+
+      actualTargetId = room.targetPlayerId;
+    }
+
+    if (mode === 'daily' && !roomCode) {
       const targetPlayer = getDailyTargetPlayer(todayStr, cat);
       actualTargetId = targetPlayer.id;
     }

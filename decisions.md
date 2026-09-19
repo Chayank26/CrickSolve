@@ -462,6 +462,22 @@ This document logs all key technical and architectural decisions taken during th
     - *Supabase-only room state*: Durable, but less suited to high-frequency mutable room state and atomic live-match operations.
     - *Redis Pub/Sub as browser transport*: Would require an additional server-side WebSocket bridge; Supabase Realtime already exists in the project.
 
+## Phase 26: Multiplayer Authority and Anonymous Membership Tokens
+
+### Decision 40: Sign Room Membership and Validate Multiplayer Guesses Server-Side
+- **Approach Chosen:**
+  1. Issue an HMAC-signed six-hour membership token when a user creates or joins a room.
+  2. Bind the token to the room code, anonymous user ID, and participant role.
+  3. Require the token for room lookup and room mutations.
+  4. Restrict room status changes to the host and rematches to room participants.
+  5. Persist countdown and active-match transitions through the authorized room API.
+  6. For multiplayer guesses, resolve the target and validate the next attempt number from the server-side room record instead of trusting client target data.
+  7. Replace the known production HMAC fallback with a required production secret and an ephemeral development-only key.
+- **Why this approach?**
+  - Anonymous signed sessions preserve the no-account multiplayer experience while preventing room-code-only control of room mutations. Server-side target resolution and attempt validation establish the authority boundary needed for reliable match outcomes.
+- **Deferred:**
+  - The legacy client board still receives and renders `targetPlayerId`. Removing it requires replacing local target-derived attributes and silhouette data with server-produced, non-spoiling hints. That work is explicitly deferred to the next phase.
+
 
 
 

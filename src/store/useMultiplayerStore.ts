@@ -16,6 +16,7 @@ interface MultiplayerState {
   // Session & Identity
   userId: string;
   nickname: string;
+  membershipToken: string | null;
 
   // Active Room State
   room: MultiplayerRoom | null;
@@ -70,6 +71,7 @@ function getOrGenerateUserId(): string {
 export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   userId: getOrGenerateUserId(),
   nickname: 'Cricketer',
+  membershipToken: null,
   room: null,
   channel: null,
   isConnecting: false,
@@ -101,7 +103,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
         return false;
       }
 
-      set({ room: data.room, isConnecting: false });
+      set({ room: data.room, membershipToken: data.membershipToken || null, isConnecting: false });
       get()._subscribeToRoom(data.room.roomCode);
       return true;
     } catch (err: unknown) {
@@ -130,7 +132,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
         return false;
       }
 
-      set({ room: data.room, isConnecting: false });
+      set({ room: data.room, membershipToken: data.membershipToken || null, isConnecting: false });
       get()._subscribeToRoom(cleanCode);
       return true;
     } catch (err: unknown) {
@@ -165,8 +167,19 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   startMatchCountdown: () => {
-    const { room, channel } = get();
+    const { room, channel, userId, membershipToken } = get();
     if (!room) return;
+
+    void fetch('/api/multiplayer/room', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        roomCode: room.roomCode,
+        userId,
+        membershipToken,
+        status: 'countdown',
+      }),
+    });
 
     const countdownPayload: RealtimeCountdownPayload = {
       countdownSeconds: 3,
@@ -253,14 +266,19 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   requestRematch: async () => {
-    const { room, channel } = get();
+    const { room, channel, userId, membershipToken } = get();
     if (!room) return;
 
     try {
       const res = await fetch('/api/multiplayer/room', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomCode: room.roomCode, action: 'rematch' }),
+        body: JSON.stringify({
+          roomCode: room.roomCode,
+          userId,
+          membershipToken,
+          action: 'rematch',
+        }),
       });
 
       const data = await res.json();
@@ -293,6 +311,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     set({
       room: null,
       channel: null,
+      membershipToken: null,
       countdown: null,
       isMatchActive: false,
       matchWinner: null,
@@ -317,7 +336,20 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
         clearInterval(interval);
         set({ countdown: null, isMatchActive: true });
         const { room } = get();
-        if (room) set({ room: { ...room, status: 'in_progress' } });
+        if (room) {
+          set({ room: { ...room, status: 'in_progress' } });
+          const { userId, membershipToken } = get();
+          void fetch('/api/multiplayer/room', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              roomCode: room.roomCode,
+              userId,
+              membershipToken,
+              status: 'in_progress',
+            }),
+          });
+        }
       } else {
         set({ countdown: current - 1 });
       }

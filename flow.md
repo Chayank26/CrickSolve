@@ -163,6 +163,19 @@ The current Phase 1 flow is:
 
 Phase 1 intentionally leaves target secrecy, membership authorization, and server-authoritative guess validation for the next phase. The current API still returns the legacy room shape, including `targetPlayerId`, until those concerns are migrated together.
 
+### 1.11 Phase 2 Multiplayer Authority
+
+Phase 2 adds a signed membership boundary around room operations and multiplayer guesses:
+
+1. Room creation and joining return a six-hour HMAC token bound to the room code, anonymous user ID, and participant role.
+2. Room lookup and PATCH operations require that token to match the requested room and user.
+3. Only the host can persist countdown and match-status transitions.
+4. Only a participant can request a rematch.
+5. Multiplayer guess requests include the room code and membership token; the server loads the room, checks membership and active status, validates the next attempt number, and uses the room's target for evaluation.
+6. The client continues receiving the legacy target-bearing room shape so the current attribute and silhouette UI remains functional.
+
+The final target-secrecy step is intentionally separate: the board must stop deriving locked attributes and the silhouette from a client-held target and instead consume server-produced hints. Until that refactor is complete, multiplayer target data remains exposed to the browser despite server-side guess authority.
+
 ### 📊 What Happens Today if 100,000 Users Play at the Same Time?
 1. **Frontend Assets (HTML/CSS/JS)**: ✅ **100% Stable**. Served from Edge CDNs (Vercel Edge Network / Cloudflare). 100,000 requests for the bundle are cached globally at edge nodes near users with 0 load on the origin server.
 2. **Search Autocomplete**: ✅ **100% Stable**. Handled entirely client-side by `Fuse.js` in browser memory. 0 server requests are fired during typing.

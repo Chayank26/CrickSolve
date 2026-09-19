@@ -109,6 +109,51 @@ export async function updateRoomStatus(roomCode: string, status: RoomStatus): Pr
   return room;
 }
 
+export async function updateRoomStatusForUser(
+  roomCode: string,
+  userId: string,
+  status: RoomStatus
+): Promise<{ room: MultiplayerRoom | null; error?: string }> {
+  const room = await getStoredRoom(roomCode);
+  if (!room) return { room: null, error: 'Room not found' };
+  if (room.hostId !== userId) return { room: null, error: 'Only the host can change room status' };
+
+  room.status = status;
+  if (status === 'in_progress') room.startedAt = Date.now();
+  if (status === 'finished') room.finishedAt = Date.now();
+  await saveStoredRoom(room);
+  return { room };
+}
+
+export async function rematchRoomForUser(
+  roomCode: string,
+  userId: string
+): Promise<{ room: MultiplayerRoom | null; error?: string }> {
+  const room = await getStoredRoom(roomCode);
+  if (!room) return { room: null, error: 'Room not found' };
+  if (!room.participants.some((participant) => participant.userId === userId)) {
+    return { room: null, error: 'You are not a member of this room' };
+  }
+
+  room.targetPlayerId = pickRandomMysteryPlayerId(room.targetPlayerId);
+  room.status = 'waiting';
+  room.startedAt = undefined;
+  room.finishedAt = undefined;
+  room.winnerUserId = undefined;
+  room.winnerNickname = undefined;
+
+  room.participants.forEach((participant) => {
+    participant.isReady = participant.role === 'host';
+    participant.guessesCount = 0;
+    participant.isSolved = false;
+    participant.solveTimeMs = undefined;
+    participant.recentGuessMatches = undefined;
+  });
+
+  await saveStoredRoom(room);
+  return { room };
+}
+
 export async function rematchRoom(roomCode: string): Promise<MultiplayerRoom | null> {
   const room = await getStoredRoom(roomCode);
   if (!room) return null;

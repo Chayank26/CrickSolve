@@ -1,4 +1,5 @@
 import { createRoom } from '@/lib/multiplayer-manager';
+import { createMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -15,6 +16,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       room,
+      membershipToken: createMultiplayerMembershipToken(room.roomCode, hostId, 'host'),
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to create room';
