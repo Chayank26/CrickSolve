@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'roomCode and userId are required' }, { status: 400 });
     }
 
-    const { room, error } = joinRoom(roomCode, userId, nickname || 'Guest Cricketer');
+    const { room, error } = await joinRoom(roomCode, userId, nickname || 'Guest Cricketer');
 
     if (error || !room) {
       return NextResponse.json({ error: error || 'Failed to join room' }, { status: 404 });

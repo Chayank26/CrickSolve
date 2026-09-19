@@ -1,14 +1,13 @@
+import { randomInt } from 'crypto';
 import { PLAYERS } from '@/data/players';
 import { MultiplayerRoom, RoomParticipant, RoomStatus } from '@/types/multiplayer';
-
-// In-memory rooms cache for rapid development & fallback resilience
-const inMemoryRooms = new Map<string, MultiplayerRoom>();
+import { getStoredRoom, saveStoredRoom } from '@/lib/multiplayer-room-store';
 
 function generateRoomCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let result = '';
   for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars[randomInt(chars.length)];
   }
   return result;
 }
@@ -19,9 +18,9 @@ export function pickRandomMysteryPlayerId(excludeId?: string): string {
   return picked.id;
 }
 
-export function createRoom(hostId: string, hostName: string): MultiplayerRoom {
+export async function createRoom(hostId: string, hostName: string): Promise<MultiplayerRoom> {
   let code = generateRoomCode();
-  while (inMemoryRooms.has(code)) {
+  while (await getStoredRoom(code)) {
     code = generateRoomCode();
   }
 
@@ -47,18 +46,20 @@ export function createRoom(hostId: string, hostName: string): MultiplayerRoom {
     createdAt: Date.now(),
   };
 
-  inMemoryRooms.set(code, newRoom);
+  await saveStoredRoom(newRoom);
   return newRoom;
 }
 
-export function getRoom(roomCode: string): MultiplayerRoom | null {
-  const code = roomCode.toUpperCase().trim();
-  return inMemoryRooms.get(code) || null;
+export async function getRoom(roomCode: string): Promise<MultiplayerRoom | null> {
+  return getStoredRoom(roomCode);
 }
 
-export function joinRoom(roomCode: string, userId: string, nickname: string): { room: MultiplayerRoom | null; error?: string } {
-  const code = roomCode.toUpperCase().trim();
-  const room = inMemoryRooms.get(code);
+export async function joinRoom(
+  roomCode: string,
+  userId: string,
+  nickname: string
+): Promise<{ room: MultiplayerRoom | null; error?: string }> {
+  const room = await getStoredRoom(roomCode);
 
   if (!room) {
     return { room: null, error: 'Room not found. Please verify the 6-character room code.' };
@@ -74,9 +75,9 @@ export function joinRoom(roomCode: string, userId: string, nickname: string): { 
     room.participants[existingIdx].nickname = nickname || room.participants[existingIdx].nickname;
     room.participants[existingIdx].connectedAt = Date.now();
   } else {
-    // Add guest participant (up to 8 players)
-    if (room.participants.length >= 8) {
-      return { room: null, error: 'Room is currently full (maximum 8 players).' };
+    // Multiplayer rooms are currently strict 1v1 matches.
+    if (room.participants.length >= 2) {
+      return { room: null, error: 'This 1v1 room is already full.' };
     }
 
     const guestParticipant: RoomParticipant = {
@@ -91,11 +92,12 @@ export function joinRoom(roomCode: string, userId: string, nickname: string): { 
     room.participants.push(guestParticipant);
   }
 
+  await saveStoredRoom(room);
   return { room };
 }
 
-export function updateRoomStatus(roomCode: string, status: RoomStatus): MultiplayerRoom | null {
-  const room = getRoom(roomCode);
+export async function updateRoomStatus(roomCode: string, status: RoomStatus): Promise<MultiplayerRoom | null> {
+  const room = await getStoredRoom(roomCode);
   if (!room) return null;
   room.status = status;
   if (status === 'in_progress') {
@@ -103,11 +105,12 @@ export function updateRoomStatus(roomCode: string, status: RoomStatus): Multipla
   } else if (status === 'finished') {
     room.finishedAt = Date.now();
   }
+  await saveStoredRoom(room);
   return room;
 }
 
-export function rematchRoom(roomCode: string): MultiplayerRoom | null {
-  const room = getRoom(roomCode);
+export async function rematchRoom(roomCode: string): Promise<MultiplayerRoom | null> {
+  const room = await getStoredRoom(roomCode);
   if (!room) return null;
 
   const nextTarget = pickRandomMysteryPlayerId(room.targetPlayerId);
@@ -127,5 +130,6 @@ export function rematchRoom(roomCode: string): MultiplayerRoom | null {
     p.recentGuessMatches = undefined;
   });
 
+  await saveStoredRoom(room);
   return room;
 }

@@ -13,6 +13,7 @@ import { LeaderboardModal } from '@/components/LeaderboardModal';
 import { AttributeHintPickerModal } from '@/components/AttributeHintPickerModal';
 import { ContinueModal } from '@/components/ContinueModal';
 import { MultiplayerLobbyModal } from '@/components/MultiplayerLobbyModal';
+import { OpponentHUD } from '@/components/OpponentHUD';
 
 export default function Home() {
   return (
@@ -20,6 +21,9 @@ export default function Home() {
       <div className="max-w-6xl w-full mx-auto flex flex-col gap-5">
         {/* Top Header */}
         <Header />
+
+        {/* Live Multiplayer Opponent HUD (Rendered when in multiplayer room) */}
+        <OpponentHUD />
 
         {/* Main 2-Column Layout */}
         <main className="grid grid-cols-1 lg:grid-cols-12 gap-5 my-2">

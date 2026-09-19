@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'hostId is required' }, { status: 400 });
     }
 
-    const room = createRoom(hostId, hostName || 'Host Cricketer');
+    const room = await createRoom(hostId, hostName || 'Host Cricketer');
 
     return NextResponse.json({
       success: true,

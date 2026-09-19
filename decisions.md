@@ -426,11 +426,47 @@ This document logs all key technical and architectural decisions taken during th
      - Host "START BATTLE 🚀" action button is strictly gated until $\ge 2$ players are in the room and all have marked themselves ready.
   4. **Full-Screen 3-2-1 Synchronized Countdown Overlay**:
      - Built animated overlay with Framer Motion spring popping (`3... 2... 1... START!`) and audio chimes, synchronizing all players before closing the lobby and launching the match simultaneously.
+---
+
+## Phase 24: Real-Time Duel Opponent HUD & Anonymous Mini-Wordle Guess Streaming
+
+### Decision 38: Live Opponent HUD & Anonymous Mini-Wordle Color Grid Stream
+- **Approach Chosen:**
+  1. **Neubrutalist Duel Race HUD (`src/components/OpponentHUD.tsx`)**:
+     - Displays real-time 1v1 battle banner atop the main game board during active multiplayer duels (`room.status === 'in_progress'`).
+     - Features side-by-side player cards (YOU vs OPPONENT) showing live guess progress counters (`GUESS X/7`), host/challenger badges, and victory indicators.
+  2. **Live Mini-Wordle Matrix Visualizer**:
+     - Visualizes the opponent's guess history in real-time as a compact 10-tile color matrix (🟩 Neon Lime for exact match, 🟧 Orange for higher/lower numeric directional hints, ⬛ Dark for mismatches).
+     - Updates with sub-50ms latency as the opponent submits each guess, creating an exhilarating spectator racing dynamic.
+  3. **Seamless Game Board Hooking (`PlayerSearch.tsx`)**:
+     - Automatically invokes `broadcastGuess(guessNumber, attributeMatches, numericMatches, isCorrect)` upon guess resolution and triggers `broadcastFinish(tries, solveTimeMs)` when the winning cricketer is found.
 - **Why this approach?**
-  - Creates an intuitive, frictionless onboarding flow for friends to challenge each other via a simple WhatsApp / Twitter link, ensuring everyone begins guessing at the exact same second.
+  - Allows players to feel the visceral tension of racing live against their opponent in real-time, watching their opponent's color grid light up without spoiling the player's identity.
 - **Alternatives Considered:**
-  - *Launching the game immediately without countdown*: Creates an unfair advantage for the host who clicked the start button.
-  - *Requiring manual room code entry*: Higher friction than 1-click shareable URL parameters.
+  - *Showing only a simple progress bar (e.g., 3/7)*: Lacks the excitement of seeing which exact attribute columns the opponent just turned green.
+
+  ## Phase 25: Shared Multiplayer Room Persistence Foundation
+
+  ### Decision 39: Upstash-Compatible Redis for Live Room State
+  - **Approach Chosen:**
+    1. Added `@upstash/redis` as the production-compatible Redis client.
+    2. Moved room reads and writes behind `src/lib/multiplayer-room-store.ts`.
+    3. Used a six-hour TTL for room records so abandoned rooms expire automatically.
+    4. Kept an expiring in-memory adapter for local development when Redis environment variables are absent.
+    5. Kept Supabase Realtime as the browser event transport while Redis becomes the room state source of truth.
+    6. Changed rooms to the agreed strict 1v1 capacity and replaced `Math.random()` room codes with `crypto.randomInt`.
+  - **Why this approach?**
+    - Redis provides shared, low-latency room state across application instances, while the adapter boundary keeps local development simple. Separating state storage from event delivery lets later phases make the server authoritative without coupling that work to the UI.
+  - **Alternatives Considered:**
+    - *Process-local `Map`*: Fast but loses rooms on restart and cannot coordinate across instances.
+    - *Supabase-only room state*: Durable, but less suited to high-frequency mutable room state and atomic live-match operations.
+    - *Redis Pub/Sub as browser transport*: Would require an additional server-side WebSocket bridge; Supabase Realtime already exists in the project.
+
+
+
+
+
+
 
 
 

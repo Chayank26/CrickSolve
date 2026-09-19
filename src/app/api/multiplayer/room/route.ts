@@ -11,7 +11,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Room code is required' }, { status: 400 });
     }
 
-    const room = getRoom(code);
+    const room = await getRoom(code);
     if (!room) {
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });
     }
@@ -36,13 +36,13 @@ export async function PATCH(request: Request) {
     }
 
     if (action === 'rematch') {
-      const room = rematchRoom(roomCode);
+      const room = await rematchRoom(roomCode);
       if (!room) return NextResponse.json({ error: 'Room not found' }, { status: 404 });
       return NextResponse.json({ success: true, room });
     }
 
     if (status) {
-      const room = updateRoomStatus(roomCode, status as RoomStatus);
+      const room = await updateRoomStatus(roomCode, status as RoomStatus);
       if (!room) return NextResponse.json({ error: 'Room not found' }, { status: 404 });
       return NextResponse.json({ success: true, room });
     }

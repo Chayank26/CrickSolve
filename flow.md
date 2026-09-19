@@ -71,7 +71,7 @@ Welcome to the comprehensive technical documentation for **CrickSolve**. This do
   - Submissions are protected by cryptographic HMAC verification.
 
 ### 1.9 👥 Real-Time Multiplayer Duels & Room Lifecycle Engine
-- **Components & Stores**: [`src/components/MultiplayerLobbyModal.tsx`](file:///Users/chayankbhargava/Projects/CrickSolve/src/components/MultiplayerLobbyModal.tsx), [`src/store/useMultiplayerStore.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/store/useMultiplayerStore.ts), [`src/lib/multiplayer-manager.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/lib/multiplayer-manager.ts), [`src/types/multiplayer.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/types/multiplayer.ts)
+- **Components & Stores**: [`src/components/OpponentHUD.tsx`](file:///Users/chayankbhargava/Projects/CrickSolve/src/components/OpponentHUD.tsx), [`src/components/MultiplayerLobbyModal.tsx`](file:///Users/chayankbhargava/Projects/CrickSolve/src/components/MultiplayerLobbyModal.tsx), [`src/store/useMultiplayerStore.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/store/useMultiplayerStore.ts), [`src/lib/multiplayer-manager.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/lib/multiplayer-manager.ts), [`src/types/multiplayer.ts`](file:///Users/chayankbhargava/Projects/CrickSolve/src/types/multiplayer.ts)
 - **How it works**:
   1. **Room Creation & Code Generation**: Host creates a room via `POST /api/multiplayer/create`, generating a unique 6-character room code (e.g. `3EJFST`) and seeding a secret target player shared across all room participants.
   2. **Lobby Join & Presence**: Guests join via code or 1-click invite link (`?room=CODE`). Supabase Realtime Channel (`cricksolve_room_<CODE>`) subscribes all clients via WebSocket broadcast.
@@ -148,6 +148,20 @@ In standard Wordle clones, the secret answer is stored directly in the browser's
 ---
 
 # 4. Handling 100,000 Concurrent Users: Scaling Blueprint
+
+### 1.10 Phase 1 Multiplayer Room State
+
+Multiplayer room lifecycle operations now pass through `src/lib/multiplayer-room-store.ts` rather than writing directly to a process-local map. When the deployment provides `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`, room records are stored in Upstash Redis with a six-hour TTL. Local development falls back to an expiring in-memory adapter.
+
+The current Phase 1 flow is:
+
+1. The create route requests a unique cryptographically generated six-character room code.
+2. The manager creates a strict 1v1 room record and saves it through the room-store boundary.
+3. The join route loads the room from Redis or the local fallback, validates capacity, updates the participant list, and saves it again.
+4. Room lookup, status changes, and rematches use the same asynchronous repository.
+5. Supabase Realtime continues to deliver browser events, but the room repository is the intended source of persisted room state.
+
+Phase 1 intentionally leaves target secrecy, membership authorization, and server-authoritative guess validation for the next phase. The current API still returns the legacy room shape, including `targetPlayerId`, until those concerns are migrated together.
 
 ### 📊 What Happens Today if 100,000 Users Play at the Same Time?
 1. **Frontend Assets (HTML/CSS/JS)**: ✅ **100% Stable**. Served from Edge CDNs (Vercel Edge Network / Cloudflare). 100,000 requests for the bundle are cached globally at edge nodes near users with 0 load on the origin server.

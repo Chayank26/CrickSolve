@@ -2,12 +2,14 @@
 
 import { useState, useMemo } from 'react';
 import { useGameStore } from '@/store/useGameStore';
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { PLAYERS } from '@/data/players';
 import { getDailyTargetPlayer, evaluatePlayerGuess } from '@/lib/game-engine';
 import { Lightbulb } from 'lucide-react';
 import Fuse from 'fuse.js';
 
 export function PlayerSearch() {
+
   const {
     guesses,
     addGuess,
@@ -18,9 +20,12 @@ export function PlayerSearch() {
     gameMode,
     unlimitedTargetId,
     sessionToken,
+    startTimeMs,
     isHintSelecting,
     startHintSelection,
   } = useGameStore();
+
+  const { room, broadcastGuess, broadcastFinish } = useMultiplayerStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -92,22 +97,51 @@ export function PlayerSearch() {
           }),
         });
         const data = await res.json();
-        if (data.evaluation) {
+        let evalResult = data.evaluation;
+        if (evalResult) {
           addGuess({
-            ...data.evaluation,
+            ...evalResult,
             sessionToken: data.sessionToken,
             victoryToken: data.victoryToken,
             solveTimeMs: data.solveTimeMs,
           });
         } else {
           // Fallback local evaluation
-          const evaluation = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
-          if (evaluation) addGuess(evaluation);
+          evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
+          if (evalResult) addGuess(evalResult);
+        }
+
+        // Broadcast to multiplayer room
+        if (evalResult && room) {
+          broadcastGuess(
+            guesses.length + 1,
+            evalResult.attributeMatches,
+            evalResult.numericMatches,
+            evalResult.isCorrect
+          );
+          if (evalResult.isCorrect) {
+            const solveTime = startTimeMs ? Math.max(0, Date.now() - startTimeMs) : 0;
+            broadcastFinish(guesses.length + 1, solveTime);
+          }
         }
       } catch {
         // Fallback local evaluation
-        const evaluation = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
-        if (evaluation) addGuess(evaluation);
+        const evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
+        if (evalResult) {
+          addGuess(evalResult);
+          if (room) {
+            broadcastGuess(
+              guesses.length + 1,
+              evalResult.attributeMatches,
+              evalResult.numericMatches,
+              evalResult.isCorrect
+            );
+            if (evalResult.isCorrect) {
+              const solveTime = startTimeMs ? Math.max(0, Date.now() - startTimeMs) : 0;
+              broadcastFinish(guesses.length + 1, solveTime);
+            }
+          }
+        }
       } finally {
         setIsSubmitting(false);
         setQuery('');
@@ -115,6 +149,7 @@ export function PlayerSearch() {
       }
     }
   };
+
 
   const isHintAvailable = guesses.length >= 4 && !unlockedHint;
   const currentGuessNum = Math.min(7, guesses.length + 1);

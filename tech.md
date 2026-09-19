@@ -6,6 +6,7 @@ This document lists every technology, library, database, and tool used in the Cr
 
 ## Complete Technology Stack| Technology | Category | Role in Project | Alternative Considered | Justification for Selection |
 | :--- | :--- | :--- | :--- | :--- |
+| **Real-Time Opponent Race HUD (`OpponentHUD.tsx`)** | Real-Time UI Engine | Displays live 1v1 duel scoreboard, attempt counters, and 10-tile mini-Wordle color matrix reflecting opponent guesses in real-time. | **Simple static text counter** | Live visual color matrix creates intense, arcade-like competitive race tension. |
 | **Multiplayer Lobby UI Modal (`MultiplayerLobbyModal.tsx`)** | Multiplayer UI Engine | Provides room creation, 6-letter code entry, 1-click invite link copying (`?room=CODE`), player badge slots, and synchronized 3-2-1 countdown screen. | **Manual page reloads & standalone lobby route** | Seamless in-place modal maintains application context and preserves zero-friction instant play. |
 | **Supabase Realtime WebSockets (`cricksolve_room_<CODE>`)** | Real-Time Networking | Powers live 1v1 multiplayer duels, room subscriptions, presence tracking, and synchronized match countdowns. | **Custom Node.js / Socket.io server on external VPS** | Supabase Realtime is serverless, auto-scaling, and requires zero standalone server infrastructure or maintenance. |
 | **Anti-Cheat Anonymous Broadcast Protocol (`src/types/multiplayer.ts`)** | Security & Networking | Broadcasts guess outcome flags (`country: true`, `role: false`) over WebSocket without transmitting player names or IDs. | **Broadcasting full guessed player object** | Prevents opponents from inspecting DevTools Network tabs to peek at guessed players, preserving game integrity. |
@@ -55,3 +56,16 @@ This document lists every technology, library, database, and tool used in the Cr
 | **Fuse.js** | Search Engine | Lightweight client-side fuzzy searching for player autocomplete dropdown. | **Server-side SQL `LIKE`** | Instant keystroke search with zero network latency, with built-in fuzzy matching for misspelled player names. |
 | **Howler.js** | Audio Engine | Cross-browser Web Audio wrapper for UI sound effects (lock shatter, card flip, victory chime). | **HTML5 `<audio>` Tag** | HTML5 `<audio>` suffers from latency and mobile browser audio unlock restrictions (especially Safari iOS). Howler.js buffers audio Web Audio nodes smoothly. |
 | **Lucide React** | UI Icons | Modern vector icons for locks, hints, trophies, streaks, play controls, and navigation. | **FontAwesome / Heroicons** | Tree-shakeable SVG components designed specifically for React with customizable stroke width and color. |
+
+## Multiplayer Implementation Phases
+
+### Phase 1: Shared Room State Boundary
+
+| Technology | Role in Phase 1 | Current Behavior |
+| :--- | :--- | :--- |
+| **Upstash Redis REST (`@upstash/redis`)** | Shared live room persistence | Stores room records under `cricksolve:multiplayer:room:<CODE>` with a six-hour TTL when `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are configured. |
+| **In-memory room adapter** | Local development fallback | Preserves local development without Redis and applies the same six-hour expiration policy. It is not suitable for multi-instance deployment. |
+| **Supabase Realtime** | Browser event transport | Remains the client-facing broadcast channel for lobby and match events; Redis is the room state source of truth. |
+| **Node `crypto.randomInt`** | Room-code generation | Generates six-character room codes with cryptographic randomness instead of `Math.random()`. |
+
+Phase 1 changes the room manager to asynchronous storage operations and enforces the agreed strict 1v1 capacity. It does not yet remove `targetPlayerId` from API responses or authorize room mutations; those are Phase 2 concerns.
