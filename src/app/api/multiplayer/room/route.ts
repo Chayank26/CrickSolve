@@ -75,6 +75,9 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Invalid action or status' }, { status: 400 });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to update room';
+    if (message === 'ROOM_BUSY') {
+      return NextResponse.json({ error: 'Another room action is being processed. Please retry.' }, { status: 409 });
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

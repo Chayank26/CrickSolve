@@ -214,6 +214,15 @@ This phase improves convergence and removes client-only readiness state. Realtim
 
 The room API is now the authoritative synchronization path. Realtime remains the fast notification path until channel authorization is integrated with the anonymous membership model.
 
+### 1.15 Phase 6 Serialized Mutation Flow
+
+1. A mutable room request identifies its room code and enters the room mutation boundary.
+2. Redis attempts to acquire a short-lived lock with `SET NX`; local development queues the mutation behind any existing same-room operation.
+3. The manager reads the latest room, validates membership and the legal transition, applies the change, increments the revision, and saves the room.
+4. The lock is released only by its owner using a compare-and-delete script.
+5. If another operation currently owns the room lock, the API returns `409 Conflict` so the client can retry without assuming a state change occurred.
+6. Accepted guesses, rematches, readiness changes, joins, and status transitions therefore cannot overwrite each other's participant progress or winner state.
+
 ### 📊 What Happens Today if 100,000 Users Play at the Same Time?
 1. **Frontend Assets (HTML/CSS/JS)**: ✅ **100% Stable**. Served from Edge CDNs (Vercel Edge Network / Cloudflare). 100,000 requests for the bundle are cached globally at edge nodes near users with 0 load on the origin server.
 2. **Search Autocomplete**: ✅ **100% Stable**. Handled entirely client-side by `Fuse.js` in browser memory. 0 server requests are fired during typing.

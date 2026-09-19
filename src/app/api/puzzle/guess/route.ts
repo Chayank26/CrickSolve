@@ -141,6 +141,9 @@ export async function POST(request: Request) {
     });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Server evaluation failed';
+    if (errorMessage === 'ROOM_BUSY') {
+      return NextResponse.json({ error: 'Another room action is being processed. Please retry.' }, { status: 409 });
+    }
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

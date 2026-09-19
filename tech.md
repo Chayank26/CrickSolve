@@ -115,3 +115,14 @@ Supabase Realtime remains an event transport and is not yet an authenticated ser
 | **Server countdown timestamp** | Reconstructable countdown | The room stores `countdownEndsAt`, allowing a client to recover the countdown after a refresh or delayed event. |
 
 This phase makes Redis-backed room state authoritative even though Supabase Realtime remains client-publishable. Polling adds controlled latency and requests, but avoids treating unauthenticated browser broadcasts as facts.
+
+### Phase 6: Serialized Room Mutations
+
+| Technology | Role in Phase 6 | Current Behavior |
+| :--- | :--- | :--- |
+| **Redis `SET NX` lock** | Cross-instance mutation serialization | Redis deployments acquire a five-second per-room lock before reading and writing mutable room state. |
+| **Lua compare-and-delete** | Lock ownership safety | A lock is released only by the request that owns its token. |
+| **Queued in-memory fallback** | Local development serialization | Without Redis, mutations for the same room are queued in process to preserve local correctness. |
+| **HTTP 409 conflict responses** | Client-visible contention handling | Concurrent room actions receive a retryable conflict response instead of being reported as an internal server error. |
+
+Joins, readiness changes, status transitions, rematches, and accepted guesses now share the same per-room mutation boundary. This prevents duplicate attempt numbers and conflicting winner/rematch writes.

@@ -1,7 +1,7 @@
 import { randomInt, randomUUID } from 'crypto';
 import { PLAYERS } from '@/data/players';
 import { MultiplayerRoom, PublicMultiplayerRoom, RoomParticipant, RoomStatus } from '@/types/multiplayer';
-import { getStoredRoom, saveStoredRoom } from '@/lib/multiplayer-room-store';
+import { getStoredRoom, saveStoredRoom, withRoomMutation } from '@/lib/multiplayer-room-store';
 
 function generateRoomCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -11,13 +11,11 @@ function generateRoomCode(): string {
   }
   return result;
 }
-
 export function pickRandomMysteryPlayerId(excludeId?: string): string {
   const pool = PLAYERS.filter((p) => p.id !== excludeId);
   const picked = pool[Math.floor(Math.random() * pool.length)] || PLAYERS[0];
   return picked.id;
 }
-
 export function toPublicRoom(room: MultiplayerRoom): PublicMultiplayerRoom {
   const { targetPlayerId: _targetPlayerId, ...publicRoom } = room;
   return publicRoom;
@@ -66,6 +64,7 @@ export async function joinRoom(
   userId: string,
   nickname: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
+  return withRoomMutation(roomCode, async () => {
   const room = await getStoredRoom(roomCode);
 
   if (!room) {
@@ -101,8 +100,8 @@ export async function joinRoom(
 
   await saveStoredRoom(room);
   return { room };
+  });
 }
-
 export async function recordRoomGuess(
   roomCode: string,
   userId: string,
@@ -110,7 +109,8 @@ export async function recordRoomGuess(
   attributeMatches: NonNullable<RoomParticipant['recentGuessMatches']>['attributeMatches'],
   numericMatches: NonNullable<RoomParticipant['recentGuessMatches']>['numericMatches']
 ): Promise<MultiplayerRoom | null> {
-  const room = await getStoredRoom(roomCode);
+  return withRoomMutation(roomCode, async () => {
+    const room = await getStoredRoom(roomCode);
   if (!room) return null;
 
   const participant = room.participants.find((item) => item.userId === userId);
@@ -140,19 +140,7 @@ export async function recordRoomGuess(
 
   await saveStoredRoom(room);
   return room;
-}
-
-export async function updateRoomStatus(roomCode: string, status: RoomStatus): Promise<MultiplayerRoom | null> {
-  const room = await getStoredRoom(roomCode);
-  if (!room) return null;
-  room.status = status;
-  if (status === 'in_progress') {
-    room.startedAt = Date.now();
-  } else if (status === 'finished') {
-    room.finishedAt = Date.now();
-  }
-  await saveStoredRoom(room);
-  return room;
+  });
 }
 
 export async function updateRoomStatusForUser(
@@ -160,6 +148,7 @@ export async function updateRoomStatusForUser(
   userId: string,
   status: RoomStatus
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
+  return withRoomMutation(roomCode, async () => {
   const room = await getStoredRoom(roomCode);
   if (!room) return { room: null, error: 'Room not found' };
   if (room.hostId !== userId) return { room: null, error: 'Only the host can change room status' };
@@ -178,12 +167,14 @@ export async function updateRoomStatusForUser(
   if (status === 'finished') room.finishedAt = Date.now();
   await saveStoredRoom(room);
   return { room };
+  });
 }
 
 export async function rematchRoomForUser(
   roomCode: string,
   userId: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
+  return withRoomMutation(roomCode, async () => {
   const room = await getStoredRoom(roomCode);
   if (!room) return { room: null, error: 'Room not found' };
   if (!room.participants.some((participant) => participant.userId === userId)) {
@@ -211,12 +202,14 @@ export async function rematchRoomForUser(
 
   await saveStoredRoom(room);
   return { room };
+  });
 }
 
 export async function toggleReadyForUser(
   roomCode: string,
   userId: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
+  return withRoomMutation(roomCode, async () => {
   const room = await getStoredRoom(roomCode);
   if (!room) return { room: null, error: 'Room not found' };
   if (room.status !== 'waiting') return { room: null, error: 'Readiness can only change while waiting' };
@@ -228,29 +221,6 @@ export async function toggleReadyForUser(
   room.revision += 1;
   await saveStoredRoom(room);
   return { room };
-}
-
-export async function rematchRoom(roomCode: string): Promise<MultiplayerRoom | null> {
-  const room = await getStoredRoom(roomCode);
-  if (!room) return null;
-
-  const nextTarget = pickRandomMysteryPlayerId(room.targetPlayerId);
-  room.targetPlayerId = nextTarget;
-  room.status = 'waiting';
-  room.startedAt = undefined;
-  room.finishedAt = undefined;
-  room.winnerUserId = undefined;
-  room.winnerNickname = undefined;
-
-  // Reset participant progress
-  room.participants.forEach((p) => {
-    p.isReady = p.role === 'host';
-    p.guessesCount = 0;
-    p.isSolved = false;
-    p.solveTimeMs = undefined;
-    p.recentGuessMatches = undefined;
   });
-
-  await saveStoredRoom(room);
-  return room;
 }
+

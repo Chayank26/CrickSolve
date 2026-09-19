@@ -24,6 +24,9 @@ export async function POST(request: Request) {
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to join room';
+    if (message === 'ROOM_BUSY') {
+      return NextResponse.json({ error: 'Another room action is being processed. Please retry.' }, { status: 409 });
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -522,6 +522,21 @@ This document logs all key technical and architectural decisions taken during th
 - **Tradeoff:**
   - Active rooms perform a lightweight authenticated fetch every second. This can later be replaced or reduced when trusted channel authorization is available.
 
+## Phase 30: Serialized Room Mutations
+
+### Decision 44: Lock Read-Modify-Write Room Operations
+- **Approach Chosen:**
+  1. Added a five-second Redis `SET NX` lock for each room mutation.
+  2. Added token-checked Lua deletion so one request cannot release another request's lock.
+  3. Queued same-room mutations in the local fallback adapter.
+  4. Wrapped joins, readiness, status changes, rematches, and accepted guesses with the lock.
+  5. Returned HTTP `409 Conflict` when a room is temporarily busy.
+  6. Removed obsolete unguarded mutation helpers.
+- **Why this approach?**
+  - Room state uses a read-modify-write model, so concurrent requests could otherwise overwrite participant progress or accept the same attempt number twice. A short lock preserves the current architecture while making Redis deployments safe across instances.
+- **Tradeoff:**
+  - Requests can briefly receive a retryable conflict during contention. A later atomic Redis script could reduce this retry surface further.
+
 
 
 
