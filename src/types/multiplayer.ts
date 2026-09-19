@@ -34,6 +34,8 @@ export interface MultiplayerRoom {
   finishedAt?: number;
   winnerUserId?: string;
   winnerNickname?: string;
+  reveal?: MultiplayerReveal;
+  countdownEndsAt?: number;
 }
 
 export type PublicMultiplayerRoom = Omit<MultiplayerRoom, 'targetPlayerId'>;

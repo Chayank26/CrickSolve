@@ -37,11 +37,15 @@ interface MultiplayerState {
     tries: number;
     solveTimeMs: number;
   } | null;
+  syncTimer: ReturnType<typeof setInterval> | null;
 
   // Actions
   setNickname: (name: string) => void;
   setReveal: (reveal: MultiplayerReveal | null) => void;
   setRoomSnapshot: (room: PublicMultiplayerRoom) => void;
+  syncRoomSnapshot: () => Promise<void>;
+  startRoomSync: () => void;
+  stopRoomSync: () => void;
   createRoom: (hostName?: string) => Promise<boolean>;
   joinRoom: (roomCode: string, guestName?: string) => Promise<boolean>;
   toggleReady: () => void;
@@ -86,6 +90,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   countdown: null,
   isMatchActive: false,
   matchWinner: null,
+  syncTimer: null,
 
   setNickname: (name) => {
     const clean = name.trim() || 'Cricketer';
@@ -93,7 +98,60 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   setReveal: (reveal) => set({ reveal }),
-  setRoomSnapshot: (room) => set({ room }),
+  setRoomSnapshot: (room) => set((state) => ({
+    room,
+    reveal: room.reveal || (room.status === 'waiting' ? null : state.reveal),
+  })),
+
+  syncRoomSnapshot: async () => {
+    const { room, userId, membershipToken } = get();
+    if (!room || !membershipToken) return;
+
+    try {
+      const params = new URLSearchParams({
+        code: room.roomCode,
+        userId,
+        membershipToken,
+      });
+      const response = await fetch(`/api/multiplayer/room?${params.toString()}`);
+      const data = await response.json();
+      if (!response.ok || !data.room) return;
+
+      const serverRoom = data.room as PublicMultiplayerRoom;
+      const currentRoom = get().room;
+      if (!currentRoom || serverRoom.roomCode !== currentRoom.roomCode || serverRoom.roundId !== currentRoom.roundId) {
+        set({ room: serverRoom, reveal: serverRoom.reveal || null });
+      } else if (serverRoom.revision >= currentRoom.revision) {
+        set({
+          room: serverRoom,
+          reveal: serverRoom.reveal || (serverRoom.status === 'waiting' ? null : get().reveal),
+        });
+      }
+
+      const activeRoom = get().room;
+      if (activeRoom?.status === 'countdown' && activeRoom.countdownEndsAt && get().countdown === null) {
+        const remainingSeconds = Math.max(1, Math.ceil((activeRoom.countdownEndsAt - Date.now()) / 1000));
+        get()._runCountdown(remainingSeconds);
+      }
+    } catch {
+      // Realtime remains available while a transient reconciliation request fails.
+    }
+  },
+
+  startRoomSync: () => {
+    if (get().syncTimer) return;
+    void get().syncRoomSnapshot();
+    const syncTimer = setInterval(() => {
+      void get().syncRoomSnapshot();
+    }, 1000);
+    set({ syncTimer });
+  },
+
+  stopRoomSync: () => {
+    const { syncTimer } = get();
+    if (syncTimer) clearInterval(syncTimer);
+    set({ syncTimer: null });
+  },
 
   createRoom: async (hostName) => {
     const { userId, nickname } = get();
@@ -346,6 +404,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   leaveRoom: () => {
+    get().stopRoomSync();
     get().cleanupChannel();
     set({
       room: null,
@@ -405,81 +464,20 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     });
 
     channel
-      .on('broadcast', { event: 'MATCH_COUNTDOWN' }, ({ payload }: { payload: RealtimeCountdownPayload }) => {
-        const { room } = get();
-        if (!room || payload.roomCode !== room.roomCode || payload.roundId !== room.roundId || payload.revision < room.revision) return;
-        get()._runCountdown(payload.countdownSeconds || 3);
+      .on('broadcast', { event: 'MATCH_COUNTDOWN' }, () => {
+        void get().syncRoomSnapshot();
       })
-      .on('broadcast', { event: 'OPPONENT_GUESS' }, ({ payload }: { payload: RealtimeOpponentGuessPayload }) => {
-        const { room } = get();
-        if (!room || payload.roomCode !== room.roomCode || payload.roundId !== room.roundId || payload.revision <= room.revision) return;
-
-        const updatedParticipants = room.participants.map((p) =>
-          p.userId === payload.userId
-            ? {
-                ...p,
-                guessesCount: payload.guessNumber,
-                isSolved: payload.isCorrect,
-                recentGuessMatches: {
-                  attributeMatches: payload.attributeMatches,
-                  numericMatches: payload.numericMatches,
-                },
-              }
-            : p
-        );
-
-        set({ room: { ...room, participants: updatedParticipants, revision: payload.revision } });
+      .on('broadcast', { event: 'OPPONENT_GUESS' }, () => {
+        void get().syncRoomSnapshot();
       })
-      .on('broadcast', { event: 'ROOM_UPDATED' }, ({ payload }: { payload: RealtimeRoomUpdatePayload }) => {
-        const { room } = get();
-        if (!room || payload.roomCode !== room.roomCode || payload.roundId !== room.roundId || payload.revision <= room.revision) return;
-        set({ room: payload.room });
+      .on('broadcast', { event: 'ROOM_UPDATED' }, () => {
+        void get().syncRoomSnapshot();
       })
-      .on('broadcast', { event: 'MATCH_FINISH' }, ({ payload }: { payload: RealtimeMatchFinishPayload }) => {
-        const { room } = get();
-        if (!room || payload.roomCode !== room.roomCode || payload.roundId !== room.roundId || payload.revision < room.revision) return;
-        set({
-          matchWinner: payload,
-          reveal: payload.reveal || null,
-          isMatchActive: false,
-          room: room
-            ? {
-                ...room,
-                status: 'finished',
-                revision: payload.revision,
-                winnerUserId: payload.winnerUserId,
-                winnerNickname: payload.winnerNickname,
-              }
-            : null,
-        });
+      .on('broadcast', { event: 'MATCH_FINISH' }, () => {
+        void get().syncRoomSnapshot();
       })
-      .on('broadcast', { event: 'REMATCH' }, ({ payload }: { payload: RealtimeRematchPayload }) => {
-        const { room } = get();
-        if (room && payload.roomCode === room.roomCode && payload.revision > room.revision) {
-          const resetParticipants = room.participants.map((p) => ({
-            ...p,
-            isReady: p.role === 'host',
-            guessesCount: 0,
-            isSolved: false,
-            solveTimeMs: undefined,
-            recentGuessMatches: undefined,
-          }));
-
-          set({
-            room: {
-              ...room,
-              roundId: payload.roundId,
-              revision: payload.revision,
-              status: 'waiting',
-              participants: resetParticipants,
-              winnerUserId: undefined,
-              winnerNickname: undefined,
-            },
-            countdown: null,
-            isMatchActive: false,
-            matchWinner: null,
-          });
-        }
+      .on('broadcast', { event: 'REMATCH' }, () => {
+        void get().syncRoomSnapshot();
       })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
@@ -488,5 +486,6 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       });
 
     set({ channel });
+    get().startRoomSync();
   },
 }));

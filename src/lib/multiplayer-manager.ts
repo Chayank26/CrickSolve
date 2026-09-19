@@ -121,10 +121,21 @@ export async function recordRoomGuess(
   participant.recentGuessMatches = { attributeMatches, numericMatches };
   room.revision += 1;
   if (isSolved && !room.winnerUserId) {
+    const targetPlayer = PLAYERS.find((player) => player.id === room.targetPlayerId);
     room.winnerUserId = userId;
     room.winnerNickname = participant.nickname;
     room.status = 'finished';
     room.finishedAt = Date.now();
+    room.countdownEndsAt = undefined;
+    if (targetPlayer) {
+      room.reveal = {
+        id: targetPlayer.id,
+        name: targetPlayer.name,
+        country: targetPlayer.country,
+        role: targetPlayer.role,
+        photoUrl: targetPlayer.photoUrl,
+      };
+    }
   }
 
   await saveStoredRoom(room);
@@ -161,6 +172,8 @@ export async function updateRoomStatusForUser(
 
   room.status = status;
   room.revision += 1;
+  if (status === 'countdown') room.countdownEndsAt = Date.now() + 3000;
+  if (status === 'in_progress' || status === 'finished') room.countdownEndsAt = undefined;
   if (status === 'in_progress') room.startedAt = Date.now();
   if (status === 'finished') room.finishedAt = Date.now();
   await saveStoredRoom(room);
@@ -181,6 +194,8 @@ export async function rematchRoomForUser(
   room.roundId = randomUUID();
   room.revision += 1;
   room.status = 'waiting';
+  room.reveal = undefined;
+  room.countdownEndsAt = undefined;
   room.startedAt = undefined;
   room.finishedAt = undefined;
   room.winnerUserId = undefined;

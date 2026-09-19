@@ -202,6 +202,18 @@ The searchable player dataset is still client-visible by product choice. This ph
 
 This phase improves convergence and removes client-only readiness state. Realtime channel authorization is still required before broadcasts can be treated as fully trusted server-origin events.
 
+### 1.14 Phase 5 Authoritative Reconciliation Flow
+
+1. After joining a room, the client starts an authenticated room snapshot loop at one-second intervals.
+2. Supabase broadcast events no longer mutate room state directly; each event triggers an immediate authenticated snapshot request.
+3. The server returns the latest public room revision, participant progress, readiness, status, and any terminal reveal.
+4. The client applies only snapshots for the current room and a current-or-newer revision.
+5. If the room is in countdown and includes `countdownEndsAt`, the client reconstructs the remaining countdown locally.
+6. If a player wins, the server stores the safe reveal in the room so the opponent can recover it after reconnecting or missing the original event.
+7. A rematch rotates the round ID and clears the previous reveal before the next snapshot is published.
+
+The room API is now the authoritative synchronization path. Realtime remains the fast notification path until channel authorization is integrated with the anonymous membership model.
+
 ### 📊 What Happens Today if 100,000 Users Play at the Same Time?
 1. **Frontend Assets (HTML/CSS/JS)**: ✅ **100% Stable**. Served from Edge CDNs (Vercel Edge Network / Cloudflare). 100,000 requests for the bundle are cached globally at edge nodes near users with 0 load on the origin server.
 2. **Search Autocomplete**: ✅ **100% Stable**. Handled entirely client-side by `Fuse.js` in browser memory. 0 server requests are fired during typing.

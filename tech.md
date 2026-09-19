@@ -104,3 +104,14 @@ The general client player search dataset remains public by the current product d
 | **Realtime event envelopes** | Transport consistency | Countdown, room update, guess, finish, and rematch events carry room code, round ID, and revision metadata. |
 
 Supabase Realtime remains an event transport and is not yet an authenticated server-origin channel. Later hardening should configure channel authorization or route authoritative event publication through a trusted server process.
+
+### Phase 5: Authoritative Reconciliation
+
+| Technology | Role in Phase 5 | Current Behavior |
+| :--- | :--- | :--- |
+| **Authenticated room polling** | Reconnect and consistency layer | Each active client reconciles its room through the signed room API every second. |
+| **Realtime event triggers** | Low-latency wake-up | Broadcast events trigger an immediate room fetch but are not applied directly to client state. |
+| **Persisted terminal reveal** | Reconnect-safe result state | The server stores the safe reveal in the room after the first accepted win; both clients receive it from the next room snapshot. |
+| **Server countdown timestamp** | Reconstructable countdown | The room stores `countdownEndsAt`, allowing a client to recover the countdown after a refresh or delayed event. |
+
+This phase makes Redis-backed room state authoritative even though Supabase Realtime remains client-publishable. Polling adds controlled latency and requests, but avoids treating unauthenticated browser broadcasts as facts.

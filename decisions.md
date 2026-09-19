@@ -508,6 +508,20 @@ This document logs all key technical and architectural decisions taken during th
 - **Remaining limitation:**
   - Supabase broadcast events are still client-publishable in the current configuration. Channel authorization or trusted server-origin publication remains a later security phase.
 
+## Phase 29: Authoritative Reconciliation
+
+### Decision 43: Treat Realtime as a Sync Trigger, Not the Source of Truth
+- **Approach Chosen:**
+  1. Added a signed room snapshot reconciliation loop while a client is in a room.
+  2. Changed realtime handlers to trigger an authenticated room fetch rather than directly applying event payloads.
+  3. Persisted `countdownEndsAt` so clients can reconstruct a countdown after reconnecting.
+  4. Persisted the terminal player reveal in the private room record and exposed it through the safe public projection after the match finishes.
+  5. Cleared stale reveals when a new rematch round begins.
+- **Why this approach?**
+  - Supabase broadcast authorization is not yet connected to the anonymous signed-session system. Server reconciliation prevents forged or stale browser events from becoming durable client state while preserving realtime responsiveness as a trigger.
+- **Tradeoff:**
+  - Active rooms perform a lightweight authenticated fetch every second. This can later be replaced or reduced when trusted channel authorization is available.
+
 
 
 
