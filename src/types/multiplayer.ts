@@ -1,5 +1,7 @@
 import { AttributeMatchResult, NumericMatchResult } from './game';
 
+export const MULTIPLAYER_MAX_GUESSES = 7;
+
 export type RoomStatus = 'waiting' | 'countdown' | 'in_progress' | 'finished';
 
 export type ParticipantRole = 'host' | 'guest';
@@ -26,6 +28,7 @@ export interface MultiplayerRoom {
   hostName: string;
   status: RoomStatus;
   targetPlayerId: string;
+  guessedPlayerIdsByUser?: Record<string, string[]>;
   participants: RoomParticipant[];
   createdAt: number;
   roundId: string;
@@ -36,9 +39,10 @@ export interface MultiplayerRoom {
   winnerNickname?: string;
   reveal?: MultiplayerReveal;
   countdownEndsAt?: number;
+  finishReason?: 'solved' | 'exhausted';
 }
 
-export type PublicMultiplayerRoom = Omit<MultiplayerRoom, 'targetPlayerId'>;
+export type PublicMultiplayerRoom = Omit<MultiplayerRoom, 'targetPlayerId' | 'guessedPlayerIdsByUser'>;
 
 export interface MultiplayerReveal {
   id: string;

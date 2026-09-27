@@ -1,6 +1,8 @@
 import { randomInt, randomUUID } from 'crypto';
+import { evaluatePlayerGuess } from '@/lib/game-engine';
+import { verifyMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { PLAYERS } from '@/data/players';
-import { MultiplayerRoom, PublicMultiplayerRoom, RoomParticipant, RoomStatus } from '@/types/multiplayer';
+import { MultiplayerRoom, PublicMultiplayerRoom, RoomParticipant, RoomStatus, MULTIPLAYER_MAX_GUESSES } from '@/types/multiplayer';
 import { getStoredRoom, saveStoredRoom, withRoomMutation } from '@/lib/multiplayer-room-store';
 
 function generateRoomCode(): string {
@@ -17,8 +19,13 @@ export function pickRandomMysteryPlayerId(excludeId?: string): string {
   return picked.id;
 }
 export function toPublicRoom(room: MultiplayerRoom): PublicMultiplayerRoom {
-  const { targetPlayerId: _targetPlayerId, ...publicRoom } = room;
-  return publicRoom;
+  return {
+    id: room.id, roomCode: room.roomCode, hostId: room.hostId, hostName: room.hostName,
+    status: room.status, participants: room.participants, createdAt: room.createdAt,
+    roundId: room.roundId, revision: room.revision, startedAt: room.startedAt,
+    finishedAt: room.finishedAt, winnerUserId: room.winnerUserId, winnerNickname: room.winnerNickname,
+    reveal: room.reveal, countdownEndsAt: room.countdownEndsAt, finishReason: room.finishReason,
+  };
 }
 
 export async function createRoom(hostId: string, hostName: string): Promise<MultiplayerRoom> {
@@ -64,163 +71,203 @@ export async function joinRoom(
   userId: string,
   nickname: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
-  return withRoomMutation(roomCode, async () => {
-  const room = await getStoredRoom(roomCode);
+  return withRoomMutation(roomCode, async (save) => {
+    const room = await getStoredRoom(roomCode);
 
-  if (!room) {
-    return { room: null, error: 'Room not found. Please verify the 6-character room code.' };
-  }
-
-  if (room.status === 'in_progress' && !room.participants.some((p) => p.userId === userId)) {
-    return { room: null, error: 'Match is already in progress.' };
-  }
-
-  const existingIdx = room.participants.findIndex((p) => p.userId === userId);
-  if (existingIdx >= 0) {
-    // Update existing participant
-    room.participants[existingIdx].nickname = nickname || room.participants[existingIdx].nickname;
-    room.participants[existingIdx].connectedAt = Date.now();
-  } else {
-    // Multiplayer rooms are currently strict 1v1 matches.
-    if (room.participants.length >= 2) {
-      return { room: null, error: 'This 1v1 room is already full.' };
+    if (!room) {
+      return { room: null, error: 'Room not found. Please verify the 6-character room code.' };
     }
 
-    const guestParticipant: RoomParticipant = {
-      userId,
-      nickname: nickname || `Guest ${room.participants.length + 1}`,
-      role: 'guest',
-      isReady: false,
-      guessesCount: 0,
-      isSolved: false,
-      connectedAt: Date.now(),
-    };
-    room.participants.push(guestParticipant);
-  }
+    if (room.status === 'in_progress' && !room.participants.some((p) => p.userId === userId)) {
+      return { room: null, error: 'Match is already in progress.' };
+    }
 
-  await saveStoredRoom(room);
-  return { room };
+    const existingIdx = room.participants.findIndex((p) => p.userId === userId);
+    if (existingIdx >= 0) {
+      // Update existing participant
+      room.participants[existingIdx].nickname = nickname || room.participants[existingIdx].nickname;
+      room.participants[existingIdx].connectedAt = Date.now();
+    } else {
+      // Multiplayer rooms are currently strict 1v1 matches.
+      if (room.participants.length >= 2) {
+        return { room: null, error: 'This 1v1 room is already full.' };
+      }
+
+      const guestParticipant: RoomParticipant = {
+        userId,
+        nickname: nickname || `Guest ${room.participants.length + 1}`,
+        role: 'guest',
+        isReady: false,
+        guessesCount: 0,
+        isSolved: false,
+        connectedAt: Date.now(),
+      };
+      room.participants.push(guestParticipant);
+    }
+
+    room.revision += 1;
+    await save(room);
+    return { room };
   });
 }
-export async function recordRoomGuess(
-  roomCode: string,
-  userId: string,
-  isSolved: boolean,
-  attributeMatches: NonNullable<RoomParticipant['recentGuessMatches']>['attributeMatches'],
-  numericMatches: NonNullable<RoomParticipant['recentGuessMatches']>['numericMatches']
-): Promise<MultiplayerRoom | null> {
-  return withRoomMutation(roomCode, async () => {
-    const room = await getStoredRoom(roomCode);
-  if (!room) return null;
+export class RoomActionError extends Error {
+  constructor(message: string, public status: number = 409) { super(message); }
+}
 
-  const participant = room.participants.find((item) => item.userId === userId);
-  if (!participant) return null;
-
-  participant.guessesCount += 1;
-  participant.isSolved = isSolved;
-  participant.recentGuessMatches = { attributeMatches, numericMatches };
-  room.revision += 1;
-  if (isSolved && !room.winnerUserId) {
-    const targetPlayer = PLAYERS.find((player) => player.id === room.targetPlayerId);
-    room.winnerUserId = userId;
-    room.winnerNickname = participant.nickname;
-    room.status = 'finished';
-    room.finishedAt = Date.now();
-    room.countdownEndsAt = undefined;
-    if (targetPlayer) {
-      room.reveal = {
-        id: targetPlayer.id,
-        name: targetPlayer.name,
-        country: targetPlayer.country,
-        role: targetPlayer.role,
-        photoUrl: targetPlayer.photoUrl,
-      };
-    }
+async function requireRound(roomCode: string, userId: string, roundId: string, membershipToken: string) {
+  if (!verifyMultiplayerMembershipToken(membershipToken, roomCode, userId)) {
+    throw new RoomActionError('Valid room membership is required', 401);
   }
-
-  await saveStoredRoom(room);
+  const room = await getStoredRoom(roomCode);
+  if (!room) throw new RoomActionError('Room not found', 404);
+  if (room.roundId !== roundId) throw new RoomActionError('This round has ended. Sync the room and try again.');
+  if (!room.participants.some((participant) => participant.userId === userId)) {
+    throw new RoomActionError('You are not a member of this room', 403);
+  }
   return room;
+}
+
+export async function submitRoomGuess(input: {
+  roomCode: string; userId: string; roundId: string; membershipToken: string;
+  guessedPlayerId: string; attemptNumber: number;
+}) {
+  const { roomCode, userId, roundId, membershipToken, guessedPlayerId, attemptNumber } = input;
+  return withRoomMutation(roomCode, async (save) => {
+    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    if (room.status !== 'in_progress' || room.startedAt === undefined) throw new RoomActionError('The match is not active');
+    const participant = room.participants.find((item) => item.userId === userId)!;
+    if (participant.isSolved || participant.guessesCount >= MULTIPLAYER_MAX_GUESSES) {
+      throw new RoomActionError('You have no guesses remaining');
+    }
+    if (!Number.isInteger(attemptNumber) || attemptNumber !== participant.guessesCount + 1) {
+      throw new RoomActionError('Invalid attempt number. Sync the room before retrying.');
+    }
+    const previousGuesses = room.guessedPlayerIdsByUser?.[userId] || [];
+    if (previousGuesses.includes(guessedPlayerId)) throw new RoomActionError('You already guessed this player');
+    const evaluation = evaluatePlayerGuess(guessedPlayerId, room.targetPlayerId, attemptNumber);
+    const target = PLAYERS.find((player) => player.id === room.targetPlayerId);
+    if (!evaluation || !target) throw new RoomActionError('Invalid player ID', 400);
+    evaluation.revealedAttributes = {
+      country: evaluation.attributeMatches.country ? target.country : undefined,
+      battingHand: evaluation.attributeMatches.battingHand ? target.battingHand : undefined,
+      bowlingType: evaluation.attributeMatches.bowlingType ? target.bowlingType : undefined,
+      role: evaluation.attributeMatches.role ? target.role : undefined,
+      iplTeam: evaluation.attributeMatches.iplTeam ? target.iplTeam : undefined,
+      retired: evaluation.attributeMatches.retired ? (target.retired ? 'YES' : 'NO') : undefined,
+    };
+    room.guessedPlayerIdsByUser = { ...room.guessedPlayerIdsByUser, [userId]: [...previousGuesses, guessedPlayerId] };
+    participant.guessesCount = attemptNumber;
+    participant.isSolved = evaluation.isCorrect;
+    participant.recentGuessMatches = { attributeMatches: evaluation.attributeMatches, numericMatches: evaluation.numericMatches };
+    room.revision += 1;
+    const now = Date.now();
+    if (evaluation.isCorrect) {
+      participant.solveTimeMs = Math.max(0, now - room.startedAt);
+      room.winnerUserId = userId;
+      room.winnerNickname = participant.nickname;
+      room.finishReason = 'solved';
+    } else if (room.participants.every((player) => player.guessesCount >= MULTIPLAYER_MAX_GUESSES)) {
+      room.finishReason = 'exhausted';
+    }
+    if (room.finishReason) {
+      room.status = 'finished';
+      room.finishedAt = now;
+      room.countdownEndsAt = undefined;
+      room.reveal = { id: target.id, name: target.name, country: target.country, role: target.role, photoUrl: target.photoUrl };
+    }
+    await save(room);
+    return { room, evaluation, solveTimeMs: participant.solveTimeMs };
   });
 }
 
 export async function updateRoomStatusForUser(
   roomCode: string,
   userId: string,
-  status: RoomStatus
+  status: RoomStatus,
+  roundId: string,
+  membershipToken: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
-  return withRoomMutation(roomCode, async () => {
-  const room = await getStoredRoom(roomCode);
-  if (!room) return { room: null, error: 'Room not found' };
-  if (room.hostId !== userId) return { room: null, error: 'Only the host can change room status' };
-  if (status === 'in_progress' && (room.participants.length !== 2 || !room.participants.every((participant) => participant.isReady))) {
-    return { room: null, error: 'Both players must be ready before the match starts' };
-  }
-  if (status === 'countdown' && room.status !== 'waiting') {
-    return { room: null, error: 'The room is not waiting to start' };
-  }
-
-  room.status = status;
-  room.revision += 1;
-  if (status === 'countdown') room.countdownEndsAt = Date.now() + 3000;
-  if (status === 'in_progress' || status === 'finished') room.countdownEndsAt = undefined;
-  if (status === 'in_progress') room.startedAt = Date.now();
-  if (status === 'finished') room.finishedAt = Date.now();
-  await saveStoredRoom(room);
-  return { room };
+  return withRoomMutation(roomCode, async (save) => {
+    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    if (room.hostId !== userId) return { room: null, error: 'Only the host can change room status' };
+    if (status !== 'countdown' && status !== 'in_progress') throw new RoomActionError('Invalid room status', 400);
+    if (room.participants.length !== 2 || !room.participants.every((participant) => participant.isReady)) {
+      throw new RoomActionError('Both players must be ready before the match starts');
+    }
+    // Retrying an already accepted transition must not restart the countdown or timer.
+    if (room.status === status) return { room };
+    if (status === 'countdown') {
+      if (room.status !== 'waiting') throw new RoomActionError('The room is not waiting to start');
+      room.countdownEndsAt = Date.now() + 3000;
+    } else {
+      if (room.status !== 'countdown' || room.countdownEndsAt === undefined) throw new RoomActionError('Countdown has not started');
+      if (Date.now() < room.countdownEndsAt) throw new RoomActionError('Countdown is still running');
+      room.startedAt = room.countdownEndsAt;
+      room.countdownEndsAt = undefined;
+    }
+    room.status = status;
+    room.revision += 1;
+    await save(room);
+    return { room };
   });
 }
 
 export async function rematchRoomForUser(
   roomCode: string,
-  userId: string
+  userId: string,
+  roundId: string,
+  membershipToken: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
-  return withRoomMutation(roomCode, async () => {
-  const room = await getStoredRoom(roomCode);
-  if (!room) return { room: null, error: 'Room not found' };
-  if (!room.participants.some((participant) => participant.userId === userId)) {
-    return { room: null, error: 'You are not a member of this room' };
-  }
+  return withRoomMutation(roomCode, async (save) => {
+    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    if (!room.participants.some((participant) => participant.userId === userId)) {
+      return { room: null, error: 'You are not a member of this room' };
+    }
 
-  room.targetPlayerId = pickRandomMysteryPlayerId(room.targetPlayerId);
-  room.roundId = randomUUID();
-  room.revision += 1;
-  room.status = 'waiting';
-  room.reveal = undefined;
-  room.countdownEndsAt = undefined;
-  room.startedAt = undefined;
-  room.finishedAt = undefined;
-  room.winnerUserId = undefined;
-  room.winnerNickname = undefined;
+    if (room.status !== 'finished') throw new RoomActionError('Only finished matches can be reset');
+    room.finishReason = undefined;
+    room.guessedPlayerIdsByUser = {};
+    room.targetPlayerId = pickRandomMysteryPlayerId(room.targetPlayerId);
+    room.roundId = randomUUID();
+    room.revision += 1;
+    room.status = 'waiting';
+    room.reveal = undefined;
+    room.countdownEndsAt = undefined;
+    room.startedAt = undefined;
+    room.finishedAt = undefined;
+    room.winnerUserId = undefined;
+    room.winnerNickname = undefined;
 
-  room.participants.forEach((participant) => {
-    participant.isReady = participant.role === 'host';
-    participant.guessesCount = 0;
-    participant.isSolved = false;
-    participant.solveTimeMs = undefined;
-    participant.recentGuessMatches = undefined;
-  });
+    room.participants.forEach((participant) => {
+      participant.isReady = participant.role === 'host';
+      participant.guessesCount = 0;
+      participant.isSolved = false;
+      participant.solveTimeMs = undefined;
+      participant.recentGuessMatches = undefined;
+    });
 
-  await saveStoredRoom(room);
-  return { room };
+    await save(room);
+    return { room };
   });
 }
 
 export async function toggleReadyForUser(
   roomCode: string,
-  userId: string
+  userId: string,
+  roundId: string,
+  membershipToken: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
-  return withRoomMutation(roomCode, async () => {
-  const room = await getStoredRoom(roomCode);
-  if (!room) return { room: null, error: 'Room not found' };
-  if (room.status !== 'waiting') return { room: null, error: 'Readiness can only change while waiting' };
+  return withRoomMutation(roomCode, async (save) => {
+    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    if (room.status !== 'waiting') return { room: null, error: 'Readiness can only change while waiting' };
 
-  const participant = room.participants.find((item) => item.userId === userId);
-  if (!participant) return { room: null, error: 'You are not a member of this room' };
+    const participant = room.participants.find((item) => item.userId === userId);
+    if (!participant) return { room: null, error: 'You are not a member of this room' };
 
-  participant.isReady = !participant.isReady;
-  room.revision += 1;
-  await saveStoredRoom(room);
-  return { room };
+    participant.isReady = !participant.isReady;
+    room.revision += 1;
+    await save(room);
+    return { room };
   });
 }
 

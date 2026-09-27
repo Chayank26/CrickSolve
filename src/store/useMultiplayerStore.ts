@@ -177,7 +177,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     try {
       const response = await fetch('/api/multiplayer/room', {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...body, roomCode: room.roomCode, userId, membershipToken }),
+        body: JSON.stringify({ ...body, roomCode: room.roomCode, roundId: room.roundId, userId, membershipToken }),
       });
       const data = await response.json();
       if (!isCurrent()) return;

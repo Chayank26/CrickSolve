@@ -99,6 +99,8 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
                   : `${matchWinner.winnerNickname} WON THE DUEL!`}
               </span>
             </span>
+          ) : room.status === 'finished' ? (
+            <span className="text-[#CCFF00]">NO ONE SOLVED IT — ROUND FINISHED</span>
           ) : isMatchActive || room.status === 'in_progress' ? (
             <span className="text-[#CCFF00] flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#CCFF00] animate-ping" />

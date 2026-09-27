@@ -1,3 +1,4 @@
+import { MULTIPLAYER_MAX_GUESSES } from '@/types/multiplayer';
 import { PLAYERS } from '@/data/players';
 import { GuessEvaluation, PlayerCategory } from '@/types/game';
 import { getDailyTargetPlayer } from '@/lib/game-engine';
@@ -53,7 +54,7 @@ interface GameState {
   // Actions
   setGameMode: (mode: GameMode) => void;
   setCategory: (category: PlayerCategory) => void;
-  addGuess: (evaluation: GuessEvaluation) => void;
+  addGuess: (evaluation: GuessEvaluation, multiplayer?: boolean) => void;
   setNickname: (name: string) => void;
   setUserRank: (rank: number | null) => void;
   setSessionToken: (token: string | null) => void;
@@ -170,7 +171,7 @@ export const useGameStore = create<GameState>()(
         });
       },
 
-      addGuess: (evaluation) => {
+      addGuess: (evaluation, multiplayer = false) => {
         const { guesses, gameStatus, streak, maxStreak, gamesPlayed, gamesWon, startTimeMs, lastSolvedDate, currentDate, bonusChanceTaken, sessionToken, victoryToken } = get();
         if (gameStatus !== 'IN_PROGRESS') return;
 
@@ -178,6 +179,20 @@ export const useGameStore = create<GameState>()(
         const start = startTimeMs || now;
 
         const updatedGuesses = [...guesses, evaluation];
+
+        // Multiplayer has a hard seven-attempt cap and never enters solo bonus/stat logic.
+        if (multiplayer) {
+          if (guesses.length >= MULTIPLAYER_MAX_GUESSES) return;
+          set({
+            guesses: updatedGuesses,
+            gameStatus: evaluation.isCorrect ? 'WON' : updatedGuesses.length >= MULTIPLAYER_MAX_GUESSES ? 'LOST' : 'IN_PROGRESS',
+            startTimeMs: start,
+            endTimeMs: evaluation.isCorrect || updatedGuesses.length >= MULTIPLAYER_MAX_GUESSES ? now : null,
+            bonusChanceTaken: false,
+          });
+          return;
+        }
+
 
         let newStatus: GameStatus = 'IN_PROGRESS';
         let newStreak = streak;

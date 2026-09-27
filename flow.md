@@ -485,3 +485,17 @@ This section supersedes older descriptions of optimistic client match transition
 8. Leaving cancels local polling and countdown timers. Server-side departure/reconnect policy remains deferred.
 
 Confirmed future gameplay contract: seven guesses, a daily-style hint bonus after guess four, and no eighth attempt. Phase 1 still uses the solo game store internally, so bonus/attempt handling and stats isolation remain unfinished until the relevant phases.
+
+## Multiplayer Completion Phase 2 — Atomic Guess and Transition Flow
+
+1. The browser sends room code, membership token, user ID, current round ID, guessed player ID and next attempt number.
+2. The server acquires the room lock, verifies membership and reads the latest room. It rejects stale rounds, inactive matches, exhausted participants, out-of-sequence attempts and duplicate player guesses.
+3. The server evaluates against its private target, records the attempt and matching tiles, and increments the revision.
+4. A correct guess finishes the round and records the sole winner and server-derived solve time. Seven incorrect guesses exhaust that participant. Both participants exhausting seven guesses finishes the round without a winner.
+5. The commit verifies the Redis lock is still owned before writing. A lost lease yields a retryable conflict; no stale write is applied.
+6. The API returns the evaluation and public room snapshot. Target identity is revealed only once the round finishes. Private guessed-player history never enters room snapshots.
+7. The client applies multiplayer guesses without solo bonus-attempt or stats logic. Exhausted players cannot submit again; the opponent can continue. Terminal snapshots still open shared results.
+
+Transitions: waiting → countdown (host, two ready players) → in_progress (host, deadline reached) → finished (accepted win or both exhausted). Existing reset requests require finished status and the expected round. They do not establish a new rematch-consent policy.
+
+All room PATCH requests include the expected round ID. Repeated start transitions are idempotent with respect to timing. Bonus hints after the fourth guess remain Phase 4 work; disconnect/rematch decisions remain deferred.

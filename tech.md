@@ -139,3 +139,16 @@ Joins, readiness changes, status transitions, rematches, and accepted guesses no
 Run: `node --test tests/multiplayer-state.test.mjs`.
 
 Validation: 12 tests pass; TypeScript passes; changed-file lint has zero errors and one existing image warning. Full-project lint still reports 12 errors and 15 warnings. Live two-browser, shared Redis and production-build checks have not been performed in this phase.
+
+## Multiplayer Completion Phase 2 — Atomic Validation and Lease-Safe Writes
+
+- `submitRoomGuess` owns membership/round/attempt checks, private target evaluation, progress updates and finish selection under `withRoomMutation`.
+- `withRoomMutation` passes a commit callback. In Redis mode, Lua compares the lock token and writes the room with its six-hour TTL atomically. Lock expiry rejects the commit. Memory mode queues mutations and returns detached record copies.
+- `MULTIPLAYER_MAX_GUESSES` is seven. Private `guessedPlayerIdsByUser` prevents repeated player guesses and is excluded from `PublicMultiplayerRoom`.
+- `finishReason` distinguishes `solved` from `exhausted`. Exhausted means both players used seven guesses without a solution; it has no winner.
+- Multiplayer requests require `roundId`; mutation handlers reject stale rounds. Host countdown transitions enforce readiness, ordering and the persisted deadline. Timing uses that deadline, not client session tokens.
+- `useGameStore.addGuess` has a multiplayer branch that cannot open the eighth-attempt dialog or increment solo stats. A dedicated multiplayer mode, persistence separation and fourth-guess selectable bonus hint remain later work.
+
+Run all regressions: `node --test tests/*.test.mjs`.
+
+Validation: 26 tests pass; TypeScript passes; changed-file lint has no errors and one existing image warning. Full lint has 12 errors and 14 warnings. The Redis test uses a deterministic fake and does not replace live service verification. Production build and two-browser testing remain outstanding.

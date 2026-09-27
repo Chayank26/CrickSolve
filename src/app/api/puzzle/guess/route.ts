@@ -1,18 +1,19 @@
 import { evaluatePlayerGuess, getDailyTargetPlayer } from '@/lib/game-engine';
-import { PLAYERS } from '@/data/players';
 import {
   createSessionToken,
   createVictoryToken,
-  verifyMultiplayerMembershipToken,
   verifySessionToken,
 } from '@/lib/server-crypto';
-import { getRoom, recordRoomGuess, toPublicRoom } from '@/lib/multiplayer-manager';
+import { submitRoomGuess, RoomActionError, toPublicRoom } from '@/lib/multiplayer-manager';
 import { PlayerCategory } from '@/types/game';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: 'A JSON object is required' }, { status: 400 });
+    }
     const {
       guessedPlayerId,
       date,
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
       mode = 'daily',
       targetPlayerId,
       roomCode,
+      roundId,
       membershipToken,
       attemptNumber = 1,
       sessionToken: clientSessionToken,
@@ -28,6 +30,22 @@ export async function POST(request: Request) {
 
     if (!guessedPlayerId) {
       return NextResponse.json({ error: 'guessedPlayerId is required' }, { status: 400 });
+    }
+
+    if (roomCode !== undefined) {
+      if (typeof roomCode !== 'string' || !roomCode.trim() || typeof userId !== 'string' ||
+          typeof membershipToken !== 'string' || typeof roundId !== 'string' || !roundId ||
+          typeof guessedPlayerId !== 'string' || !Number.isInteger(attemptNumber)) {
+        return NextResponse.json({ error: 'Valid room, round, membership and guess fields are required' }, { status: 400 });
+      }
+      const result = await submitRoomGuess({ roomCode, userId, roundId, membershipToken, guessedPlayerId, attemptNumber });
+      return NextResponse.json({
+        evaluation: result.evaluation,
+        solveTimeMs: result.solveTimeMs,
+        mode: 'multiplayer', attemptNumber,
+        room: toPublicRoom(result.room),
+        multiplayerReveal: result.room.reveal,
+      });
     }
 
     const todayStr = date || new Date().toISOString().split('T')[0];
@@ -45,32 +63,7 @@ export async function POST(request: Request) {
 
     const startTimeMs = session ? session.startTimeMs : Date.now();
 
-    // 2. Resolve multiplayer target and attempt sequence server-side
     let actualTargetId = targetPlayerId;
-    let multiplayerRoomCode: string | null = null;
-    let multiplayerTargetPlayer = null;
-    let updatedRoom = null;
-    if (roomCode) {
-      if (!membershipToken || !verifyMultiplayerMembershipToken(membershipToken, roomCode, userId)) {
-        return NextResponse.json({ error: 'Valid room membership is required' }, { status: 401 });
-      }
-
-      const room = await getRoom(roomCode);
-      const participant = room?.participants.find((item) => item.userId === userId);
-      if (!room || !participant) {
-        return NextResponse.json({ error: 'You are not a member of this room' }, { status: 403 });
-      }
-      if (room.status !== 'in_progress') {
-        return NextResponse.json({ error: 'The match is not active' }, { status: 409 });
-      }
-      if (attemptNumber !== participant.guessesCount + 1) {
-        return NextResponse.json({ error: 'Invalid attempt number' }, { status: 409 });
-      }
-
-      actualTargetId = room.targetPlayerId;
-      multiplayerRoomCode = roomCode;
-      multiplayerTargetPlayer = PLAYERS.find((player) => player.id === actualTargetId) || null;
-    }
 
     if (mode === 'daily' && !roomCode) {
       const targetPlayer = getDailyTargetPlayer(todayStr, cat);
@@ -88,30 +81,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid player ID' }, { status: 404 });
     }
 
-    if (multiplayerRoomCode) {
-      updatedRoom = await recordRoomGuess(
-        multiplayerRoomCode,
-        userId,
-        evaluation.isCorrect,
-        evaluation.attributeMatches,
-        evaluation.numericMatches
-      );
-      if (!updatedRoom) {
-        return NextResponse.json({ error: 'Unable to persist the multiplayer guess' }, { status: 503 });
-      }
-      if (multiplayerTargetPlayer) {
-        evaluation.revealedAttributes = {
-          country: evaluation.attributeMatches.country ? multiplayerTargetPlayer.country : undefined,
-          battingHand: evaluation.attributeMatches.battingHand ? multiplayerTargetPlayer.battingHand : undefined,
-          bowlingType: evaluation.attributeMatches.bowlingType ? multiplayerTargetPlayer.bowlingType : undefined,
-          role: evaluation.attributeMatches.role ? multiplayerTargetPlayer.role : undefined,
-          iplTeam: evaluation.attributeMatches.iplTeam ? multiplayerTargetPlayer.iplTeam : undefined,
-          retired: evaluation.attributeMatches.retired ? (multiplayerTargetPlayer.retired ? 'YES' : 'NO') : undefined,
-        };
-      }
-    }
-
-    // 4. If win, issue encrypted victory token and calculate solve time
+    // 4. If win, issue signed victory token and calculate solve time
     let victoryToken: string | undefined = undefined;
     let solveTimeMs: number | undefined = undefined;
 
@@ -127,19 +97,10 @@ export async function POST(request: Request) {
       solveTimeMs,
       mode,
       attemptNumber,
-      room: multiplayerRoomCode && updatedRoom ? toPublicRoom(updatedRoom) : undefined,
-      multiplayerReveal:
-        multiplayerRoomCode && multiplayerTargetPlayer && evaluation.isCorrect
-          ? {
-              id: multiplayerTargetPlayer.id,
-              name: multiplayerTargetPlayer.name,
-              country: multiplayerTargetPlayer.country,
-              role: multiplayerTargetPlayer.role,
-              photoUrl: multiplayerTargetPlayer.photoUrl,
-            }
-          : undefined,
     });
   } catch (err: unknown) {
+    if (err instanceof RoomActionError) return NextResponse.json({ error: err.message }, { status: err.status });
+    if (err instanceof SyntaxError) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     const errorMessage = err instanceof Error ? err.message : 'Server evaluation failed';
     if (errorMessage === 'ROOM_BUSY') {
       return NextResponse.json({ error: 'Another room action is being processed. Please retry.' }, { status: 409 });

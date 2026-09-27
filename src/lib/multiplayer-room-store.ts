@@ -40,7 +40,7 @@ export async function getStoredRoom(roomCode: string): Promise<MultiplayerRoom |
   }
 
   pruneMemoryRooms();
-  return memoryRooms.get(normalizedCode)?.room || null;
+  return structuredClone(memoryRooms.get(normalizedCode)?.room || null);
 }
 
 export async function saveStoredRoom(room: MultiplayerRoom): Promise<void> {
@@ -53,7 +53,7 @@ export async function saveStoredRoom(room: MultiplayerRoom): Promise<void> {
 
   pruneMemoryRooms();
   memoryRooms.set(normalizedCode, {
-    room,
+    room: structuredClone(room),
     expiresAt: Date.now() + ROOM_TTL_SECONDS * 1000,
   });
 }
@@ -73,7 +73,7 @@ export function isSharedRoomStoreConfigured(): boolean {
   return redis !== null;
 }
 
-export async function withRoomMutation<T>(roomCode: string, mutation: () => Promise<T>): Promise<T> {
+export async function withRoomMutation<T>(roomCode: string, mutation: (save: (room: MultiplayerRoom) => Promise<void>) => Promise<T>): Promise<T> {
   const normalizedCode = normalizeRoomCode(roomCode);
   const lockKey = `${ROOM_KEY_PREFIX}${normalizedCode}:lock`;
 
@@ -86,7 +86,15 @@ export async function withRoomMutation<T>(roomCode: string, mutation: () => Prom
     if (acquired !== 'OK') throw new Error('ROOM_BUSY');
 
     try {
-      return await mutation();
+      return await mutation(async (room) => {
+        if (normalizeRoomCode(room.roomCode) !== normalizedCode) throw new Error('Room lock mismatch');
+        const saved = await redis.eval(
+          "if redis.call('get', KEYS[1]) ~= ARGV[1] then return 0 end redis.call('set', KEYS[2], ARGV[2], 'EX', ARGV[3]) return 1",
+          [lockKey, getRoomKey(normalizedCode)],
+          [lockToken, JSON.stringify(room), ROOM_TTL_SECONDS]
+        );
+        if (saved !== 1) throw new Error('ROOM_BUSY');
+      });
     } finally {
       await redis.eval(
         "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
@@ -106,7 +114,7 @@ export async function withRoomMutation<T>(roomCode: string, mutation: () => Prom
 
   await previous;
   try {
-    return await mutation();
+    return await mutation(saveStoredRoom);
   } finally {
     release();
     if (memoryLocks.get(normalizedCode) === queued) memoryLocks.delete(normalizedCode);

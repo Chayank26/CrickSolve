@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useGameStore } from '@/store/useGameStore';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
+import { MULTIPLAYER_MAX_GUESSES } from '@/types/multiplayer';
 import { PLAYERS } from '@/data/players';
 import { getDailyTargetPlayer, evaluatePlayerGuess } from '@/lib/game-engine';
 import { Lightbulb } from 'lucide-react';
@@ -33,7 +34,8 @@ export function PlayerSearch() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
-  const isGameOver = gameStatus !== 'IN_PROGRESS' || (!!room && room.status !== 'in_progress');
+  const hasNoGuessesLeft = !!room && (room.participants.find((player) => player.userId === userId)?.guessesCount || 0) >= MULTIPLAYER_MAX_GUESSES;
+  const isGameOver = hasNoGuessesLeft || gameStatus !== 'IN_PROGRESS' || (!!room && room.status !== 'in_progress');
 
   // Resolve target player across full player pool
   const todayStr = new Date().toISOString().split('T')[0];
@@ -103,6 +105,7 @@ export function PlayerSearch() {
             mode: gameMode,
             targetPlayerId: targetPlayer.id,
             roomCode: room?.roomCode,
+            roundId: room?.roundId,
             membershipToken,
             userId,
             sessionToken,
@@ -124,7 +127,7 @@ export function PlayerSearch() {
             sessionToken: data.sessionToken,
             victoryToken: data.victoryToken,
             solveTimeMs: data.solveTimeMs,
-          });
+          }, !!room);
         } else if (!room) {
           // Fallback local evaluation
           evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
@@ -185,7 +188,7 @@ export function PlayerSearch() {
               if (e.key === 'Enter') handleGuessSubmit();
             }}
             disabled={isGameOver || isSubmitting}
-            placeholder={isGameOver ? 'GAME FINISHED' : 'Enter Cricketer Name (e.g. Virat Kohli)...'}
+            placeholder={hasNoGuessesLeft && room?.status === 'in_progress' ? 'NO GUESSES LEFT — WAITING FOR OPPONENT' : isGameOver ? 'GAME FINISHED' : 'Enter Cricketer Name (e.g. Virat Kohli)...'}
             className="w-full bg-white text-black font-black placeholder-slate-400 border-3 border-black px-4 py-3.5 text-sm sm:text-base uppercase focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:opacity-70"
           />
 

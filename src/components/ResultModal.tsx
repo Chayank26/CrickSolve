@@ -31,6 +31,7 @@ export function ResultModal() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isDraw = room?.status === 'finished' && room.finishReason === 'exhausted';
   const isWon = room ? room.status === 'finished' && room.winnerUserId === userId : gameStatus === 'WON';
   const isLost = room ? room.status === 'finished' && room.winnerUserId !== userId : gameStatus === 'LOST';
 
@@ -147,12 +148,12 @@ export function ResultModal() {
           )}
 
           <h2 className="text-2xl font-black uppercase tracking-tight text-black">
-            {isWon ? 'SPECTACULAR WIN!' : room ? 'DUEL FINISHED' : 'MYSTERY PLAYER REVEALED'}
+            {isWon ? 'SPECTACULAR WIN!' : isDraw ? 'NO ONE SOLVED IT' : room ? 'DUEL FINISHED' : 'MYSTERY PLAYER REVEALED'}
           </h2>
           <p className="text-xs font-bold text-slate-600">
             {isWon
               ? `You solved the puzzle in ${tries} tries!`
-              : room ? `${matchWinner?.winnerNickname || 'Your opponent'} solved first.` : 'Here is the target cricketer for today.'}
+              : isDraw ? 'Both players used all seven guesses.' : room ? `${matchWinner?.winnerNickname || 'Your opponent'} solved first.` : 'Here is the target cricketer for today.'}
           </p>
         </div>
 

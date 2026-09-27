@@ -44,23 +44,28 @@ Multiplayer is under phased development. Completion Phase 1 stabilizes round ini
 | Completion phase | Scope | Status |
 | --- | --- | --- |
 | 1 | Stable client match state and shared results | Implemented; unit checks pass, live integration pending |
-| 2 | Atomic server validation, round/attempt checks, seven-guess enforcement | Pending approval |
-| 3 | Secure anonymous participant identity and permissions | Planned |
+| 2 | Atomic server validation, round/attempt checks, seven-guess enforcement | Implemented; regression checks pass |
+| 3 | Secure anonymous participant identity and permissions | Pending approval |
 | 4 | Dedicated multiplayer rules/UI, bonus hint after guess four, no eighth attempt, solo-stat isolation | Planned |
 | 5 | Disconnect and recovery | Product decisions deferred |
 | 6 | Rematch lifecycle and result polish | Product decisions deferred |
 | 7 | Integration tests and deployment verification | Planned |
 
-Confirmed rules: **seven guesses**, a **daily-style bonus hint after the fourth guess**, and **no eighth guess**. These are the target rules; Phase 1 does not yet implement the complete attempt/hint contract.
+Confirmed rules: **seven guesses**, a **daily-style bonus hint after the fourth guess**, and **no eighth guess**. Phase 2 enforces the seven-guess cap and removes the multiplayer eighth-attempt flow. The fourth-guess bonus hint remains Phase 4 work.
 
 Each phase ends with updated documentation, a proposed commit message, and user approval before the next phase starts.
 
 Checks:
 
 ```bash
-node --test tests/multiplayer-state.test.mjs
+node --test tests/*.test.mjs
 npx tsc --noEmit --incremental false
 npm run lint
 ```
 
 The store tests isolate network and timer behavior; they do not replace two-browser or Redis integration testing. Existing full-project lint errors remain.
+
+
+Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
+
+Current checks: 26 regression tests and TypeScript pass. Live Redis, two-browser integration and production build verification remain pending. The known anonymous identity reuse issue is scheduled for Phase 3; multiplayer is not release-ready yet.

@@ -584,3 +584,27 @@ This document logs all key technical and architectural decisions taken during th
 - Changed-file lint: no errors, one existing image warning. Full-project lint: 12 errors and 15 warnings remain outside this phase's fixes.
 - Browser-to-browser integration, Redis integration, and production build verification remain outstanding.
 - Server atomic guess validation, membership identity protection, seven-guess enforcement, fourth-guess hint delivery, and separation from solo stats remain subsequent work.
+
+## Multiplayer Completion — Phase 2: Atomic Server Rules (2026-09-27)
+
+### Decision 46: Validate and Commit Each Guess Under One Room Lock
+- Replaced the split route validation / counter mutation with `submitRoomGuess`. Membership, round identity, active status, participant membership, attempt sequence, the seven-guess cap, duplicate-player checks, evaluation and winner selection happen inside the same locked operation.
+- Added private per-user guessed-player IDs to reject repeated players. Public room projections omit this history as well as the target ID.
+- Redis commits check lock ownership in the same Lua operation that writes the room. Expired lock holders fail with `409` instead of overwriting a later mutation. Local storage clones records on reads/writes so rejected operations cannot leak mutations through references.
+- Concurrent correct guesses produce one accepted winner. Multiplayer timing uses the server countdown deadline and accepted completion time; multiplayer responses no longer issue solo leaderboard victory tokens.
+
+### Decision 47: Enforce Round-Scoped Transitions and Seven Attempts
+- Guess and room PATCH requests require `roundId`; the client supplies it automatically.
+- Only a ready two-player room can enter countdown. A host can advance countdown to active after the deadline; direct waiting-to-active, arbitrary status changes and client-declared finishes are rejected.
+- Repeated accepted start requests preserve the original deadline/start timestamp and revision.
+- Existing rematch reset requests are guarded to finished rounds and the expected round ID. This is transition validation only; rematch consent/design and disconnect policy remain deferred.
+- Seven wrong guesses exhaust one player while the opponent may continue. If both exhaust their attempts, the round finishes without a winner and reveals the target. This is the initial no-winner outcome, without a secondary scoring rule.
+- The client never enters the solo eighth-attempt flow for multiplayer. Multiplayer guess application also skips solo statistics/streak updates. Full mode/progress separation remains Phase 4.
+- The fourth-guess daily-style bonus hint remains a confirmed Phase 4 requirement and is not implemented by this phase.
+
+### Validation
+- 26 regression tests pass (14 new server/storage/client-rule tests plus 12 Phase 1 tests).
+- TypeScript passes. Changed-file lint has no errors and one existing image warning. Full-project lint still has 12 errors and 14 warnings.
+- Redis lock ownership is tested with a deterministic adapter; a live Redis service and two-browser integration have not been tested.
+- Replayed guesses are rejected rather than reconstructed after a lost HTTP response. Reconnect/history restoration and retry recovery remain later work.
+- Anonymous identity reuse remains the known Phase 3 security gap; this phase does not claim secure participant identity issuance.
