@@ -1,25 +1,20 @@
+import { randomUUID } from 'crypto';
 import { createRoom, toPublicRoom } from '@/lib/multiplayer-manager';
 import { createMultiplayerMembershipToken } from '@/lib/server-crypto';
-import { NextResponse } from 'next/server';
+import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readString } from '@/lib/multiplayer-http';
+import { limitMultiplayerRequest } from '@/lib/multiplayer-rate-limit';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { hostId, hostName } = body;
-
-    if (!hostId) {
-      return NextResponse.json({ error: 'hostId is required' }, { status: 400 });
-    }
-
-    const room = await createRoom(hostId, hostName || 'Host Cricketer');
-
-    return NextResponse.json({
-      success: true,
-      room: toPublicRoom(room),
-      membershipToken: createMultiplayerMembershipToken(room.roomCode, hostId, 'host'),
+    await limitMultiplayerRequest(request, 'create', 10);
+    const body = await readJsonObject(request);
+    onlyFields(body, ['hostName']);
+    const name = readString(body.hostName ?? 'Host Cricketer', 'nickname', 20);
+    const userId = randomUUID();
+    const room = await createRoom(userId, name);
+    return multiplayerJson({
+      success: true, userId, room: toPublicRoom(room),
+      membershipToken: createMultiplayerMembershipToken(room, userId, 'host'),
     });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to create room';
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  } catch (error) { return multiplayerError(error); }
 }

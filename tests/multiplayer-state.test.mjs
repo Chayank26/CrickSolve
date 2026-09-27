@@ -174,3 +174,54 @@ test('a pending join cannot reconnect after the user leaves', async () => {
   assert.equal(f.store.getState().room, null);
   assert.equal(f.timers.size, 0);
 });
+
+test('room sync sends credentials only in the authorization header', async () => {
+  const f = setup();
+  f.fetch(async (url, options) => {
+    assert.equal(url.includes('membershipToken'), false);
+    assert.equal(url.includes('userId'), false);
+    assert.equal(options.headers.Authorization, 'Bearer token');
+    return response(f.room);
+  });
+  await f.store.getState().syncRoomSnapshot();
+});
+
+test('client adopts the server-issued identity and does not send its previous ID on creation', async () => {
+  const f = setup();
+  f.fetch(async (url, options) => {
+    if (options.method === 'POST') {
+      assert.equal(JSON.parse(options.body).hostId, undefined);
+      return { ok: true, json: async () => ({ room: f.room, userId: 'server-issued', membershipToken: 'new-token' }) };
+    }
+    return response(f.room);
+  });
+  assert.equal(await f.store.getState().createRoom('Name'), true);
+  assert.equal(f.store.getState().userId, 'server-issued');
+  f.store.getState().leaveRoom();
+});
+
+test('repeated untrusted sync triggers cannot create concurrent room requests', async () => {
+  const f = setup();
+  let calls = 0;
+  let resolve;
+  f.fetch(() => { calls++; return new Promise((done) => { resolve = done; }); });
+  const pending = f.store.getState().syncRoomSnapshot();
+  await Promise.all(Array.from({ length: 20 }, () => f.store.getState().syncRoomSnapshot()));
+  assert.equal(calls, 1);
+  resolve(response(f.room));
+  await pending;
+  await f.store.getState().syncRoomSnapshot();
+  assert.equal(calls, 1);
+});
+
+test('public broadcasts contain no membership token or guess data', () => {
+  const f = setup();
+  let payload;
+  f.store.setState({ channel: { send(message) { payload = message.payload; } } });
+  f.store.getState().broadcastGuess(1, { country: true }, { tests: 'match' }, true);
+  assert.equal(payload.membershipToken, undefined);
+  assert.equal(payload.userId, undefined);
+  assert.equal(payload.attributeMatches, undefined);
+  assert.equal(payload.isCorrect, undefined);
+  assert.equal(payload.roundId, f.room.roundId);
+});

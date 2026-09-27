@@ -499,3 +499,14 @@ Confirmed future gameplay contract: seven guesses, a daily-style hint bonus afte
 Transitions: waiting → countdown (host, two ready players) → in_progress (host, deadline reached) → finished (accepted win or both exhausted). Existing reset requests require finished status and the expected round. They do not establish a new rematch-consent policy.
 
 All room PATCH requests include the expected round ID. Repeated start transitions are idempotent with respect to timing. Bonus hints after the fourth guess remain Phase 4 work; disconnect/rematch decisions remain deferred.
+
+## Multiplayer Completion Phase 3 — Anonymous Authorization Flow
+
+1. Create accepts a nickname. The server generates a host UUID and returns the public room, the issued user ID and a signed host membership token.
+2. Fresh join accepts a room code and nickname. It generates a new guest UUID; callers cannot choose another participant's ID. Joining an existing slot requires that slot's valid bearer credential and preserves its actual role.
+3. Room reads, PATCH operations and multiplayer guesses carry `Authorization: Bearer <membershipToken>`. The API derives the acting user from the verified token, rather than request-body or query-string user IDs.
+4. The token's purpose, room instance, room code, expiry and role must match the stored participant. Guesses and mutations repeat authorization against the locked room. Guests cannot issue host transitions.
+5. Inputs pass size/schema validation and network/member rate limits. Rate errors return 429 with Retry-After; backend limiter failure returns 503. Success/error bodies containing room information cannot be cached.
+6. Realtime notifications contain only identifiers/revision and trigger bounded authenticated reconciliation. They never supply a winner, target, guess or permission that the client trusts.
+
+Current credentials remain in the in-memory client store. Refresh recovery and server-side departure policy are still deferred. The old query-string/body token contract and old token format are no longer accepted. Existing rooms should be recreated following this update.

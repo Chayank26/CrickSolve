@@ -1,32 +1,26 @@
+import { randomUUID } from 'crypto';
 import { joinRoom, toPublicRoom } from '@/lib/multiplayer-manager';
 import { createMultiplayerMembershipToken } from '@/lib/server-crypto';
-import { NextResponse } from 'next/server';
+import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readRoomCode, readString, requestMembership } from '@/lib/multiplayer-http';
+import { limitMultiplayerRequest } from '@/lib/multiplayer-rate-limit';
+import { RoomActionError } from '@/lib/multiplayer-errors';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { roomCode, userId, nickname } = body;
-
-    if (!roomCode || !userId) {
-      return NextResponse.json({ error: 'roomCode and userId are required' }, { status: 400 });
-    }
-
-    const { room, error } = await joinRoom(roomCode, userId, nickname || 'Guest Cricketer');
-
-    if (error || !room) {
-      return NextResponse.json({ error: error || 'Failed to join room' }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      room: toPublicRoom(room),
-      membershipToken: createMultiplayerMembershipToken(room.roomCode, userId, 'guest'),
+    await limitMultiplayerRequest(request, 'join', 30);
+    const body = await readJsonObject(request);
+    onlyFields(body, ['roomCode', 'nickname']);
+    const roomCode = readRoomCode(body.roomCode);
+    const nickname = readString(body.nickname ?? 'Guest Cricketer', 'nickname', 20);
+    // Reclaiming an existing slot requires its credential; fresh joins get a new identity.
+    const identity = request.headers.has('authorization') ? requestMembership(request, roomCode) : null;
+    const userId = identity?.userId || randomUUID();
+    const { room, error } = await joinRoom(roomCode, userId, nickname, identity?.membershipToken);
+    if (!room || error) throw new RoomActionError(error || 'Unable to join room', 409);
+    const participant = room.participants.find((item) => item.userId === userId)!;
+    return multiplayerJson({
+      success: true, userId, room: toPublicRoom(room),
+      membershipToken: createMultiplayerMembershipToken(room, userId, participant.role),
     });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to join room';
-    if (message === 'ROOM_BUSY') {
-      return NextResponse.json({ error: 'Another room action is being processed. Please retry.' }, { status: 409 });
-    }
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  } catch (error) { return multiplayerError(error); }
 }

@@ -608,3 +608,26 @@ This document logs all key technical and architectural decisions taken during th
 - Redis lock ownership is tested with a deterministic adapter; a live Redis service and two-browser integration have not been tested.
 - Replayed guesses are rejected rather than reconstructed after a lost HTTP response. Reconnect/history restoration and retry recovery remain later work.
 - Anonymous identity reuse remains the known Phase 3 security gap; this phase does not claim secure participant identity issuance.
+
+## Multiplayer Completion — Phase 3: Anonymous Identity and Permissions (2026-09-27)
+
+### Decision 48: Server-Issued Participant IDs and Room-Bound Credentials
+- Create and fresh join APIs generate UUID participant IDs; client-supplied identity and role fields are rejected. The client adopts the returned ID instead of generating a localStorage identity.
+- Existing participant slots require their valid membership credential before any nickname or connection update. A legitimate rejoin preserves the stored role, including host ownership.
+- Membership tokens carry a versioned purpose, exact room instance ID, room code, participant ID, role and finite expiry. Tokens from another room instance, solo tokens, malformed claims and expired/tampered tokens are rejected.
+- Read and mutation authorization checks the token against the stored participant and role. Host-only transitions require both the valid host-role credential and the stored host ID. Mutation checks remain inside the room lock.
+- Credentials travel in `Authorization: Bearer ...` headers, not room lookup URLs, guess bodies or realtime messages. Authenticated responses and errors use `Cache-Control: no-store`.
+- Development signing keys survive hot reload within a process. Configure a stable `CRICKSOLVE_SECRET_KEY` for multiple processes and production.
+
+### Decision 49: Bounded Requests and Shared Throttling
+- JSON requests are limited to 4 KiB while reading the stream. Nicknames, room codes, round IDs, attempts and operation fields are validated. Create/join/room mutations/multiplayer guesses reject unsupported fields.
+- Redis uses an atomic counter/expiry Lua operation for fixed 60-second rate windows. Local development has an expiring in-memory equivalent. Redis limiter failures return 503 without falling back to an unrestricted local path.
+- Network limits: create 10/minute, join 30/minute, reads 600/minute, mutations 120/minute, guesses 120/minute. Authenticated member limits: reads 180/minute, mutations 30/minute, guesses 30/minute. Exceeded limits return 429 plus Retry-After.
+- By default, network limits use a shared bucket rather than trusting caller-controlled address headers. Enable `CRICKSOLVE_TRUST_PROXY=1` only behind infrastructure that overwrites/sanitizes `x-forwarded-for`; it then keys limits by the first forwarded address. Subjects are hashed in Redis keys. Capacity/proxy validation remains a deployment task.
+- Realtime channels remain public, untrusted notification transport. Outbound notifications contain only room code, round ID and revision. Incoming events prompt a signed fetch, coalesced to one in-flight request and at most one start every 500 ms. Public-channel abuse can still consume transport resources; no private-channel authorization is claimed.
+
+### Compatibility and Validation
+- Older membership tokens are intentionally invalid; recreate existing rooms after deploying this phase. No account system or persistent reconnect policy was introduced.
+- 45 tests pass, including impersonation, role mismatch, expired/malformed credentials, reused room codes, authorization-header transport, rate windows and an in-process API match lifecycle. TypeScript and changed-file lint pass.
+- Full-project lint remains at 12 errors and 14 warnings. Redis rate/lease behavior uses deterministic test doubles, not a live service. Two-browser and production deployment verification remain pending.
+- Next: Phase 4's dedicated multiplayer gameplay/UI, fourth-guess bonus hint and progress isolation. Disconnect and rematch product decisions remain deferred.

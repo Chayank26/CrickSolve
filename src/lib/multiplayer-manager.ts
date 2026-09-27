@@ -1,3 +1,5 @@
+import { RoomActionError } from '@/lib/multiplayer-errors';
+export { RoomActionError } from '@/lib/multiplayer-errors';
 import { randomInt, randomUUID } from 'crypto';
 import { evaluatePlayerGuess } from '@/lib/game-engine';
 import { verifyMultiplayerMembershipToken } from '@/lib/server-crypto';
@@ -69,7 +71,8 @@ export async function getRoom(roomCode: string): Promise<MultiplayerRoom | null>
 export async function joinRoom(
   roomCode: string,
   userId: string,
-  nickname: string
+  nickname: string,
+  membershipToken?: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
   return withRoomMutation(roomCode, async (save) => {
     const room = await getStoredRoom(roomCode);
@@ -78,15 +81,18 @@ export async function joinRoom(
       return { room: null, error: 'Room not found. Please verify the 6-character room code.' };
     }
 
-    if (room.status === 'in_progress' && !room.participants.some((p) => p.userId === userId)) {
+    if (room.status !== 'waiting' && !room.participants.some((p) => p.userId === userId)) {
       return { room: null, error: 'Match is already in progress.' };
     }
 
+    if (membershipToken) assertRoomMembership(room, membershipToken, userId);
     const existingIdx = room.participants.findIndex((p) => p.userId === userId);
     if (existingIdx >= 0) {
-      // Update existing participant
+      assertRoomMembership(room, membershipToken || '', userId);
+      // Existing identities can only be reclaimed with their own valid credential.
       room.participants[existingIdx].nickname = nickname || room.participants[existingIdx].nickname;
       room.participants[existingIdx].connectedAt = Date.now();
+      if (room.hostId === userId) room.hostName = room.participants[existingIdx].nickname;
     } else {
       // Multiplayer rooms are currently strict 1v1 matches.
       if (room.participants.length >= 2) {
@@ -110,8 +116,14 @@ export async function joinRoom(
     return { room };
   });
 }
-export class RoomActionError extends Error {
-  constructor(message: string, public status: number = 409) { super(message); }
+export function assertRoomMembership(room: MultiplayerRoom, membershipToken: string, userId: string) {
+  const membership = verifyMultiplayerMembershipToken(membershipToken, room.roomCode, userId);
+  if (!membership || membership.roomId !== room.id) throw new RoomActionError('Valid room membership is required', 401);
+  const participant = room.participants.find((item) => item.userId === userId);
+  if (!participant || participant.role !== membership.role || (membership.role === 'host' && room.hostId !== userId)) {
+    throw new RoomActionError('You are not authorized as this room participant', 403);
+  }
+  return participant;
 }
 
 async function requireRound(roomCode: string, userId: string, roundId: string, membershipToken: string) {
@@ -120,10 +132,8 @@ async function requireRound(roomCode: string, userId: string, roundId: string, m
   }
   const room = await getStoredRoom(roomCode);
   if (!room) throw new RoomActionError('Room not found', 404);
+  assertRoomMembership(room, membershipToken, userId);
   if (room.roundId !== roundId) throw new RoomActionError('This round has ended. Sync the room and try again.');
-  if (!room.participants.some((participant) => participant.userId === userId)) {
-    throw new RoomActionError('You are not a member of this room', 403);
-  }
   return room;
 }
 

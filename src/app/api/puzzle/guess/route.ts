@@ -1,111 +1,50 @@
 import { evaluatePlayerGuess, getDailyTargetPlayer } from '@/lib/game-engine';
-import {
-  createSessionToken,
-  createVictoryToken,
-  verifySessionToken,
-} from '@/lib/server-crypto';
-import { submitRoomGuess, RoomActionError, toPublicRoom } from '@/lib/multiplayer-manager';
+import { createSessionToken, createVictoryToken, verifySessionToken } from '@/lib/server-crypto';
+import { submitRoomGuess, toPublicRoom } from '@/lib/multiplayer-manager';
 import { PlayerCategory } from '@/types/game';
-import { NextResponse } from 'next/server';
+import { RoomActionError } from '@/lib/multiplayer-errors';
+import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readRoomCode, readRoundId, readString, requestMembership } from '@/lib/multiplayer-http';
+import { enforceRateLimit, limitMultiplayerRequest } from '@/lib/multiplayer-rate-limit';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    if (!body || typeof body !== 'object' || Array.isArray(body)) {
-      return NextResponse.json({ error: 'A JSON object is required' }, { status: 400 });
+    const body = await readJsonObject(request);
+    const guessedPlayerId = readString(body.guessedPlayerId, 'player ID', 100);
+    const attemptNumber = body.attemptNumber ?? 1;
+    if (typeof attemptNumber !== 'number' || !Number.isInteger(attemptNumber) || attemptNumber < 1 || attemptNumber > 8) {
+      throw new RoomActionError('Invalid attempt number', 400);
     }
-    const {
-      guessedPlayerId,
-      date,
-      category = 'International',
-      mode = 'daily',
-      targetPlayerId,
-      roomCode,
-      roundId,
-      membershipToken,
-      attemptNumber = 1,
-      sessionToken: clientSessionToken,
-      userId = 'user_anon',
-    } = body;
-
-    if (!guessedPlayerId) {
-      return NextResponse.json({ error: 'guessedPlayerId is required' }, { status: 400 });
-    }
-
-    if (roomCode !== undefined) {
-      if (typeof roomCode !== 'string' || !roomCode.trim() || typeof userId !== 'string' ||
-          typeof membershipToken !== 'string' || typeof roundId !== 'string' || !roundId ||
-          typeof guessedPlayerId !== 'string' || !Number.isInteger(attemptNumber)) {
-        return NextResponse.json({ error: 'Valid room, round, membership and guess fields are required' }, { status: 400 });
-      }
+    if (body.roomCode !== undefined || body.mode === 'multiplayer') {
+      await limitMultiplayerRequest(request, 'guess-network', 120);
+      onlyFields(body, ['roomCode', 'roundId', 'guessedPlayerId', 'attemptNumber', 'mode']);
+      const roomCode = readRoomCode(body.roomCode);
+      const roundId = readRoundId(body.roundId);
+      const { userId, membershipToken, membership } = requestMembership(request, roomCode);
+      await enforceRateLimit('guess-member', `${membership.roomId}:${userId}`, 30);
       const result = await submitRoomGuess({ roomCode, userId, roundId, membershipToken, guessedPlayerId, attemptNumber });
-      return NextResponse.json({
-        evaluation: result.evaluation,
-        solveTimeMs: result.solveTimeMs,
-        mode: 'multiplayer', attemptNumber,
-        room: toPublicRoom(result.room),
-        multiplayerReveal: result.room.reveal,
+      return multiplayerJson({
+        evaluation: result.evaluation, solveTimeMs: result.solveTimeMs,
+        mode: 'multiplayer', attemptNumber, room: toPublicRoom(result.room), multiplayerReveal: result.room.reveal,
       });
     }
 
-    const todayStr = date || new Date().toISOString().split('T')[0];
-    const cat = category as PlayerCategory;
-
-    // 1. Verify or create session token
-    let session = clientSessionToken ? verifySessionToken(clientSessionToken) : null;
-    let activeSessionToken = clientSessionToken;
-
+    const todayStr = body.date === undefined ? new Date().toISOString().split('T')[0] : readString(body.date, 'date', 10);
+    const category = (body.category ?? 'International') as PlayerCategory;
+    if (!['International', 'IPL', 'Legend', 'Womens'].includes(category)) throw new RoomActionError('Invalid category', 400);
+    const mode = body.mode ?? 'daily';
+    if (mode !== 'daily' && mode !== 'unlimited') throw new RoomActionError('Invalid mode', 400);
+    const userId = body.userId === undefined ? 'user_anon' : readString(body.userId, 'user ID', 100);
+    let activeSessionToken = typeof body.sessionToken === 'string' ? body.sessionToken : '';
+    let session = verifySessionToken(activeSessionToken);
     if (!session) {
-      const now = Date.now();
-      activeSessionToken = createSessionToken(todayStr, cat, mode, now);
+      activeSessionToken = createSessionToken(todayStr, category, mode, Date.now());
       session = verifySessionToken(activeSessionToken);
     }
-
-    const startTimeMs = session ? session.startTimeMs : Date.now();
-
-    let actualTargetId = targetPlayerId;
-
-    if (mode === 'daily' && !roomCode) {
-      const targetPlayer = getDailyTargetPlayer(todayStr, cat);
-      actualTargetId = targetPlayer.id;
-    }
-
-    if (!actualTargetId) {
-      return NextResponse.json({ error: 'Target player could not be determined' }, { status: 400 });
-    }
-
-    // 3. Evaluate guess privately on server
-    const evaluation = evaluatePlayerGuess(guessedPlayerId, actualTargetId, attemptNumber);
-
-    if (!evaluation) {
-      return NextResponse.json({ error: 'Invalid player ID' }, { status: 404 });
-    }
-
-    // 4. If win, issue signed victory token and calculate solve time
-    let victoryToken: string | undefined = undefined;
-    let solveTimeMs: number | undefined = undefined;
-
-    if (evaluation.isCorrect) {
-      solveTimeMs = Math.max(1000, Date.now() - startTimeMs);
-      victoryToken = createVictoryToken(todayStr, cat, attemptNumber, solveTimeMs, userId);
-    }
-
-    return NextResponse.json({
-      evaluation,
-      sessionToken: activeSessionToken,
-      victoryToken,
-      solveTimeMs,
-      mode,
-      attemptNumber,
-    });
-  } catch (err: unknown) {
-    if (err instanceof RoomActionError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof SyntaxError) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-    const errorMessage = err instanceof Error ? err.message : 'Server evaluation failed';
-    if (errorMessage === 'ROOM_BUSY') {
-      return NextResponse.json({ error: 'Another room action is being processed. Please retry.' }, { status: 409 });
-    }
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
-  }
+    const targetId = mode === 'daily' ? getDailyTargetPlayer(todayStr, category).id : readString(body.targetPlayerId, 'target player ID', 100);
+    const evaluation = evaluatePlayerGuess(guessedPlayerId, targetId, attemptNumber);
+    if (!evaluation) throw new RoomActionError('Invalid player ID', 404);
+    const solveTimeMs = evaluation.isCorrect ? Math.max(1000, Date.now() - (session?.startTimeMs ?? Date.now())) : undefined;
+    const victoryToken = solveTimeMs === undefined ? undefined : createVictoryToken(todayStr, category, attemptNumber, solveTimeMs, userId);
+    return multiplayerJson({ evaluation, sessionToken: activeSessionToken, victoryToken, solveTimeMs, mode, attemptNumber });
+  } catch (error) { return multiplayerError(error); }
 }
-

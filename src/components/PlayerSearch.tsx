@@ -97,19 +97,13 @@ export function PlayerSearch() {
       try {
         const res = await fetch('/api/puzzle/guess', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            guessedPlayerId: targetId,
-            date: currentDate,
-            category,
-            mode: gameMode,
-            targetPlayerId: targetPlayer.id,
-            roomCode: room?.roomCode,
-            roundId: room?.roundId,
-            membershipToken,
-            userId,
-            sessionToken,
-            attemptNumber: guesses.length + 1,
+          headers: { 'Content-Type': 'application/json', ...(room && membershipToken ? { Authorization: `Bearer ${membershipToken}` } : {}) },
+          body: JSON.stringify(room ? {
+            mode: 'multiplayer', roomCode: room.roomCode, roundId: room.roundId,
+            guessedPlayerId: targetId, attemptNumber: guesses.length + 1,
+          } : {
+            guessedPlayerId: targetId, date: currentDate, category, mode: gameMode,
+            targetPlayerId: targetPlayer.id, userId, sessionToken, attemptNumber: guesses.length + 1,
           }),
         });
         const data = await res.json();

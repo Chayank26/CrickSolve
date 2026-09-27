@@ -10,7 +10,7 @@ async function setup() {
   const storage = load('src/lib/multiplayer-room-store.ts');
   const { PLAYERS } = load('src/data/players.ts');
   const room = await manager.createRoom('host', 'Host');
-  const token = (user) => crypto.createMultiplayerMembershipToken(room.roomCode, user, user === 'host' ? 'host' : 'guest');
+  const token = (user) => crypto.createMultiplayerMembershipToken(room, user, user === 'host' ? 'host' : 'guest');
   await manager.joinRoom(room.roomCode, 'guest', 'Guest');
   await manager.toggleReadyForUser(room.roomCode, 'guest', room.roundId, token('guest'));
   const status = (value, user = 'host', round = room.roundId) => manager.updateRoomStatusForUser(room.roomCode, user, value, round, token(user));
@@ -118,12 +118,11 @@ test('membership is checked inside the mutation; private guesses never enter pub
   assert.equal('guessedPlayerIdsByUser' in publicRoom, false);
 });
 
-test('API ignores client target/timing and requires round ID on multiplayer requests', async () => {
+test('API requires round ID and derives multiplayer timing from the server', async () => {
   const f = await setup(); await f.start(); f.advance(2500);
   const { POST } = f.load('src/app/api/puzzle/guess/route.ts');
-  const body = { roomCode: f.room.roomCode, userId: 'host', membershipToken: f.token('host'),
-    guessedPlayerId: f.room.targetPlayerId, attemptNumber: 1, targetPlayerId: 'fake', sessionToken: 'fake' };
-  const request = (data) => new Request('http://localhost/api/puzzle/guess', { method: 'POST', body: JSON.stringify(data) });
+  const body = { roomCode: f.room.roomCode, guessedPlayerId: f.room.targetPlayerId, attemptNumber: 1 };
+  const request = (data) => new Request('http://localhost/api/puzzle/guess', { method: 'POST', headers: { Authorization: `Bearer ${f.token('host')}` }, body: JSON.stringify(data) });
   assert.equal((await POST(request(body))).status, 400);
   const response = await POST(request({ ...body, roundId: f.room.roundId }));
   assert.equal(response.status, 200);
@@ -192,10 +191,10 @@ test('client multiplayer never offers attempt eight or updates solo stats; solo 
 test('room PATCH rejects invalid status and stale round requests', async () => {
   const f = await setup();
   const { PATCH } = f.load('src/app/api/multiplayer/room/route.ts');
-  const request = (extra) => new Request('http://localhost/api/multiplayer/room', { method: 'PATCH', body: JSON.stringify({
-    roomCode: f.room.roomCode, userId: 'host', membershipToken: f.token('host'), roundId: f.room.roundId, ...extra,
+  const request = (extra) => new Request('http://localhost/api/multiplayer/room', { method: 'PATCH', headers: { Authorization: `Bearer ${f.token('host')}` }, body: JSON.stringify({
+    roomCode: f.room.roomCode, roundId: f.room.roundId, ...extra,
   }) });
   assert.equal((await PATCH(request({ status: 'finished' }))).status, 400);
-  assert.equal((await PATCH(request({ action: 'ready', roundId: 'old-round' }))).status, 409);
+  assert.equal((await PATCH(request({ action: 'ready', roundId: '00000000-0000-0000-0000-000000000000' }))).status, 409);
   assert.equal((await PATCH(request({ action: 'ready', status: 'countdown' }))).status, 400);
 });

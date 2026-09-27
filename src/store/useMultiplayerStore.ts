@@ -24,6 +24,8 @@ interface MultiplayerState {
   } | null;
   initializedRoundId: string | null;
   connectionVersion: number;
+  syncInFlight: boolean;
+  lastSyncAt: number;
   syncTimer: ReturnType<typeof setInterval> | null;
   countdownTimer: ReturnType<typeof setInterval> | null;
   setNickname: (name: string) => void;
@@ -42,26 +44,12 @@ interface MultiplayerState {
   cleanupChannel: () => void;
   _subscribeToRoom: (roomCode: string) => void;
   _runCountdown: () => void;
-  _connect: (path: string, body: object) => Promise<boolean>;
+  _connect: (path: string, body: object, membershipToken?: string) => Promise<boolean>;
   _mutateRoom: (body: object, event: string) => Promise<void>;
 }
 
-function getOrGenerateUserId(): string {
-  if (typeof window === 'undefined') return 'user_server';
-  try {
-    let stored = localStorage.getItem('cricksolve_mp_uid');
-    if (!stored) {
-      stored = `user_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
-      localStorage.setItem('cricksolve_mp_uid', stored);
-    }
-    return stored;
-  } catch {
-    return `user_${Date.now()}`;
-  }
-}
-
 export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
-  userId: getOrGenerateUserId(),
+  userId: 'user_anon',
   nickname: 'Cricketer',
   membershipToken: null,
   room: null,
@@ -74,6 +62,8 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   matchWinner: null,
   initializedRoundId: null,
   connectionVersion: 0,
+  syncInFlight: false,
+  lastSyncAt: 0,
   syncTimer: null,
   countdownTimer: null,
 
@@ -112,12 +102,14 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   syncRoomSnapshot: async () => {
-    const { room, userId, membershipToken, connectionVersion } = get();
+    const { room, membershipToken, connectionVersion } = get();
     if (!room || !membershipToken) return;
+    if (get().syncInFlight || Date.now() - get().lastSyncAt < 500) return;
+    set({ syncInFlight: true, lastSyncAt: Date.now() });
     const isCurrent = () => get().connectionVersion === connectionVersion && get().room?.id === room.id;
     try {
-      const params = new URLSearchParams({ code: room.roomCode, userId, membershipToken });
-      const response = await fetch(`/api/multiplayer/room?${params}`, { cache: 'no-store' });
+      const params = new URLSearchParams({ code: room.roomCode });
+      const response = await fetch(`/api/multiplayer/room?${params}`, { cache: 'no-store', headers: { Authorization: `Bearer ${membershipToken}` } });
       const data = await response.json();
       if (!isCurrent()) return;
       if (!response.ok || !data.room) throw new Error(data.error || 'Unable to sync the room');
@@ -126,6 +118,8 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       if (get().error?.startsWith('Room sync:')) set({ error: null });
     } catch (error) {
       if (isCurrent()) set({ error: `Room sync: ${error instanceof Error ? error.message : 'Connection interrupted'}. Retrying…` });
+    } finally {
+      if (isCurrent()) set({ syncInFlight: false });
     }
   },
 
@@ -140,18 +134,18 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     set({ syncTimer: null });
   },
 
-  _connect: async (path, body) => {
+  _connect: async (path, body, membershipToken) => {
     get().leaveRoom();
     const version = get().connectionVersion;
     set({ isConnecting: true, error: null });
     try {
       const response = await fetch(path, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...(membershipToken ? { Authorization: `Bearer ${membershipToken}` } : {}) }, body: JSON.stringify(body),
       });
       const data = await response.json();
       if (get().connectionVersion !== version) return false;
-      if (!response.ok || !data.room || !data.membershipToken) throw new Error(data.error || 'Unable to connect to room');
-      set({ room: data.room, membershipToken: data.membershipToken, isConnecting: false });
+      if (!response.ok || !data.room || !data.membershipToken || !data.userId) throw new Error(data.error || 'Unable to connect to room');
+      set({ userId: data.userId, room: data.room, membershipToken: data.membershipToken, isConnecting: false });
       get().setRoomSnapshot(data.room);
       get()._subscribeToRoom(data.room.roomCode);
       return true;
@@ -163,21 +157,21 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     }
   },
   createRoom: (hostName) => get()._connect('/api/multiplayer/create', {
-    hostId: get().userId, hostName: hostName || get().nickname,
+    hostName: hostName || get().nickname,
   }),
   joinRoom: (roomCode, guestName) => get()._connect('/api/multiplayer/join', {
-    roomCode: roomCode.toUpperCase().trim(), userId: get().userId, nickname: guestName || get().nickname,
-  }),
+    roomCode: roomCode.toUpperCase().trim(), nickname: guestName || get().nickname,
+  }, get().room?.roomCode === roomCode.toUpperCase().trim() ? get().membershipToken || undefined : undefined),
 
   _mutateRoom: async (body, event) => {
-    const { room, userId, membershipToken, connectionVersion } = get();
+    const { room, membershipToken, connectionVersion } = get();
     if (!room || !membershipToken) return;
     const isCurrent = () => get().connectionVersion === connectionVersion &&
       get().room?.id === room.id && get().room?.roundId === room.roundId;
     try {
       const response = await fetch('/api/multiplayer/room', {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...body, roomCode: room.roomCode, roundId: room.roundId, userId, membershipToken }),
+        method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${membershipToken}` },
+        body: JSON.stringify({ ...body, roomCode: room.roomCode, roundId: room.roundId }),
       });
       const data = await response.json();
       if (!isCurrent()) return;
@@ -196,12 +190,11 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   requestRematch: () => get()._mutateRoom({ action: 'rematch' }, 'REMATCH'),
 
   // Broadcasts only notify peers to fetch state; they never decide local outcomes.
-  broadcastGuess: (guessNumber, attributeMatches, numericMatches, isCorrect) => {
-    const { room, channel, userId } = get();
+  broadcastGuess: () => {
+    const { room, channel } = get();
     if (!room) return;
     void channel?.send({ type: 'broadcast', event: 'OPPONENT_GUESS', payload: {
       roomCode: room.roomCode, roundId: room.roundId, revision: room.revision,
-      userId, guessNumber, attributeMatches, numericMatches, isCorrect,
     } });
   },
   broadcastFinish: () => {
@@ -218,8 +211,8 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     get().stopRoomSync();
     get().cleanupChannel();
     set({
-      connectionVersion: get().connectionVersion + 1,
-      room: null, reveal: null, membershipToken: null, countdown: null, countdownTimer: null,
+      connectionVersion: get().connectionVersion + 1, syncInFlight: false, lastSyncAt: 0,
+      userId: 'user_anon', room: null, reveal: null, membershipToken: null, countdown: null, countdownTimer: null,
       initializedRoundId: null, isMatchActive: false, matchWinner: null, error: null, isConnecting: false,
     });
   },

@@ -152,3 +152,21 @@ Validation: 12 tests pass; TypeScript passes; changed-file lint has zero errors 
 Run all regressions: `node --test tests/*.test.mjs`.
 
 Validation: 26 tests pass; TypeScript passes; changed-file lint has no errors and one existing image warning. Full lint has 12 errors and 14 warnings. The Redis test uses a deterministic fake and does not replace live service verification. Production build and two-browser testing remain outstanding.
+
+## Multiplayer Completion Phase 3 — Membership Security and Request Limits
+
+| Boundary | Implementation |
+| --- | --- |
+| Participant identity | UUIDs generated in create/join route handlers; request identity/role fields rejected |
+| Token contract | HMAC signature plus purpose/version, room instance, room code, participant ID, role, finite six-hour expiry |
+| Room authorization | Token role and user checked against stored participant; host transitions also check room host ownership |
+| Credential transport | Bearer authorization headers; no credentials in URLs or public broadcasts; no-store responses |
+| Validation | Bounded 4 KiB stream reader; allowed fields; nickname ≤20 characters; valid six-character code; UUID round ID; integer attempts |
+| Rate limits | Atomic Redis counter/expiry script, or expiring local development buckets; 429/Retry-After and 503 on limiter outages |
+| Realtime | Public notifications carry room/round/revision only; one reconciliation in flight and 500 ms minimum between starts |
+
+`src/lib/multiplayer-http.ts` centralizes parsing, validation, bearer extraction and safe error responses. `src/lib/multiplayer-rate-limit.ts` implements rate windows. `src/lib/multiplayer-errors.ts` shares typed HTTP errors without coupling helpers to the room manager.
+
+Limits per 60 seconds: network create 10, join 30, read 600, mutate 120, guess 120; member read 180, mutate 30, guess 30. Default network grouping is a shared bucket. `CRICKSOLVE_TRUST_PROXY=1` opts into the first `x-forwarded-for` address only where a trusted proxy sanitizes that header. Redis keys hash the subject. Production traffic sizing and proxy trust must be verified during deployment work.
+
+Current verification: 45 tests pass; TypeScript and changed-file lint pass. Full lint still reports 12 errors and 14 warnings. Shared Redis behavior is simulated in tests; live Redis, browser integration and production build checks remain outstanding. Public Realtime channels are not privately authorized in this phase.

@@ -45,8 +45,8 @@ Multiplayer is under phased development. Completion Phase 1 stabilizes round ini
 | --- | --- | --- |
 | 1 | Stable client match state and shared results | Implemented; unit checks pass, live integration pending |
 | 2 | Atomic server validation, round/attempt checks, seven-guess enforcement | Implemented; regression checks pass |
-| 3 | Secure anonymous participant identity and permissions | Pending approval |
-| 4 | Dedicated multiplayer rules/UI, bonus hint after guess four, no eighth attempt, solo-stat isolation | Planned |
+| 3 | Secure anonymous participant identity and permissions | Implemented; regression checks pass |
+| 4 | Dedicated multiplayer rules/UI, bonus hint after guess four, progress isolation | Pending approval |
 | 5 | Disconnect and recovery | Product decisions deferred |
 | 6 | Rematch lifecycle and result polish | Product decisions deferred |
 | 7 | Integration tests and deployment verification | Planned |
@@ -68,4 +68,15 @@ The store tests isolate network and timer behavior; they do not replace two-brow
 
 Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
 
-Current checks: 26 regression tests and TypeScript pass. Live Redis, two-browser integration and production build verification remain pending. The known anonymous identity reuse issue is scheduled for Phase 3; multiplayer is not release-ready yet.
+Current checks: 45 regression tests, TypeScript and changed-file lint pass. Live Redis, two-browser integration and production build verification remain pending. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
+
+
+## Phase 3 API and configuration notes
+
+- Create/join issue server-generated IDs and room-bound membership tokens. Clients must use the returned ID; old client-selected identities are not accepted.
+- Authenticated room/guess operations use `Authorization: Bearer <membershipToken>`. Old URL/body credentials and old membership tokens are rejected. Recreate existing rooms after updating.
+- JSON bodies are capped at 4 KiB; nicknames at 20 characters. Rate limits return `429` with `Retry-After`.
+- Configure `CRICKSOLVE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for deployment. Stable signing keys are also needed across development server processes.
+- Rate limits use shared Redis when configured; otherwise counters are local to the process. Network limits default to a shared bucket. Set `CRICKSOLVE_TRUST_PROXY=1` only if the deployment proxy overwrites/sanitizes `x-forwarded-for`; this enables per-address grouping.
+- Per-minute network limits: create 10, join 30, room reads 600, room mutations 120, guesses 120. Additional member limits: reads 180, mutations 30, guesses 30. Production capacity and proxy configuration still need verification.
+- Realtime channels remain public, carrying only sync notifications; state is fetched through authenticated APIs. Credentials are held in memory, so refresh recovery remains future work.

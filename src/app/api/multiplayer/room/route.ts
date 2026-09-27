@@ -1,92 +1,45 @@
-import { RoomActionError, getRoom, rematchRoomForUser, toPublicRoom, toggleReadyForUser, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
-import { verifyMultiplayerMembershipToken } from '@/lib/server-crypto';
-import { NextResponse } from 'next/server';
+import { assertRoomMembership, getRoom, rematchRoomForUser, toPublicRoom, toggleReadyForUser, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
+import { RoomActionError } from '@/lib/multiplayer-errors';
+import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readRoomCode, readRoundId, requestMembership } from '@/lib/multiplayer-http';
+import { enforceRateLimit, limitMultiplayerRequest } from '@/lib/multiplayer-rate-limit';
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const code = searchParams.get('code');
-    const userId = searchParams.get('userId');
-    const membershipToken = searchParams.get('membershipToken');
-
-    if (!code) {
-      return NextResponse.json({ error: 'Room code is required' }, { status: 400 });
-    }
-
-    if (!userId || !membershipToken || !verifyMultiplayerMembershipToken(membershipToken, code, userId)) {
-      return NextResponse.json({ error: 'Valid room membership is required' }, { status: 401 });
-    }
-
+    await limitMultiplayerRequest(request, 'read-network', 600);
+    const code = readRoomCode(new URL(request.url).searchParams.get('code'));
+    const { userId, membershipToken, membership } = requestMembership(request, code);
+    await enforceRateLimit('read-member', `${membership.roomId}:${userId}`, 180);
     const room = await getRoom(code);
-    if (!room) {
-      return NextResponse.json({ error: 'Room not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      room: toPublicRoom(room),
-    });
-  } catch (err: unknown) {
-    if (err instanceof RoomActionError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof SyntaxError) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-    const message = err instanceof Error ? err.message : 'Failed to fetch room';
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+    if (!room) throw new RoomActionError('Room not found', 404);
+    assertRoomMembership(room, membershipToken, userId);
+    return multiplayerJson({ success: true, room: toPublicRoom(room) });
+  } catch (error) { return multiplayerError(error); }
 }
 
 export async function PATCH(request: Request) {
   try {
-    const body = await request.json();
-    if (!body || typeof body !== 'object' || Array.isArray(body)) {
-      return NextResponse.json({ error: 'A JSON object is required' }, { status: 400 });
+    await limitMultiplayerRequest(request, 'mutation-network', 120);
+    const body = await readJsonObject(request);
+    onlyFields(body, ['roomCode', 'roundId', 'action', 'status']);
+    const roomCode = readRoomCode(body.roomCode);
+    const roundId = readRoundId(body.roundId);
+    const { userId, membershipToken, membership } = requestMembership(request, roomCode);
+    await enforceRateLimit('mutation-member', `${membership.roomId}:${userId}`, 30);
+    const { action, status } = body;
+    if ((action !== undefined && status !== undefined) ||
+        (action !== undefined && action !== 'ready' && action !== 'rematch') ||
+        (status !== undefined && status !== 'countdown' && status !== 'in_progress')) {
+      throw new RoomActionError('Invalid action or status', 400);
     }
-    const { roomCode, action, status, userId, membershipToken, roundId } = body;
-
-    if (typeof roomCode !== 'string' || !roomCode.trim() || typeof roundId !== 'string' || !roundId || typeof userId !== 'string') {
-      return NextResponse.json({ error: 'Room code, user ID and round ID are required' }, { status: 400 });
-    }
-    if ((action && status) || (action && action !== 'ready' && action !== 'rematch') || (status && status !== 'countdown' && status !== 'in_progress')) {
-      return NextResponse.json({ error: 'Invalid action or status' }, { status: 400 });
-    }
-
-    if (!userId || !membershipToken || !verifyMultiplayerMembershipToken(membershipToken, roomCode, userId)) {
-      return NextResponse.json({ error: 'Valid room membership is required' }, { status: 401 });
-    }
-
-    if (action === 'rematch') {
-      const result = await rematchRoomForUser(roomCode, userId, roundId, membershipToken);
-      if (result.error || !result.room) {
-        return NextResponse.json({ error: result.error || 'Unable to start rematch' }, { status: 403 });
-      }
-      const room = result.room;
-      return NextResponse.json({ success: true, room: toPublicRoom(room) });
-    }
-
-    if (action === 'ready') {
-      const result = await toggleReadyForUser(roomCode, userId, roundId, membershipToken);
-      if (result.error || !result.room) {
-        return NextResponse.json({ error: result.error || 'Unable to update readiness' }, { status: 403 });
-      }
-      return NextResponse.json({ success: true, room: toPublicRoom(result.room) });
-    }
-
-    if (status) {
-      const result = await updateRoomStatusForUser(roomCode, userId, status, roundId, membershipToken);
-      if (result.error || !result.room) {
-        return NextResponse.json({ error: result.error || 'Unable to update room' }, { status: 403 });
-      }
-      const room = result.room;
-      return NextResponse.json({ success: true, room: toPublicRoom(room) });
-    }
-
-    return NextResponse.json({ error: 'Invalid action or status' }, { status: 400 });
-  } catch (err: unknown) {
-    if (err instanceof RoomActionError) return NextResponse.json({ error: err.message }, { status: err.status });
-    if (err instanceof SyntaxError) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-    const message = err instanceof Error ? err.message : 'Failed to update room';
-    if (message === 'ROOM_BUSY') {
-      return NextResponse.json({ error: 'Another room action is being processed. Please retry.' }, { status: 409 });
-    }
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+    const result = action === 'ready'
+      ? await toggleReadyForUser(roomCode, userId, roundId, membershipToken)
+      : action === 'rematch'
+      ? await rematchRoomForUser(roomCode, userId, roundId, membershipToken)
+      : status === 'countdown' || status === 'in_progress'
+      ? await updateRoomStatusForUser(roomCode, userId, status, roundId, membershipToken)
+      : null;
+    if (!result) throw new RoomActionError('Invalid action or status', 400);
+    if (!result.room || result.error) throw new RoomActionError(result.error || 'Unable to update room', 403);
+    return multiplayerJson({ success: true, room: toPublicRoom(result.room) });
+  } catch (error) { return multiplayerError(error); }
 }

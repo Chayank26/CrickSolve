@@ -1,11 +1,13 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 import { PlayerCategory } from '@/types/game';
 
+// Keep the development-only key stable across hot reloads in one server process.
+const developmentState = globalThis as typeof globalThis & { cricksolveSigningKey?: string };
 const SECRET_KEY =
   process.env.CRICKSOLVE_SECRET_KEY ||
   (process.env.NODE_ENV === 'production'
     ? ''
-    : randomBytes(32).toString('hex'));
+    : (developmentState.cricksolveSigningKey ??= randomBytes(32).toString('hex')));
 
 export interface SessionPayload {
   date: string;
@@ -23,6 +25,8 @@ export interface VictoryPayload {
 }
 
 export interface MultiplayerMembershipPayload {
+  purpose: 'multiplayer-membership-v1';
+  roomId: string;
   roomCode: string;
   userId: string;
   role: 'host' | 'guest';
@@ -61,13 +65,15 @@ function verifyPayload<T>(token: string): T | null {
 }
 
 export function createMultiplayerMembershipToken(
-  roomCode: string,
+  room: { id: string; roomCode: string },
   userId: string,
   role: 'host' | 'guest',
   expiresAt: number = Date.now() + 6 * 60 * 60 * 1000
 ): string {
   return signPayload({
-    roomCode: roomCode.toUpperCase().trim(),
+    purpose: 'multiplayer-membership-v1',
+    roomId: room.id,
+    roomCode: room.roomCode.toUpperCase().trim(),
     userId,
     role,
     expiresAt,
@@ -77,12 +83,15 @@ export function createMultiplayerMembershipToken(
 export function verifyMultiplayerMembershipToken(
   token: string,
   roomCode: string,
-  userId: string
+  userId?: string
 ): MultiplayerMembershipPayload | null {
   const payload = verifyPayload<MultiplayerMembershipPayload>(token);
-  if (!payload) return null;
-  if (payload.roomCode !== roomCode.toUpperCase().trim()) return null;
-  if (payload.userId !== userId || payload.expiresAt <= Date.now()) return null;
+  if (!payload || typeof payload !== 'object' || payload.purpose !== 'multiplayer-membership-v1') return null;
+  if (typeof payload.roomId !== 'string' || !payload.roomId || typeof payload.userId !== 'string' || !payload.userId) return null;
+  if (payload.role !== 'host' && payload.role !== 'guest') return null;
+  if (typeof roomCode !== 'string' || payload.roomCode !== roomCode.toUpperCase().trim()) return null;
+  if (userId !== undefined && payload.userId !== userId) return null;
+  if (typeof payload.expiresAt !== 'number' || !Number.isFinite(payload.expiresAt) || payload.expiresAt <= Date.now()) return null;
   return payload;
 }
 
