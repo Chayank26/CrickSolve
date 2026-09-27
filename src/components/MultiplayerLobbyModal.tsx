@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/useGameStore';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
@@ -20,8 +20,15 @@ import {
   Sparkles,
 } from 'lucide-react';
 
+function subscribeToLocation(onChange: () => void) {
+  window.addEventListener('popstate', onChange);
+  return () => window.removeEventListener('popstate', onChange);
+}
+const getInviteCode = () => new URLSearchParams(window.location.search).get('room')?.toUpperCase() || '';
+const getServerInviteCode = () => '';
+
 export function MultiplayerLobbyModal() {
-  const { activeModal, setActiveModal, soundEnabled, setGameMode, resetGame } = useGameStore();
+  const { activeModal, setActiveModal, soundEnabled } = useGameStore();
   const {
     userId,
     nickname,
@@ -37,42 +44,25 @@ export function MultiplayerLobbyModal() {
     leaveRoom,
   } = useMultiplayerStore();
 
-  const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
+  const inviteCode = useSyncExternalStore(subscribeToLocation, getInviteCode, getServerInviteCode);
+  const [selectedTab, setActiveTab] = useState<'create' | 'join' | null>(null);
+  const activeTab = selectedTab || (inviteCode ? 'join' : 'create');
   const [inputName, setInputName] = useState(nickname || 'Cricketer');
-  const [inputRoomCode, setInputRoomCode] = useState('');
+  const [editedRoomCode, setInputRoomCode] = useState<string | null>(null);
+  const inputRoomCode = editedRoomCode ?? inviteCode;
   const [copied, setCopied] = useState(false);
 
-  // Sync nickname with store
+  // The URL is an external browser store, with an empty server snapshot for hydration.
   useEffect(() => {
-    if (nickname) setInputName(nickname);
-  }, [nickname]);
+    if (inviteCode && !room) setActiveModal('multiplayer');
+  }, [inviteCode, room, setActiveModal]);
 
-  // Handle URL room code parameter on load
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const urlRoom = params.get('room');
-      if (urlRoom && !room) {
-        setInputRoomCode(urlRoom.toUpperCase());
-        setActiveTab('join');
-        setActiveModal('multiplayer');
-      }
-    }
-  }, [room, setActiveModal]);
-
-  // When countdown completes and match starts, close modal and switch game mode
+  // Gameplay initialization is owned by server snapshot reconciliation.
   useEffect(() => {
     if (countdown === 1) {
       playWinSound(soundEnabled);
     }
-    if (countdown === null && room?.status === 'in_progress') {
-      // Close modal and set game mode to multiplayer
-      setActiveModal(null);
-      // Multiplayer guesses are evaluated by the room API; no target is sent to the client.
-      setGameMode('unlimited');
-      resetGame();
-    }
-  }, [countdown, room, setActiveModal, setGameMode, resetGame, soundEnabled]);
+  }, [countdown, soundEnabled]);
 
   if (activeModal !== 'multiplayer' && countdown === null) return null;
 

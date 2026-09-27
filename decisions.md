@@ -559,3 +559,28 @@ This document logs all key technical and architectural decisions taken during th
 
 
 
+
+## Multiplayer Completion — Phase 1: Stable Client Match State (2026-09-27)
+
+### Decision 45: Reconcile Gameplay Through One Server Snapshot Path
+- Room snapshots initialize the board once per round, rather than an effect resetting it on every poll.
+- Active status, winner, and reveal come from authenticated room snapshots. Broadcasts only prompt reconciliation.
+- Countdown expiry does not optimistically start gameplay. Only the host requests the transition; both players wait for accepted server state.
+- Connection generations, room identity, round identity, and revisions protect against late responses after leaving, reconnecting, or changing rounds.
+- Room mutations share response/error handling. Guess failures remain visible and preserve the selected guess for retry.
+- Both players receive terminal results; multiplayer results hide the solo leaderboard submission and local-only Next Player action.
+- Existing rematch actions remain available; no new disconnect or rematch policy was introduced.
+
+### Confirmed Product Rules
+- Multiplayer has exactly seven guesses per player.
+- A daily-style bonus hint becomes available after the fourth guess.
+- Multiplayer must never offer an eighth guess.
+- These rules are recorded requirements, not fully implemented in Phase 1. Server enforcement belongs to Phase 2; hint delivery and mode separation belong to Phase 4.
+- Disconnect and rematch behavior will be decided later with the user.
+- After each phase: update Markdown documentation, provide a proposed Git commit message, then wait for user approval before starting the next phase.
+
+### Validation and Remaining Scope
+- TypeScript passes; 12 isolated store regression tests pass.
+- Changed-file lint: no errors, one existing image warning. Full-project lint: 12 errors and 15 warnings remain outside this phase's fixes.
+- Browser-to-browser integration, Redis integration, and production build verification remain outstanding.
+- Server atomic guess validation, membership identity protection, seven-guess enforcement, fourth-guess hint delivery, and separation from solo stats remain subsequent work.

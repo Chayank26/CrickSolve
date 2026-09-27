@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { useGameStore } from '@/store/useGameStore';
-import { Swords, Trophy, Crown, Sparkles, LogOut, RefreshCw } from 'lucide-react';
+import { Swords, Trophy, Crown, LogOut, RefreshCw } from 'lucide-react';
 import { AttributeMatchResult, NumericMatchResult } from '@/types/game';
 
 interface OpponentHUDProps {
@@ -11,15 +11,14 @@ interface OpponentHUDProps {
 }
 
 export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
-  const { room, userId, isMatchActive, matchWinner, requestRematch, leaveRoom } = useMultiplayerStore();
-  const { guesses, gameStatus, setActiveModal } = useGameStore();
+  const { room, userId, error, isMatchActive, matchWinner, requestRematch, leaveRoom } = useMultiplayerStore();
+  const { guesses, setActiveModal } = useGameStore();
 
   if (!room) return null;
 
   const opponents = room.participants.filter((p) => p.userId !== userId);
   const self = room.participants.find((p) => p.userId === userId);
-  const isHost = room.hostId === userId;
-  const isWon = gameStatus === 'WON';
+  const isWon = room.winnerUserId === userId;
 
   const renderMiniTile = (isMatch: boolean | 'match' | 'higher' | 'lower' | undefined, key: string) => {
     let colorClass = 'bg-neutral-300 border-black';
@@ -76,6 +75,7 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
       animate={{ opacity: 1, y: 0 }}
       className="w-full bg-black text-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 flex flex-col gap-3 mb-2"
     >
+      {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
       {/* Top Header Status Row */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-b-2 border-neutral-800 pb-2">
         <div className="flex items-center gap-2">

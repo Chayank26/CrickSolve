@@ -126,3 +126,16 @@ This phase makes Redis-backed room state authoritative even though Supabase Real
 | **HTTP 409 conflict responses** | Client-visible contention handling | Concurrent room actions receive a retryable conflict response instead of being reported as an internal server error. |
 
 Joins, readiness changes, status transitions, rematches, and accepted guesses now share the same per-room mutation boundary. This prevents duplicate attempt numbers and conflicting winner/rematch writes.
+
+## Multiplayer Completion Phase 1 — Client Reconciliation (2026-09-27)
+
+- `useMultiplayerStore.setRoomSnapshot` is the common room-state entry point, deriving active state, winner and reveal from server responses.
+- `initializedRoundId` prevents repeated board initialization. `connectionVersion` invalidates asynchronous work after leaving/reconnecting, including returning to the same room.
+- Room revisions reject older snapshots across rounds; room mutation and guess responses also check their originating round.
+- Countdown intervals are retained and cancelled explicitly. Countdown expiry triggers a host-only API mutation rather than a local state transition.
+- Supabase broadcasts remain untrusted reconciliation triggers; the server is authoritative for displayed match outcomes.
+- Store regression tests use Node's built-in test runner and the installed TypeScript transpiler, with deterministic transport/timer and solo-store boundaries. They exercise the actual multiplayer store without external services.
+
+Run: `node --test tests/multiplayer-state.test.mjs`.
+
+Validation: 12 tests pass; TypeScript passes; changed-file lint has zero errors and one existing image warning. Full-project lint still reports 12 errors and 15 warnings. Live two-browser, shared Redis and production-build checks have not been performed in this phase.

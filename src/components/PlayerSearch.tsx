@@ -25,14 +25,15 @@ export function PlayerSearch() {
     startHintSelection,
   } = useGameStore();
 
-  const { room, membershipToken, userId, setReveal, setRoomSnapshot, broadcastGuess, broadcastFinish } = useMultiplayerStore();
+  const { room, membershipToken, userId, setRoomSnapshot, broadcastGuess, broadcastFinish } = useMultiplayerStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
-  const isGameOver = gameStatus !== 'IN_PROGRESS';
+  const isGameOver = gameStatus !== 'IN_PROGRESS' || (!!room && room.status !== 'in_progress');
 
   // Resolve target player across full player pool
   const todayStr = new Date().toISOString().split('T')[0];
@@ -82,6 +83,15 @@ export function PlayerSearch() {
 
     if (targetId) {
       setIsSubmitting(true);
+      setSubmissionError(null);
+      const connectionVersion = useMultiplayerStore.getState().connectionVersion;
+      const isCurrentRequest = () => {
+        const current = useMultiplayerStore.getState();
+        if (current.connectionVersion !== connectionVersion) return false;
+        return room
+          ? current.room?.id === room.id && current.room.roundId === room.roundId && current.membershipToken === membershipToken
+          : !current.room;
+      };
       try {
         const res = await fetch('/api/puzzle/guess', {
           method: 'POST',
@@ -100,8 +110,13 @@ export function PlayerSearch() {
           }),
         });
         const data = await res.json();
+        if (!isCurrentRequest()) return;
+        if (room && (!res.ok || !data.evaluation || !data.room)) {
+          setSubmissionError(data.error || 'Unable to submit guess. Please retry.');
+          return;
+        }
+        if (room && data.room.roundId !== room.roundId) return;
         if (room && data.room) setRoomSnapshot(data.room);
-        if (room && data.multiplayerReveal) setReveal(data.multiplayerReveal);
         let evalResult = data.evaluation;
         if (evalResult) {
           addGuess({
@@ -114,6 +129,11 @@ export function PlayerSearch() {
           // Fallback local evaluation
           evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
           if (evalResult) addGuess(evalResult);
+        }
+
+        if (evalResult) {
+          setQuery('');
+          setSelectedPlayerId(null);
         }
 
         // Broadcast to multiplayer room
@@ -130,28 +150,16 @@ export function PlayerSearch() {
           }
         }
       } catch {
-        // Fallback local evaluation
-        if (room) return;
-        const evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
-        if (evalResult) {
-          addGuess(evalResult);
-          if (room) {
-            broadcastGuess(
-              guesses.length + 1,
-              evalResult.attributeMatches,
-              evalResult.numericMatches,
-              evalResult.isCorrect
-            );
-            if (evalResult.isCorrect) {
-              const solveTime = startTimeMs ? Math.max(0, Date.now() - startTimeMs) : 0;
-              broadcastFinish(guesses.length + 1, solveTime);
-            }
-          }
+        if (!isCurrentRequest()) return;
+        if (room) {
+          setSubmissionError('Could not submit your guess. Check your connection and retry.');
+          return;
         }
+        const evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
+        if (evalResult) addGuess(evalResult);
       } finally {
         setIsSubmitting(false);
-        setQuery('');
-        setSelectedPlayerId(null);
+        // Keep the selected guess available when the server rejects a request.
       }
     }
   };
@@ -176,7 +184,7 @@ export function PlayerSearch() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleGuessSubmit();
             }}
-            disabled={isGameOver}
+            disabled={isGameOver || isSubmitting}
             placeholder={isGameOver ? 'GAME FINISHED' : 'Enter Cricketer Name (e.g. Virat Kohli)...'}
             className="w-full bg-white text-black font-black placeholder-slate-400 border-3 border-black px-4 py-3.5 text-sm sm:text-base uppercase focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:opacity-70"
           />
@@ -208,12 +216,14 @@ export function PlayerSearch() {
         {/* Big Neon Yellow GUESS (X/7) Button */}
         <button
           onClick={handleGuessSubmit}
-          disabled={isGameOver || (!selectedPlayerId && !query.trim())}
+          disabled={isGameOver || isSubmitting || (!selectedPlayerId && !query.trim())}
           className="bg-[#CCFF00] hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 text-black font-black border-3 border-black px-6 py-3.5 text-sm sm:text-base uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-60 whitespace-nowrap"
         >
           GUESS ({currentGuessNum}/7)
         </button>
       </div>
+
+      {submissionError && <p role="alert" className="bg-white border-2 border-black p-2 text-sm font-bold text-red-700">{submissionError}</p>}
 
       {/* Hint Trigger Button (If available) */}
       <div className="flex justify-end">

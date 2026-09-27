@@ -18,7 +18,6 @@ export function ResultModal() {
     guesses,
     gameMode,
     unlimitedTargetId,
-    category,
     resetGame,
     currentDate,
     startTimeMs,
@@ -26,19 +25,20 @@ export function ResultModal() {
     victoryToken,
     setNickname,
   } = useGameStore();
-  const { room, reveal } = useMultiplayerStore();
+  const { room, reveal, userId, matchWinner } = useMultiplayerStore();
 
   const [inputName, setInputName] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isWon = gameStatus === 'WON';
-  const isLost = gameStatus === 'LOST';
+  const isWon = room ? room.status === 'finished' && room.winnerUserId === userId : gameStatus === 'WON';
+  const isLost = room ? room.status === 'finished' && room.winnerUserId !== userId : gameStatus === 'LOST';
 
   // Calculate solve time from first guess to winning guess
-  const start = startTimeMs || Date.now();
-  const end = endTimeMs || Date.now();
-  const solveTimeMs = Math.max(1000, end - start);
+  const start = startTimeMs || 0;
+  const end = endTimeMs || start;
+  const solveTimeMs = room ? (matchWinner?.solveTimeMs || 0) : Math.max(1000, end - start);
+  const tries = room ? (matchWinner?.tries || 0) : guesses.length;
 
   useEffect(() => {
     if (activeModal === 'result' && isWon) {
@@ -147,12 +147,12 @@ export function ResultModal() {
           )}
 
           <h2 className="text-2xl font-black uppercase tracking-tight text-black">
-            {isWon ? 'SPECTACULAR WIN!' : 'MYSTERY PLAYER REVEALED'}
+            {isWon ? 'SPECTACULAR WIN!' : room ? 'DUEL FINISHED' : 'MYSTERY PLAYER REVEALED'}
           </h2>
           <p className="text-xs font-bold text-slate-600">
             {isWon
-              ? `You solved the puzzle in ${guesses.length} tries!`
-              : 'Here is the target cricketer for today.'}
+              ? `You solved the puzzle in ${tries} tries!`
+              : room ? `${matchWinner?.winnerNickname || 'Your opponent'} solved first.` : 'Here is the target cricketer for today.'}
           </p>
         </div>
 
@@ -182,12 +182,12 @@ export function ResultModal() {
               <span>SOLVE TIME: {formatMmSs(solveTimeMs)}</span>
             </div>
             <div>|</div>
-            <div>TRIES: {guesses.length}/7</div>
+            <div>TRIES: {tries}/7</div>
           </div>
         )}
 
         {/* Name Input Form for Leaderboard Submission (Blank Input Box) */}
-        {isWon && !isSubmitted && (
+        {!room && isWon && !isSubmitted && (
           <form onSubmit={handleSubmitLeaderboard} className="flex flex-col gap-2 pt-1 text-left">
             <label className="text-xs font-black uppercase text-black">
               Enter Your Name For Leaderboard:
@@ -223,7 +223,9 @@ export function ResultModal() {
             <span>SHARE SCORE</span>
           </button>
 
-          {gameMode === 'unlimited' ? (
+          {room ? (
+            <button onClick={() => setActiveModal(null)} className="bg-black text-white border-3 border-black py-2.5 text-xs font-black uppercase">BACK TO DUEL</button>
+          ) : gameMode === 'unlimited' ? (
             <button
               onClick={() => {
                 resetGame();

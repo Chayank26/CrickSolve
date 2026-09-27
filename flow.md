@@ -470,3 +470,18 @@ Below is a complete collection of interview questions ranging from frontend engi
 > 2. **Dynamic Social Share Cards (`@vercel/og`)**: Generating high-resolution OpenGraph preview images on Edge workers displaying the player's color grid, solve time badge, and mystery silhouette for viral sharing on WhatsApp and Twitter.
 > 3. **Immaculate Grid Mode**: A 3x3 cricket trivia matrix game mode for expanded daily replayability.
 
+
+## Multiplayer Completion Phase 1 — Current Client Flow (2026-09-27)
+
+This section supersedes older descriptions of optimistic client match transitions.
+
+1. Create/join obtains the room and membership token and starts reconciliation.
+2. Readiness and countdown requests use a shared mutation path with visible errors.
+3. A countdown is rendered from `countdownEndsAt`. Only the host requests `in_progress`; neither client starts locally before an accepted snapshot.
+4. `setRoomSnapshot` initializes gameplay once per round. Repeated polling and guess updates preserve the board.
+5. Guess submission is disabled outside active matches and while submitting. Failed requests retain the selection and display an error.
+6. A terminal server snapshot sets the winner and reveal and opens results on both clients. Repeated terminal snapshots do not reopen a dismissed result.
+7. Responses from a previous connection, another room, or an older revision cannot restore departed state. Mutation and guess responses additionally check the originating round.
+8. Leaving cancels local polling and countdown timers. Server-side departure/reconnect policy remains deferred.
+
+Confirmed future gameplay contract: seven guesses, a daily-style hint bonus after guess four, and no eighth attempt. Phase 1 still uses the solo game store internally, so bonus/attempt handling and stats isolation remain unfinished until the relevant phases.
