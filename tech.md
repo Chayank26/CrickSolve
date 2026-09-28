@@ -170,3 +170,20 @@ Validation: 26 tests pass; TypeScript passes; changed-file lint has no errors an
 Limits per 60 seconds: network create 10, join 30, read 600, mutate 120, guess 120; member read 180, mutate 30, guess 30. Default network grouping is a shared bucket. `CRICKSOLVE_TRUST_PROXY=1` opts into the first `x-forwarded-for` address only where a trusted proxy sanitizes that header. Redis keys hash the subject. Production traffic sizing and proxy trust must be verified during deployment work.
 
 Current verification: 45 tests pass; TypeScript and changed-file lint pass. Full lint still reports 12 errors and 14 warnings. Shared Redis behavior is simulated in tests; live Redis, browser integration and production build checks remain outstanding. Public Realtime channels are not privately authorized in this phase.
+
+## Multiplayer Completion Phase 4 — Gameplay Projection and Private Hints
+
+| Component | Responsibility |
+| --- | --- |
+| `useGameStore` | Persisted solo gameplay and shared UI/preferences; never receives multiplayer guesses |
+| `useMultiplayerStore` | Ephemeral duel guesses, private hint, selection/pending state, room lifecycle |
+| `useActiveGame` | Shared component projection with an explicit multiplayer mode, room timing and outcome |
+| `claimRoomHint` | Locked authorization, fourth-guess eligibility, one-hint enforcement and private value selection |
+| `toMemberRoomResponse` | Public room plus the caller's own private hint; excludes the per-user hint map |
+| Attribute cards | Accessible selectable buttons; server-issued hint values and retry-safe pending state |
+
+`MULTIPLAYER_HINT_AFTER` is four. Hint keys are restricted to the six categorical cards. `hintsByUser` is excluded from `PublicMultiplayerRoom`. Guess counters and attempt limits are unaffected by hints. Hint actions reuse the existing authenticated room mutation rate budget.
+
+Solo persistence now includes timer and hint/bonus fields previously omitted by `partialize`. Multiplayer remains unpersisted; there is no room-to-solo save/restore copy that can overwrite solo state. The active-game projection reads the correct store for grids, results, timer, search, cards and shares.
+
+Validation: 60 tests pass, TypeScript passes, changed-file lint has zero errors and one pre-existing image warning. Full lint reports 10 errors and 8 warnings. Tests cover authenticated hint delivery, independent per-player bonuses, concurrency, stale/terminal rejection, solo persistence isolation, full client-store-to-route hint selection, and rendered UI behavior. Rendered HTML tests are not browser E2E tests; real Redis and browser verification remain pending.

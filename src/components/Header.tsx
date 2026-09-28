@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useGameStore } from '@/store/useGameStore';
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
+import { useActiveGame } from '@/hooks/useActiveGame';
 import { formatMmSs } from '@/lib/utils';
 import { Volume2, VolumeX, HelpCircle, Trophy, BarChart2, Timer } from 'lucide-react';
 
@@ -18,33 +19,19 @@ export function Header() {
     startTimeMs,
     endTimeMs,
     gameStatus,
-  } = useGameStore();
+  } = useActiveGame();
 
-  const [elapsedMs, setElapsedMs] = useState(0);
+  const { room } = useMultiplayerStore();
+  const [tick, setTick] = useState(0);
   const todayStr = new Date().toISOString().split('T')[0];
   const isPastGame = gameMode === 'daily' && currentDate !== todayStr;
-
+  const timerRunning = !!startTimeMs && (room ? room.status === 'in_progress' : gameStatus === 'IN_PROGRESS');
   useEffect(() => {
-    if (!startTimeMs) {
-      setElapsedMs(0);
-      return;
-    }
-
-    if (gameStatus !== 'IN_PROGRESS') {
-      const end = endTimeMs || Date.now();
-      setElapsedMs(Math.max(0, end - startTimeMs));
-      return;
-    }
-
-    const updateTimer = () => {
-      setElapsedMs(Math.max(0, Date.now() - startTimeMs));
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 500);
-
+    if (!timerRunning) return;
+    const interval = setInterval(() => setTick(Date.now()), 250);
     return () => clearInterval(interval);
-  }, [startTimeMs, endTimeMs, gameStatus]);
+  }, [timerRunning, startTimeMs]);
+  const elapsedMs = startTimeMs ? Math.max(0, (endTimeMs ?? (timerRunning ? tick : startTimeMs)) - startTimeMs) : 0;
 
   return (
     <header className="w-full flex flex-col gap-5 pt-4 pb-2">
@@ -67,12 +54,12 @@ export function Header() {
 
           {/* Mode Indicator Badge */}
           <div className="bg-white border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black">
-            {gameMode === 'unlimited' ? 'UNLIMITED' : isPastGame ? `PAST: ${currentDate}` : 'DAILY PUZZLE'}
+            {gameMode === 'multiplayer' ? 'MULTIPLAYER • 7 GUESSES' : gameMode === 'unlimited' ? 'UNLIMITED' : isPastGame ? `PAST: ${currentDate}` : 'DAILY PUZZLE'}
           </div>
 
           {/* Streak */}
           <div className="bg-white border-3 border-black px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-black">
-            STREAK: {streak}
+            {room ? 'SOLO STREAK' : 'STREAK'}: {streak}
           </div>
 
           {/* Sound Toggle */}
@@ -94,12 +81,13 @@ export function Header() {
         {/* Mode Tabs */}
         <div className="flex items-center flex-wrap gap-3">
           <button
+            disabled={!!room}
             onClick={() => {
               if (gameMode !== 'daily' || currentDate !== todayStr) {
                 syncDailyDate(todayStr);
               }
             }}
-            className={`px-5 py-2 text-xs md:text-sm font-black border-3 border-black uppercase transition-all ${
+            className={`disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2 text-xs md:text-sm font-black border-3 border-black uppercase transition-all ${
               gameMode === 'daily' && !isPastGame
                 ? 'bg-[#7E22CE] text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
                 : 'bg-white text-black hover:bg-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
@@ -109,8 +97,9 @@ export function Header() {
           </button>
 
           <button
+            disabled={!!room}
             onClick={() => setGameMode('unlimited')}
-            className={`px-5 py-2 text-xs md:text-sm font-black border-3 border-black uppercase transition-all ${
+            className={`disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2 text-xs md:text-sm font-black border-3 border-black uppercase transition-all ${
               gameMode === 'unlimited'
                 ? 'bg-[#7E22CE] text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
                 : 'bg-white text-black hover:bg-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
@@ -120,8 +109,9 @@ export function Header() {
           </button>
 
           <button
+            disabled={!!room}
             onClick={() => setActiveModal('calendar')}
-            className={`px-5 py-2 text-xs md:text-sm font-black border-3 border-black uppercase transition-all ${
+            className={`disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2 text-xs md:text-sm font-black border-3 border-black uppercase transition-all ${
               isPastGame
                 ? 'bg-[#7E22CE] text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
                 : 'bg-white text-black hover:bg-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
@@ -146,7 +136,7 @@ export function Header() {
             className="bg-white text-black hover:bg-slate-100 font-black px-5 py-2 text-xs md:text-sm border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase transition-all flex items-center gap-2"
           >
             <BarChart2 className="w-4 h-4 text-black" />
-            <span>YOUR STATS</span>
+            <span>{room ? 'SOLO STATS' : 'YOUR STATS'}</span>
           </button>
 
           <button
@@ -154,7 +144,7 @@ export function Header() {
             className="bg-[#CCFF00] text-black font-black px-6 py-2 text-xs md:text-sm border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-2"
           >
             <Trophy className="w-4 h-4 text-black" />
-            <span>LEADERBOARD</span>
+            <span>{room ? 'DAILY LEADERBOARD' : 'LEADERBOARD'}</span>
           </button>
 
           <button
@@ -166,6 +156,7 @@ export function Header() {
           </button>
         </div>
       </div>
+      {room && <p className="text-xs font-bold">Leave the duel to switch modes. Your solo progress is saved.</p>}
     </header>
   );
 }

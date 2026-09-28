@@ -4,6 +4,8 @@ import { createRequire } from 'node:module';
 import vm from 'node:vm';
 import test from 'node:test';
 import ts from 'typescript';
+import { createLoader } from './helpers/load-typescript.mjs';
+const loadTypes = createLoader();
 
 // Exercise the real store with deterministic transport, clock and solo-store boundaries.
 const require = createRequire(import.meta.url);
@@ -21,6 +23,7 @@ function setup() {
   vm.runInNewContext(source, {
     exports,
     require(name) {
+      if (name === '@/types/multiplayer') return loadTypes('src/types/multiplayer.ts');
       if (name === '@/lib/supabase') return { supabase: { channel: () => channel, removeChannel() {} } };
       if (name === '@/store/useGameStore') return { useGameStore: { getState: () => ({
         setGameMode() { resets++; }, setActiveModal(value) { modal = value; },
@@ -46,13 +49,15 @@ function setup() {
 }
 const response = (room) => ({ ok: true, json: async () => ({ room }) });
 
-test('repeated active snapshots initialize the board once, including newer guesses', () => {
+test('repeated active snapshots preserve multiplayer guesses without resetting solo gameplay', () => {
   const f = setup();
   const active = { ...f.room, status: 'in_progress', revision: 3 };
   f.store.getState().setRoomSnapshot(active);
+  f.store.getState().addGuess({ guessedPlayer: { id: 'first' } }, active.roundId, 1);
   f.store.getState().setRoomSnapshot({ ...active });
   f.store.getState().setRoomSnapshot({ ...active, revision: 4 });
-  assert.equal(f.resets(), 1);
+  assert.equal(f.store.getState().guesses.length, 1);
+  assert.equal(f.resets(), 0);
   assert.equal(f.store.getState().isMatchActive, true);
 });
 
@@ -79,7 +84,7 @@ test('old snapshots cannot rewind revisions or resurrect a prior round', () => {
   assert.equal(f.store.getState().room.roundId, 'round2');
   assert.equal(f.resets(), 0);
   f.store.getState().setRoomSnapshot({ ...f.room, roundId: 'round2', revision: 9, status: 'in_progress' });
-  assert.equal(f.resets(), 1);
+  assert.equal(f.resets(), 0);
 });
 
 test('a pending room fetch cannot restore a room after leaving', async () => {
@@ -149,7 +154,7 @@ test('host countdown waits for an accepted response before activating gameplay',
   resolve(response({ ...f.room, revision: 3, status: 'in_progress' }));
   await new Promise((done) => setImmediate(done));
   assert.equal(f.store.getState().isMatchActive, true);
-  assert.equal(f.resets(), 1);
+  assert.equal(f.resets(), 0);
 });
 
 test('late readiness mutation cannot replace a new round', async () => {

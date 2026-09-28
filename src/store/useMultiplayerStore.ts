@@ -1,11 +1,19 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
 import { useGameStore } from '@/store/useGameStore';
-import { MultiplayerReveal, PublicMultiplayerRoom } from '@/types/multiplayer';
+import { MultiplayerHint, MultiplayerHintKey, MULTIPLAYER_HINT_AFTER, MULTIPLAYER_MAX_GUESSES, MultiplayerReveal, PublicMultiplayerRoom } from '@/types/multiplayer';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { AttributeMatchResult, NumericMatchResult } from '@/types/game';
+import { AttributeMatchResult, GuessEvaluation, NumericMatchResult } from '@/types/game';
 
 interface MultiplayerState {
+  guesses: GuessEvaluation[];
+  hint: MultiplayerHint | null;
+  isHintSelecting: boolean;
+  isClaimingHint: boolean;
+  addGuess: (evaluation: GuessEvaluation, roundId: string, attemptNumber: number) => void;
+  startHintSelection: () => void;
+  cancelHintSelection: () => void;
+  claimHint: (key: MultiplayerHintKey) => Promise<boolean>;
   userId: string;
   nickname: string;
   membershipToken: string | null;
@@ -29,7 +37,7 @@ interface MultiplayerState {
   syncTimer: ReturnType<typeof setInterval> | null;
   countdownTimer: ReturnType<typeof setInterval> | null;
   setNickname: (name: string) => void;
-  setRoomSnapshot: (room: PublicMultiplayerRoom) => void;
+  setRoomSnapshot: (room: PublicMultiplayerRoom, hint?: MultiplayerHint | null) => void;
   syncRoomSnapshot: () => Promise<void>;
   startRoomSync: () => void;
   stopRoomSync: () => void;
@@ -49,6 +57,7 @@ interface MultiplayerState {
 }
 
 export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
+  guesses: [], hint: null, isHintSelecting: false, isClaimingHint: false,
   userId: 'user_anon',
   nickname: 'Cricketer',
   membershipToken: null,
@@ -69,19 +78,47 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
 
   setNickname: (name) => set({ nickname: name.trim() || 'Cricketer' }),
 
-  setRoomSnapshot: (room) => {
+  addGuess: (evaluation, roundId, attemptNumber) => {
+    const state = get();
+    if (!state.room || state.room.roundId !== roundId || state.guesses.length >= MULTIPLAYER_MAX_GUESSES ||
+        attemptNumber !== state.guesses.length + 1) return;
+    set({ guesses: [...state.guesses, evaluation] });
+  },
+  startHintSelection: () => {
+    const state = get();
+    const count = state.room?.participants.find((player) => player.userId === state.userId)?.guessesCount || 0;
+    if (state.room?.status === 'in_progress' && count >= MULTIPLAYER_HINT_AFTER && count < MULTIPLAYER_MAX_GUESSES && !state.hint) {
+      set({ isHintSelecting: true });
+    }
+  },
+  cancelHintSelection: () => set({ isHintSelecting: false }),
+  claimHint: async (key) => {
+    const state = get();
+    if (!state.room || !state.isHintSelecting || state.isClaimingHint) return false;
+    set({ isClaimingHint: true });
+    await get()._mutateRoom({ action: 'hint', attribute: key }, 'ROOM_UPDATED');
+    if (get().connectionVersion !== state.connectionVersion || get().room?.roundId !== state.room.roundId) return false;
+    set({ isClaimingHint: false });
+    return get().hint?.key === key;
+  },
+
+  setRoomSnapshot: (room, hint) => {
     const state = get();
     const previous = state.room;
     if (!previous || previous.id !== room.id || room.revision < previous.revision) return;
     if (room.roundId !== previous.roundId && room.revision <= previous.revision) return;
 
-    const startsRound = room.status === 'in_progress' && state.initializedRoundId !== room.roundId;
+    const newRound = state.initializedRoundId !== room.roundId;
+    const startsRound = room.status === 'in_progress' && (newRound || previous.status !== 'in_progress');
     const finishesRound = room.status === 'finished' &&
       (previous.status !== 'finished' || previous.roundId !== room.roundId);
     const winner = room.participants.find((participant) => participant.userId === room.winnerUserId);
     if (room.status !== 'countdown' && state.countdownTimer) clearInterval(state.countdownTimer);
     set({
       room,
+      ...(newRound ? { guesses: [], hint: null, isHintSelecting: false, isClaimingHint: false, initializedRoundId: room.roundId } : {}),
+      ...(hint !== undefined ? { hint } : {}),
+      ...(hint || room.status !== 'in_progress' || (room.participants.find((p) => p.userId === state.userId)?.guessesCount || 0) >= MULTIPLAYER_MAX_GUESSES ? { isHintSelecting: false } : {}),
       reveal: room.reveal || null,
       isMatchActive: room.status === 'in_progress',
       matchWinner: room.status === 'finished' && room.winnerUserId ? {
@@ -91,10 +128,8 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
         solveTimeMs: winner?.solveTimeMs ?? Math.max(0, (room.finishedAt || 0) - (room.startedAt || 0)),
       } : null,
       ...(room.status !== 'countdown' ? { countdown: null, countdownTimer: null } : {}),
-      ...(startsRound ? { initializedRoundId: room.roundId } : {}),
     });
     if (startsRound) {
-      useGameStore.getState().setGameMode('unlimited');
       useGameStore.getState().setActiveModal(null);
     }
     if (finishesRound) useGameStore.getState().setActiveModal('result');
@@ -113,7 +148,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       const data = await response.json();
       if (!isCurrent()) return;
       if (!response.ok || !data.room) throw new Error(data.error || 'Unable to sync the room');
-      get().setRoomSnapshot(data.room);
+      get().setRoomSnapshot(data.room, data.hint);
       // Do not erase an actionable mutation error on every background poll.
       if (get().error?.startsWith('Room sync:')) set({ error: null });
     } catch (error) {
@@ -136,6 +171,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
 
   _connect: async (path, body, membershipToken) => {
     get().leaveRoom();
+    useGameStore.getState().setActiveModal('multiplayer');
     const version = get().connectionVersion;
     set({ isConnecting: true, error: null });
     try {
@@ -146,7 +182,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       if (get().connectionVersion !== version) return false;
       if (!response.ok || !data.room || !data.membershipToken || !data.userId) throw new Error(data.error || 'Unable to connect to room');
       set({ userId: data.userId, room: data.room, membershipToken: data.membershipToken, isConnecting: false });
-      get().setRoomSnapshot(data.room);
+      get().setRoomSnapshot(data.room, data.hint);
       get()._subscribeToRoom(data.room.roomCode);
       return true;
     } catch (error) {
@@ -176,7 +212,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       const data = await response.json();
       if (!isCurrent()) return;
       if (!response.ok || !data.room) throw new Error(data.error || 'Unable to update room');
-      get().setRoomSnapshot(data.room);
+      get().setRoomSnapshot(data.room, data.hint);
       set({ error: null });
       void get().channel?.send({ type: 'broadcast', event, payload: {
         roomCode: data.room.roomCode, roundId: data.room.roundId, revision: data.room.revision,
@@ -206,12 +242,14 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   leaveRoom: () => {
+    if (get().room) useGameStore.getState().setActiveModal(null);
     const timer = get().countdownTimer;
     if (timer) clearInterval(timer);
     get().stopRoomSync();
     get().cleanupChannel();
     set({
       connectionVersion: get().connectionVersion + 1, syncInFlight: false, lastSyncAt: 0,
+      guesses: [], hint: null, isHintSelecting: false, isClaimingHint: false,
       userId: 'user_anon', room: null, reveal: null, membershipToken: null, countdown: null, countdownTimer: null,
       initializedRoundId: null, isMatchActive: false, matchWinner: null, error: null, isConnecting: false,
     });

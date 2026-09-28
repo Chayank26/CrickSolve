@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useGameStore } from '@/store/useGameStore';
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
+import { useActiveGame } from '@/hooks/useActiveGame';
 import { X, Share2, Copy, Check } from 'lucide-react';
 
 export function ShareGridModal() {
-  const { activeModal, setActiveModal, guesses, streak, currentDate } = useGameStore();
+  const { activeModal, setActiveModal, guesses, streak, currentDate } = useActiveGame();
+  const { room, userId } = useMultiplayerStore();
   const [copied, setCopied] = useState(false);
 
   if (activeModal !== 'share') return null;
@@ -21,7 +23,10 @@ export function ShareGridModal() {
     })
     .join('\n');
 
-  const shareText = `CrickSolve ${currentDate}\nGuesses: ${guesses.length}/7 • Streak: ${streak}\n\n${emojiGrid}\n\nPlay at: https://cricksolve.vercel.app`;
+  const outcome = room?.finishReason === 'exhausted' ? 'No winner' : room?.winnerUserId === userId ? 'Won the duel' : 'Opponent won';
+  const shareText = room
+    ? `CrickSolve 1v1\n${room.status === 'finished' ? outcome : 'Duel in progress'} • Guesses: ${guesses.length}/7\n\n${emojiGrid}\n\nPlay at: https://cricksolve.vercel.app`
+    : `CrickSolve ${currentDate}\nGuesses: ${guesses.length}/7 • Streak: ${streak}\n\n${emojiGrid}\n\nPlay at: https://cricksolve.vercel.app`;
 
   function handleCopy() {
     navigator.clipboard.writeText(shareText);

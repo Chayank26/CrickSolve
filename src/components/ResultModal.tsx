@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useGameStore } from '@/store/useGameStore';
+import { useActiveGame } from '@/hooks/useActiveGame';
 import confetti from 'canvas-confetti';
 import { formatMmSs } from '@/lib/utils';
 import { Trophy, Share2, RotateCcw, AlertCircle, Timer, X } from 'lucide-react';
@@ -24,7 +24,7 @@ export function ResultModal() {
     endTimeMs,
     victoryToken,
     setNickname,
-  } = useGameStore();
+  } = useActiveGame();
   const { room, reveal, userId, matchWinner } = useMultiplayerStore();
 
   const [inputName, setInputName] = useState('');

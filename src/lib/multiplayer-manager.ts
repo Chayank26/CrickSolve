@@ -4,7 +4,7 @@ import { randomInt, randomUUID } from 'crypto';
 import { evaluatePlayerGuess } from '@/lib/game-engine';
 import { verifyMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { PLAYERS } from '@/data/players';
-import { MultiplayerRoom, PublicMultiplayerRoom, RoomParticipant, RoomStatus, MULTIPLAYER_MAX_GUESSES } from '@/types/multiplayer';
+import { MultiplayerRoom, PublicMultiplayerRoom, RoomParticipant, RoomStatus, MULTIPLAYER_MAX_GUESSES, MULTIPLAYER_HINT_AFTER, MULTIPLAYER_HINT_LABELS, MultiplayerHintKey } from '@/types/multiplayer';
 import { getStoredRoom, saveStoredRoom, withRoomMutation } from '@/lib/multiplayer-room-store';
 
 function generateRoomCode(): string {
@@ -28,6 +28,36 @@ export function toPublicRoom(room: MultiplayerRoom): PublicMultiplayerRoom {
     finishedAt: room.finishedAt, winnerUserId: room.winnerUserId, winnerNickname: room.winnerNickname,
     reveal: room.reveal, countdownEndsAt: room.countdownEndsAt, finishReason: room.finishReason,
   };
+}
+
+export function toMemberRoomResponse(room: MultiplayerRoom, userId: string) {
+  return { room: toPublicRoom(room), hint: room.hintsByUser?.[userId] || null };
+}
+
+export async function claimRoomHint(roomCode: string, userId: string, roundId: string, membershipToken: string, key: MultiplayerHintKey): Promise<{ room: MultiplayerRoom | null; error?: string }> {
+  return withRoomMutation(roomCode, async (save) => {
+    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    if (!Object.hasOwn(MULTIPLAYER_HINT_LABELS, key)) throw new RoomActionError('Invalid hint attribute', 400);
+    const participant = room.participants.find((player) => player.userId === userId)!;
+    if (room.status !== 'in_progress' || participant.isSolved || participant.guessesCount >= MULTIPLAYER_MAX_GUESSES) {
+      throw new RoomActionError('Hints are only available while you can still guess');
+    }
+    if (participant.guessesCount < MULTIPLAYER_HINT_AFTER) throw new RoomActionError('Your bonus hint unlocks after four guesses');
+    const existing = room.hintsByUser?.[userId];
+    if (existing) {
+      if (existing.key !== key) throw new RoomActionError('You have already used your bonus hint');
+      return { room }; // Retrying the same request never consumes a second hint.
+    }
+    if ((room.guessedPlayerIdsByUser?.[userId] || []).some((id) => evaluatePlayerGuess(id, room.targetPlayerId, 1)?.attributeMatches[key])) {
+      throw new RoomActionError('This attribute is already unlocked. Choose a locked card.');
+    }
+    const target = PLAYERS.find((player) => player.id === room.targetPlayerId)!;
+    const value = key === 'retired' ? (target.retired ? 'YES' : 'NO') : target[key];
+    room.hintsByUser = { ...room.hintsByUser, [userId]: { key, value } };
+    room.revision += 1;
+    await save(room);
+    return { room };
+  });
 }
 
 export async function createRoom(hostId: string, hostName: string): Promise<MultiplayerRoom> {
@@ -157,6 +187,8 @@ export async function submitRoomGuess(input: {
     const evaluation = evaluatePlayerGuess(guessedPlayerId, room.targetPlayerId, attemptNumber);
     const target = PLAYERS.find((player) => player.id === room.targetPlayerId);
     if (!evaluation || !target) throw new RoomActionError('Invalid player ID', 400);
+    // Multiplayer has one selectable attribute bonus, not the solo trivia hint.
+    delete evaluation.unlockedHint;
     evaluation.revealedAttributes = {
       country: evaluation.attributeMatches.country ? target.country : undefined,
       battingHand: evaluation.attributeMatches.battingHand ? target.battingHand : undefined,
@@ -237,6 +269,7 @@ export async function rematchRoomForUser(
     if (room.status !== 'finished') throw new RoomActionError('Only finished matches can be reset');
     room.finishReason = undefined;
     room.guessedPlayerIdsByUser = {};
+    room.hintsByUser = {};
     room.targetPlayerId = pickRandomMysteryPlayerId(room.targetPlayerId);
     room.roundId = randomUUID();
     room.revision += 1;

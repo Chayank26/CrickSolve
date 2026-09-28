@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useGameStore } from '@/store/useGameStore';
+import { useActiveGame } from '@/hooks/useActiveGame';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { MULTIPLAYER_MAX_GUESSES } from '@/types/multiplayer';
 import { PLAYERS } from '@/data/players';
@@ -24,9 +24,9 @@ export function PlayerSearch() {
     startTimeMs,
     isHintSelecting,
     startHintSelection,
-  } = useGameStore();
+  } = useActiveGame();
 
-  const { room, membershipToken, userId, setRoomSnapshot, broadcastGuess, broadcastFinish } = useMultiplayerStore();
+  const { room, membershipToken, userId, setRoomSnapshot, addGuess: addMultiplayerGuess, isClaimingHint, broadcastGuess, broadcastFinish } = useMultiplayerStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export function PlayerSearch() {
   // Resolve target player across full player pool
   const todayStr = new Date().toISOString().split('T')[0];
   const activeDate = gameMode === 'daily' ? (currentDate || todayStr) : currentDate;
-  let targetPlayer = getDailyTargetPlayer(activeDate, 'International');
+  let targetPlayer = room ? null : getDailyTargetPlayer(activeDate, 'International');
   if (gameMode === 'unlimited' && unlimitedTargetId) {
     const found = PLAYERS.find((p) => p.id === unlimitedTargetId);
     if (found) targetPlayer = found;
@@ -103,7 +103,7 @@ export function PlayerSearch() {
             guessedPlayerId: targetId, attemptNumber: guesses.length + 1,
           } : {
             guessedPlayerId: targetId, date: currentDate, category, mode: gameMode,
-            targetPlayerId: targetPlayer.id, userId, sessionToken, attemptNumber: guesses.length + 1,
+            targetPlayerId: targetPlayer!.id, userId, sessionToken, attemptNumber: guesses.length + 1,
           }),
         });
         const data = await res.json();
@@ -113,18 +113,19 @@ export function PlayerSearch() {
           return;
         }
         if (room && data.room.roundId !== room.roundId) return;
-        if (room && data.room) setRoomSnapshot(data.room);
+        if (room && data.room) setRoomSnapshot(data.room, data.hint);
         let evalResult = data.evaluation;
         if (evalResult) {
-          addGuess({
+          if (room) addMultiplayerGuess(evalResult, room.roundId, guesses.length + 1);
+          else addGuess({
             ...evalResult,
             sessionToken: data.sessionToken,
             victoryToken: data.victoryToken,
             solveTimeMs: data.solveTimeMs,
-          }, !!room);
+          });
         } else if (!room) {
           // Fallback local evaluation
-          evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
+          evalResult = evaluatePlayerGuess(targetId, targetPlayer!.id, guesses.length + 1);
           if (evalResult) addGuess(evalResult);
         }
 
@@ -152,7 +153,7 @@ export function PlayerSearch() {
           setSubmissionError('Could not submit your guess. Check your connection and retry.');
           return;
         }
-        const evalResult = evaluatePlayerGuess(targetId, targetPlayer.id, guesses.length + 1);
+        const evalResult = evaluatePlayerGuess(targetId, targetPlayer!.id, guesses.length + 1);
         if (evalResult) addGuess(evalResult);
       } finally {
         setIsSubmitting(false);
@@ -162,7 +163,10 @@ export function PlayerSearch() {
   };
 
 
-  const isHintAvailable = guesses.length >= 4 && !unlockedHint;
+  const hasLockedAttributes = ['country', 'battingHand', 'bowlingType', 'role', 'iplTeam', 'retired'].some(
+    (key) => !guesses.some((guess) => guess.attributeMatches[key as keyof typeof guess.attributeMatches])
+  );
+  const isHintAvailable = guesses.length >= 4 && !unlockedHint && (!room || hasLockedAttributes);
   const currentGuessNum = Math.min(7, guesses.length + 1);
 
   return (
@@ -230,7 +234,7 @@ export function PlayerSearch() {
               startHintSelection();
             }
           }}
-          disabled={!isHintAvailable || isGameOver}
+          disabled={!isHintAvailable || isGameOver || isClaimingHint}
           className={`border-2 border-black px-3.5 py-1.5 text-xs font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-1.5 ${
             isHintSelecting
               ? 'bg-[#CCFF00] text-black border-black animate-pulse'
@@ -243,7 +247,7 @@ export function PlayerSearch() {
               ? `HINT: ${unlockedHint}`
               : isHintSelecting
               ? 'CLICK A SHINING CARD ON THE LEFT'
-              : 'USE HINT (AVAILABLE AFTER 4 GUESSES)'}
+              : room && !hasLockedAttributes ? 'ALL ATTRIBUTES ALREADY UNLOCKED' : 'BONUS HINT (AVAILABLE AFTER 4 GUESSES)'}
           </span>
         </button>
       </div>

@@ -46,12 +46,12 @@ Multiplayer is under phased development. Completion Phase 1 stabilizes round ini
 | 1 | Stable client match state and shared results | Implemented; unit checks pass, live integration pending |
 | 2 | Atomic server validation, round/attempt checks, seven-guess enforcement | Implemented; regression checks pass |
 | 3 | Secure anonymous participant identity and permissions | Implemented; regression checks pass |
-| 4 | Dedicated multiplayer rules/UI, bonus hint after guess four, progress isolation | Pending approval |
+| 4 | Dedicated multiplayer rules/UI, bonus hint after guess four, progress isolation | Implemented; regression checks pass |
 | 5 | Disconnect and recovery | Product decisions deferred |
 | 6 | Rematch lifecycle and result polish | Product decisions deferred |
 | 7 | Integration tests and deployment verification | Planned |
 
-Confirmed rules: **seven guesses**, a **daily-style bonus hint after the fourth guess**, and **no eighth guess**. Phase 2 enforces the seven-guess cap and removes the multiplayer eighth-attempt flow. The fourth-guess bonus hint remains Phase 4 work.
+Confirmed rules: **seven guesses**, a **daily-style bonus hint after the fourth guess**, and **no eighth guess**. Phase 2 enforces the seven-guess cap and removes the multiplayer eighth-attempt flow. The fourth-guess bonus hint is implemented in Phase 4: choose one still-locked attribute without consuming a guess.
 
 Each phase ends with updated documentation, a proposed commit message, and user approval before the next phase starts.
 
@@ -68,7 +68,7 @@ The store tests isolate network and timer behavior; they do not replace two-brow
 
 Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
 
-Current checks: 45 regression tests, TypeScript and changed-file lint pass. Live Redis, two-browser integration and production build verification remain pending. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
+Current checks: 60 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis, two-browser integration and production build verification remain pending. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
 
 
 ## Phase 3 API and configuration notes
@@ -80,3 +80,14 @@ Current checks: 45 regression tests, TypeScript and changed-file lint pass. Live
 - Rate limits use shared Redis when configured; otherwise counters are local to the process. Network limits default to a shared bucket. Set `CRICKSOLVE_TRUST_PROXY=1` only if the deployment proxy overwrites/sanitizes `x-forwarded-for`; this enables per-address grouping.
 - Per-minute network limits: create 10, join 30, room reads 600, room mutations 120, guesses 120. Additional member limits: reads 180, mutations 30, guesses 30. Production capacity and proxy configuration still need verification.
 - Realtime channels remain public, carrying only sync notifications; state is fetched through authenticated APIs. Credentials are held in memory, so refresh recovery remains future work.
+
+
+## Multiplayer gameplay — Phase 4
+
+- Each player has seven guesses. After four accepted guesses, choose one locked attribute card for a bonus hint. There is no eighth attempt.
+- The server grants one private attribute hint per player per round, with safe retries and no extra trivia hint. If all attribute cards are already matched, the UI explains that none need unlocking.
+- Daily/practice guesses, hints, timer state and statistics are kept separate. Leaving a duel returns to the unchanged solo board.
+- The multiplayer header, timer, rules, share text and photo reveal now reflect the duel. Solo mode changes are disabled while in a room; leave the duel to return to solo play.
+- Disconnect/recovery and rematch policies still require product decisions before Phases 5 and 6. Existing behavior has not been redesigned in this phase.
+
+Validation includes server/store tests and rendered component checks. Live Redis, browser interactions and production-build verification remain outstanding. Full-project lint currently reports 10 errors and 8 warnings outside this phase's completed fixes.

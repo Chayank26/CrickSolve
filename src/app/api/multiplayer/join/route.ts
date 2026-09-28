@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { joinRoom, toPublicRoom } from '@/lib/multiplayer-manager';
+import { joinRoom, toMemberRoomResponse } from '@/lib/multiplayer-manager';
 import { createMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readRoomCode, readString, requestMembership } from '@/lib/multiplayer-http';
 import { limitMultiplayerRequest } from '@/lib/multiplayer-rate-limit';
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     if (!room || error) throw new RoomActionError(error || 'Unable to join room', 409);
     const participant = room.participants.find((item) => item.userId === userId)!;
     return multiplayerJson({
-      success: true, userId, room: toPublicRoom(room),
+      success: true, userId, ...toMemberRoomResponse(room, userId),
       membershipToken: createMultiplayerMembershipToken(room, userId, participant.role),
     });
   } catch (error) { return multiplayerError(error); }

@@ -1,6 +1,6 @@
 import { evaluatePlayerGuess, getDailyTargetPlayer } from '@/lib/game-engine';
 import { createSessionToken, createVictoryToken, verifySessionToken } from '@/lib/server-crypto';
-import { submitRoomGuess, toPublicRoom } from '@/lib/multiplayer-manager';
+import { submitRoomGuess, toMemberRoomResponse } from '@/lib/multiplayer-manager';
 import { PlayerCategory } from '@/types/game';
 import { RoomActionError } from '@/lib/multiplayer-errors';
 import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readRoomCode, readRoundId, readString, requestMembership } from '@/lib/multiplayer-http';
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       const result = await submitRoomGuess({ roomCode, userId, roundId, membershipToken, guessedPlayerId, attemptNumber });
       return multiplayerJson({
         evaluation: result.evaluation, solveTimeMs: result.solveTimeMs,
-        mode: 'multiplayer', attemptNumber, room: toPublicRoom(result.room), multiplayerReveal: result.room.reveal,
+        mode: 'multiplayer', attemptNumber, ...toMemberRoomResponse(result.room, userId), multiplayerReveal: result.room.reveal,
       });
     }
 

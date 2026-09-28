@@ -169,23 +169,16 @@ test('Redis commit checks lock ownership and rejects a write after the lease exp
   assert.equal(values.get('cricksolve:multiplayer:room:ABCDEF:lock'), 'new-owner');
 });
 
-test('client multiplayer never offers attempt eight or updates solo stats; solo bonus still works', () => {
+test('solo game retains its optional eighth attempt', () => {
   const load = createLoader({ modules: { 'zustand/middleware': { persist: (initializer) => initializer } } });
   const { useGameStore: store } = load('src/store/useGameStore.ts');
   const evaluation = { isCorrect: false, guessedPlayer: { id: 'wrong' }, attributeMatches: {}, numericMatches: {} };
-  store.setState({ activeModal: null, streak: 3, gamesPlayed: 10, gamesWon: 5 });
-  for (let i = 0; i < 7; i++) store.getState().addGuess(evaluation, true);
-  assert.equal(store.getState().guesses.length, 7);
-  assert.equal(store.getState().gameStatus, 'LOST');
-  assert.notEqual(store.getState().activeModal, 'continue');
-  assert.equal(store.getState().gamesPlayed, 10);
-  assert.equal(store.getState().streak, 3);
-  store.getState().enableBonusChance(); // Even a stale solo control cannot append attempt eight.
-  store.getState().addGuess(evaluation, true);
-  assert.equal(store.getState().guesses.length, 7);
-  store.getState().resetGame();
   for (let i = 0; i < 7; i++) store.getState().addGuess(evaluation);
   assert.equal(store.getState().activeModal, 'continue');
+  store.getState().enableBonusChance();
+  store.getState().addGuess(evaluation);
+  assert.equal(store.getState().guesses.length, 8);
+  assert.equal(store.getState().gameStatus, 'LOST');
 });
 
 test('room PATCH rejects invalid status and stale round requests', async () => {

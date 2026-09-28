@@ -1,5 +1,6 @@
 'use client';
 
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { useGameStore } from '@/store/useGameStore';
 import { getDailyTargetPlayer } from '@/lib/game-engine';
 import { PLAYERS } from '@/data/players';
@@ -10,7 +11,6 @@ export function ContinueModal() {
     activeModal,
     setActiveModal,
     currentDate,
-    category,
     gameMode,
     unlimitedTargetId,
     guesses,
@@ -20,7 +20,8 @@ export function ContinueModal() {
     revealAttributeHint,
   } = useGameStore();
 
-  if (activeModal !== 'continue') return null;
+  const inMultiplayer = useMultiplayerStore((state) => !!state.room);
+  if (inMultiplayer || activeModal !== 'continue') return null;
 
   const activeDate = currentDate || new Date().toISOString().split('T')[0];
   let targetPlayer = getDailyTargetPlayer(activeDate, 'International');
@@ -47,7 +48,6 @@ export function ContinueModal() {
   ];
 
   const firstLocked = attributeCandidates.find((a) => !a.matched);
-  const allAttributesUnlocked = !firstLocked;
 
   const handleYes = () => {
     enableBonusChance();

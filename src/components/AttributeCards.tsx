@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useGameStore } from '@/store/useGameStore';
+import { useActiveGame } from '@/hooks/useActiveGame';
+import { MultiplayerHintKey } from '@/types/multiplayer';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { getDailyTargetPlayer } from '@/lib/game-engine';
 import { PLAYERS } from '@/data/players';
@@ -13,15 +14,14 @@ export function AttributeCards() {
     guesses,
     gameStatus,
     currentDate,
-    category,
     gameMode,
     unlimitedTargetId,
     isHintSelecting,
     cancelHintSelection,
     manuallyUnlockedAttributes,
     unlockAttributeByHint,
-  } = useGameStore();
-  const { room, reveal } = useMultiplayerStore();
+  } = useActiveGame();
+  const { room, reveal, claimHint, isClaimingHint } = useMultiplayerStore();
 
   const [flippingAttrKey, setFlippingAttrKey] = useState<string | null>(null);
 
@@ -35,7 +35,7 @@ export function AttributeCards() {
   }
 
   const isSolved = gameStatus === 'WON';
-  const isFailed = gameStatus === 'LOST';
+  const isFailed = room ? room.status === 'finished' && !isSolved : gameStatus === 'LOST';
 
   // Check which attributes have been matched by guesses submitted
   const matchedCountry = guesses.some((g) => g.attributeMatches.country);
@@ -52,7 +52,7 @@ export function AttributeCards() {
   }, {});
   const getAttributeValue = (key: string, soloValue: string): string => {
     if (!room) return soloValue;
-    return revealedAttributes[key] || '';
+    return manuallyUnlockedAttributes[key] || revealedAttributes[key] || '';
   };
 
   const attributes = [
@@ -101,12 +101,16 @@ export function AttributeCards() {
 
   const photoUrl = reveal?.photoUrl || targetPlayer?.photoUrl;
 
-  const handleCardClick = (key: string, label: string, value: string, isMatched: boolean) => {
-    if (!isHintSelecting || isMatched || room) return;
-
+  const handleCardClick = async (key: string, label: string, value: string, isMatched: boolean) => {
+    if (!isHintSelecting || isMatched || isClaimingHint) return;
     setFlippingAttrKey(key);
+    if (room) {
+      await claimHint(key as MultiplayerHintKey);
+      setFlippingAttrKey(null);
+      return;
+    }
     setTimeout(() => {
-      unlockAttributeByHint(key, label, value);
+      if (!useMultiplayerStore.getState().room) unlockAttributeByHint(key, label, value);
       setFlippingAttrKey(null);
     }, 300);
   };
@@ -157,7 +161,10 @@ export function AttributeCards() {
           const isFlippingThis = flippingAttrKey === attr.key;
 
           return (
-            <motion.div
+            <motion.button
+              type="button"
+              disabled={!isHintSelecting || attr.matched || isClaimingHint}
+              aria-label={`${attr.label}: ${attr.matched ? attr.value : 'locked'}`}
               key={attr.key}
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{
@@ -167,7 +174,7 @@ export function AttributeCards() {
               }}
               transition={{ delay: idx * 0.04, duration: 0.3 }}
               onClick={() => handleCardClick(attr.key, attr.label, attr.value, attr.matched)}
-              className={`relative overflow-hidden p-3.5 border-3 border-black flex flex-col justify-center transition-all min-h-[68px] ${
+              className={`text-left relative overflow-hidden p-3.5 border-3 border-black flex flex-col justify-center transition-all min-h-[68px] ${
                 attr.matched
                   ? 'bg-[#CCFF00] text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ring-2 ring-black font-black'
                   : isTargetingHint
@@ -201,9 +208,9 @@ export function AttributeCards() {
               <div className={`text-xs md:text-sm font-black uppercase mt-1 truncate relative z-10 ${
                 isTargetingHint ? 'text-white' : ''
               }`}>
-                {attr.matched ? attr.value : isTargetingHint ? 'CLICK TO UNLOCK' : 'LOCKED'}
+                {attr.matched ? attr.value : isFlippingThis && isClaimingHint ? 'UNLOCKING…' : isTargetingHint ? 'CLICK TO UNLOCK' : 'LOCKED'}
               </div>
-            </motion.div>
+            </motion.button>
           );
         })}
       </div>
@@ -214,7 +221,7 @@ export function AttributeCards() {
         <div className="flex flex-col items-center gap-1.5 w-full">
           <div className="flex items-center justify-center gap-2 flex-wrap">
             <span className="text-xs md:text-sm font-black uppercase text-[#CCFF00] tracking-wide flex items-center gap-1.5">
-              <Eye className="w-4 h-4 text-[#CCFF00]" /> SILHOUETTE UNBLUR
+              <Eye className="w-4 h-4 text-[#CCFF00]" /> {room ? 'MYSTERY CRICKETER' : 'SILHOUETTE UNBLUR'}
             </span>
             {isSolved ? (
               <span className="text-[10px] md:text-xs px-2.5 py-0.5 bg-[#CCFF00] text-black border-2 border-black font-black uppercase flex items-center gap-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
@@ -222,12 +229,12 @@ export function AttributeCards() {
               </span>
             ) : (
               <span className="text-[10px] md:text-xs px-2.5 py-0.5 bg-black text-[#CCFF00] font-black border-2 border-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                PIXELS / BLUR: {blurAmount}PX
+                {room ? (room.status === 'finished' ? 'REVEALED' : 'HIDDEN UNTIL ROUND ENDS') : `PIXELS / BLUR: ${blurAmount}PX`}
               </span>
             )}
           </div>
           <p className="text-[11px] md:text-xs font-bold text-white/90">
-            {isSolved ? 'Mystery cricketer identity revealed!' : 'Silhouette automatically sharpens with every guess try.'}
+            {room ? (room.status === 'finished' ? 'Mystery cricketer revealed!' : 'Both players guess the same cricketer. The photo appears when the round ends.') : isSolved ? 'Mystery cricketer identity revealed!' : 'Silhouette automatically sharpens with every guess try.'}
           </p>
         </div>
 

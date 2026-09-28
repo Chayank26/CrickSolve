@@ -1,5 +1,7 @@
 'use client';
 
+import { useActiveGame } from '@/hooks/useActiveGame';
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { Header } from '@/components/Header';
 import { AttributeCards } from '@/components/AttributeCards';
 import { PlayerSearch } from '@/components/PlayerSearch';
@@ -16,6 +18,9 @@ import { MultiplayerLobbyModal } from '@/components/MultiplayerLobbyModal';
 import { OpponentHUD } from '@/components/OpponentHUD';
 
 export default function Home() {
+  const room = useMultiplayerStore((state) => state.room);
+  const { gameMode, currentDate, unlimitedTargetId } = useActiveGame();
+  const boardKey = room ? `${room.id}:${room.roundId}` : `${gameMode}:${currentDate}:${unlimitedTargetId || ''}`;
   return (
     <div className="min-h-screen bg-dot-grid text-black font-sans selection:bg-[#CCFF00] selection:text-black flex flex-col p-3 md:p-6">
       <div className="max-w-6xl w-full mx-auto flex flex-col gap-5">
@@ -26,7 +31,7 @@ export default function Home() {
         <OpponentHUD />
 
         {/* Main 2-Column Layout */}
-        <main className="grid grid-cols-1 lg:grid-cols-12 gap-5 my-2">
+        <main key={boardKey} className="grid grid-cols-1 lg:grid-cols-12 gap-5 my-2">
           {/* Left Column: Mystery Player Attribute Cards & Silhouette */}
           <section className="lg:col-span-5 flex flex-col gap-5">
             <AttributeCards />

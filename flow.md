@@ -510,3 +510,17 @@ All room PATCH requests include the expected round ID. Repeated start transition
 6. Realtime notifications contain only identifiers/revision and trigger bounded authenticated reconciliation. They never supply a winner, target, guess or permission that the client trusts.
 
 Current credentials remain in the in-memory client store. Refresh recovery and server-side departure policy are still deferred. The old query-string/body token contract and old token format are no longer accepted. Existing rooms should be recreated following this update.
+
+## Multiplayer Completion Phase 4 — Isolated Board and Bonus Hint Flow
+
+1. Joining a room makes `useActiveGame` render multiplayer state. The persisted daily/unlimited game remains untouched, including guesses, selected solo puzzle, hints, timestamps and statistics.
+2. The room's accepted start/finish timestamps drive the duel timer. Server evaluations append to the multiplayer guess list; room revisions do not reset it. A new round clears only multiplayer progress.
+3. After four accepted guesses, the bonus button activates selection on still-locked attribute cards. Selecting one sends an authenticated, round-scoped `hint` mutation.
+4. Under the room lock, the server verifies eligibility, rejects already matched cards or a second distinct hint, and stores the selected attribute's value in private per-player state. Guess counts remain unchanged.
+5. The response contains the public room plus only this player's private `hint`. The card displays that server value, and selection ends. Polling can restore the hint after a missed response; stale snapshots cannot erase a newer claim.
+6. Each player independently gets one bonus. Seven attempts remain the maximum; exhausted players wait for the opponent or terminal result without an eighth-guess option.
+7. Leaving clears duel state and reveals the original solo board. Mode switching, the solo calendar and the solo continue/hint-picker dialogs cannot mutate solo progress during a duel.
+
+The duel photo remains hidden until the round finishes. Multiplayer rules/share text describe the duel, not a daily streak or solo practice round. If all six attribute cards already match, no additional selectable clue is needed and the UI explains that.
+
+Refresh recovery, missed guess response reconstruction and disconnect policy remain later-phase work. Phase 4 restores private hint state through existing authenticated snapshots but does not implement general reconnect recovery.

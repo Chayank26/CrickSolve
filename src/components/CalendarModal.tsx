@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { useGameStore } from '@/store/useGameStore';
 import { X, Calendar, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 
@@ -9,7 +10,8 @@ export function CalendarModal() {
 
   const [viewDate, setViewDate] = useState(new Date());
 
-  if (activeModal !== 'calendar') return null;
+  const inMultiplayer = useMultiplayerStore((state) => !!state.room);
+  if (inMultiplayer || activeModal !== 'calendar') return null;
 
   const currentYear = viewDate.getFullYear();
   const currentMonth = viewDate.getMonth();

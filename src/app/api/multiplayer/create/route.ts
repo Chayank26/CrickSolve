@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { createRoom, toPublicRoom } from '@/lib/multiplayer-manager';
+import { createRoom, toMemberRoomResponse } from '@/lib/multiplayer-manager';
 import { createMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readString } from '@/lib/multiplayer-http';
 import { limitMultiplayerRequest } from '@/lib/multiplayer-rate-limit';
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const userId = randomUUID();
     const room = await createRoom(userId, name);
     return multiplayerJson({
-      success: true, userId, room: toPublicRoom(room),
+      success: true, userId, ...toMemberRoomResponse(room, userId),
       membershipToken: createMultiplayerMembershipToken(room, userId, 'host'),
     });
   } catch (error) { return multiplayerError(error); }

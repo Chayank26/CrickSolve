@@ -11,8 +11,8 @@ interface OpponentHUDProps {
 }
 
 export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
-  const { room, userId, error, isMatchActive, matchWinner, requestRematch, leaveRoom } = useMultiplayerStore();
-  const { guesses, setActiveModal } = useGameStore();
+  const { room, guesses, userId, error, isMatchActive, matchWinner, requestRematch, leaveRoom } = useMultiplayerStore();
+  const { setActiveModal } = useGameStore();
 
   if (!room) return null;
 

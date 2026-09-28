@@ -1,14 +1,16 @@
 'use client';
 
+import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { useGameStore } from '@/store/useGameStore';
 import { getDailyTargetPlayer } from '@/lib/game-engine';
 import { PLAYERS } from '@/data/players';
 import { X, Lightbulb, Globe, UserCheck, Calendar, Trophy, ShieldAlert, Activity } from 'lucide-react';
 
 export function AttributeHintPickerModal() {
-  const { activeModal, setActiveModal, currentDate, category, gameMode, unlimitedTargetId, revealAttributeHint } = useGameStore();
+  const { activeModal, setActiveModal, currentDate, gameMode, unlimitedTargetId, revealAttributeHint } = useGameStore();
 
-  if (activeModal !== 'hintPicker') return null;
+  const inMultiplayer = useMultiplayerStore((state) => !!state.room);
+  if (inMultiplayer || activeModal !== 'hintPicker') return null;
 
   const activeDate = currentDate || new Date().toISOString().split('T')[0];
   let targetPlayer = getDailyTargetPlayer(activeDate, 'International');

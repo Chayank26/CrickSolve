@@ -631,3 +631,27 @@ This document logs all key technical and architectural decisions taken during th
 - 45 tests pass, including impersonation, role mismatch, expired/malformed credentials, reused room codes, authorization-header transport, rate windows and an in-process API match lifecycle. TypeScript and changed-file lint pass.
 - Full-project lint remains at 12 errors and 14 warnings. Redis rate/lease behavior uses deterministic test doubles, not a live service. Two-browser and production deployment verification remain pending.
 - Next: Phase 4's dedicated multiplayer gameplay/UI, fourth-guess bonus hint and progress isolation. Disconnect and rematch product decisions remain deferred.
+
+## Multiplayer Completion — Phase 4: Dedicated Gameplay and Fourth-Guess Bonus (2026-09-28)
+
+### Decision 50: Separate Duel Progress From Persisted Solo Progress
+- Multiplayer now owns its guesses, hint, hint selection and request state in `useMultiplayerStore`. It no longer switches the solo game to unlimited or appends multiplayer guesses to `useGameStore`.
+- `useActiveGame` projects the active board as daily, unlimited or multiplayer. Solo game actions remain in the solo store; multiplayer guess responses go directly to the multiplayer store. Room changes reset only duel progress.
+- Entering, playing, finishing and leaving a duel preserve the solo board, session tokens and statistics. Solo persistence also includes existing hint values, manual unlocks, bonus flag and timer timestamps.
+- The board is keyed by room/round or solo puzzle so pending local selections do not carry between games. Solo mode/calendar controls are disabled during a room session, and solo-only hint/continue modals are guarded.
+- The header labels multiplayer and uses server room start/finish timestamps. Rules explain seven guesses and a selectable fourth-guess bonus. Duel share cards omit solo streaks. Photos remain hidden until the server reveals the finished round.
+
+### Decision 51: One Private, Server-Authorized Attribute Hint Per Player
+- After the fourth accepted guess, a player may select one still-locked Country, Batting Hand, Bowling Style, Role, IPL Team or Retired card. This is a clue, not an extra guess; seven remains the hard limit.
+- `PATCH /api/multiplayer/room` accepts `action: hint` plus `attribute`, under the existing bearer authentication, round checks and rate limits.
+- Hint selection runs inside the room lock. It requires an active round and four through six accepted guesses, rejects already matched attributes, and permits one chosen attribute per participant per round.
+- Repeating the same accepted hint is idempotent while still eligible; changing the chosen attribute is rejected. Concurrent distinct requests cannot obtain two bonuses. Exhausted/finished/stale rounds cannot claim hints.
+- `hintsByUser` is private server state. Authenticated responses include only the requesting player's `hint` alongside the public room. Neither opponents nor public broadcasts receive the hint value. Reconciliation restores an accepted hint if its immediate response is lost.
+- Multiplayer no longer emits the solo engine's separate trivia hint after guess four. If all six cards are already matched, the UI says so rather than offering an unusable selection.
+- Cards are keyboard-accessible buttons with pending/error behavior. A failed request does not consume the bonus locally and allows a retry. Seven wrong guesses never trigger an eighth-attempt prompt.
+
+### Validation and Next Checkpoint
+- 60 regression tests pass, including server hint eligibility/privacy/concurrency, the client-to-route hint flow, persisted solo isolation, and rendered UI checks.
+- TypeScript passes; changed files have no lint errors (the existing ResultModal image warning remains). Full-project lint is now 10 errors and 8 warnings.
+- UI tests render components to HTML; they do not replace real browser interaction tests. Live Redis, two-browser play and production-build verification remain pending.
+- Phase 5 requires decisions about disconnect/recovery behavior. Phase 6's rematch consent/design remains deferred. No new disconnect or rematch product policy was introduced in Phase 4.

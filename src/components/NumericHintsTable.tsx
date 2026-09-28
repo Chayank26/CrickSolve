@@ -1,10 +1,10 @@
 'use client';
 
-import { useGameStore } from '@/store/useGameStore';
+import { useActiveGame } from '@/hooks/useActiveGame';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function NumericHintsTable() {
-  const { guesses } = useGameStore();
+  const { guesses } = useActiveGame();
 
   return (
     <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5 flex flex-col gap-4 text-black">

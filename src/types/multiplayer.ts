@@ -1,6 +1,14 @@
 import { AttributeMatchResult, NumericMatchResult } from './game';
 
 export const MULTIPLAYER_MAX_GUESSES = 7;
+export const MULTIPLAYER_HINT_AFTER = 4;
+export const MULTIPLAYER_HINT_LABELS = {
+  country: 'COUNTRY', battingHand: 'BATTING HAND', bowlingType: 'BOWLING STYLE',
+  role: 'ROLE', iplTeam: 'IPL TEAM', retired: 'RETIRED',
+} as const;
+export type MultiplayerHintKey = keyof typeof MULTIPLAYER_HINT_LABELS;
+export interface MultiplayerHint { key: MultiplayerHintKey; value: string; }
+
 
 export type RoomStatus = 'waiting' | 'countdown' | 'in_progress' | 'finished';
 
@@ -29,6 +37,7 @@ export interface MultiplayerRoom {
   status: RoomStatus;
   targetPlayerId: string;
   guessedPlayerIdsByUser?: Record<string, string[]>;
+  hintsByUser?: Record<string, MultiplayerHint>;
   participants: RoomParticipant[];
   createdAt: number;
   roundId: string;
@@ -42,7 +51,7 @@ export interface MultiplayerRoom {
   finishReason?: 'solved' | 'exhausted';
 }
 
-export type PublicMultiplayerRoom = Omit<MultiplayerRoom, 'targetPlayerId' | 'guessedPlayerIdsByUser'>;
+export type PublicMultiplayerRoom = Omit<MultiplayerRoom, 'targetPlayerId' | 'guessedPlayerIdsByUser' | 'hintsByUser'>;
 
 export interface MultiplayerReveal {
   id: string;

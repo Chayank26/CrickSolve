@@ -12,7 +12,7 @@ export function createLoader({ env = {}, globals = {}, modules = {} } = {}) {
     const filename = resolve(file);
     if (cache.has(filename)) return cache.get(filename);
     if (!compiled.has(filename)) compiled.set(filename, ts.transpileModule(readFileSync(filename, 'utf8'), {
-      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
+      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true, jsx: ts.JsxEmit.ReactJSX },
     }).outputText);
     const exports = {};
     cache.set(filename, exports);
