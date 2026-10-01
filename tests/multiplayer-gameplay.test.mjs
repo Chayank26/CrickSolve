@@ -104,6 +104,7 @@ test('exhausted, finished and stale rounds cannot claim hints; rematch clears bo
   await f.guess(1, 'guest', f.target.id);
   await assert.rejects(f.hint(), /only available/);
   await f.manager.rematchRoomForUser(f.room.roomCode, 'host', f.room.roundId, f.token('host'));
+  await f.manager.rematchRoomForUser(f.room.roomCode, 'guest', f.room.roundId, f.token('guest'), 'accept', (await f.manager.getRoom(f.room.roomCode)).rematchRequest.id);
   await assert.rejects(f.hint(), /round has ended/);
   const next = await f.manager.getRoom(f.room.roomCode);
   assert.equal(Object.keys(next.hintsByUser).length, 0);

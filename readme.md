@@ -48,7 +48,7 @@ Multiplayer is under phased development. Completion Phase 1 stabilizes round ini
 | 3 | Secure anonymous participant identity and permissions | Implemented; regression checks pass |
 | 4 | Dedicated multiplayer rules/UI, bonus hint after guess four, progress isolation | Implemented; regression checks pass |
 | 5 | Disconnect detection and recovery | Recovery implemented; forfeit/host-transfer policies deferred |
-| 6 | Rematch lifecycle and result polish | Product decisions deferred |
+| 6 | Rematch lifecycle and result polish | Implemented; mutual consent and regression checks pass |
 | 7 | Integration tests and deployment verification | Planned |
 
 Confirmed rules: **seven guesses**, a **daily-style bonus hint after the fourth guess**, and **no eighth guess**. Phase 2 enforces the seven-guess cap and removes the multiplayer eighth-attempt flow. The fourth-guess bonus hint is implemented in Phase 4: choose one still-locked attribute without consuming a guess.
@@ -68,7 +68,7 @@ The store tests isolate network and timer behavior; they do not replace two-brow
 
 Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
 
-Current checks: 67 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis, two-browser integration and production build verification remain pending. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
+Current checks: 74 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis, two-browser integration and production build verification remain pending. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
 
 
 ## Phase 3 API and configuration notes
@@ -103,3 +103,13 @@ Validation includes server/store tests and rendered component checks. Live Redis
 - Removed lightning emojis from the header, room-creation button and documentation.
 
 Validation: 67 regression tests, TypeScript and changed-file lint pass. Live two-browser/Redis and deployment verification remain for Phase 7. Phase 6 is not started.
+
+
+## Multiplayer rematches — Completion Phase 6
+
+- After a win or seven-guess draw, either player can request a rematch. The opponent must explicitly accept; requesting alone never resets the result. Requesters can cancel and opponents can decline.
+- Acceptance atomically creates one new round with a different target, clears both players' guesses/hints/results and returns both clients to the lobby. The guest readies up and the host starts the normal countdown.
+- Request IDs and round checks reject stale accept/cancel/decline messages. Duplicate or simultaneous requests do not count as consent. Refresh preserves the pending request through the authoritative snapshot.
+- Result screens show both players' attempts and solve times, rematch controls, sharing and return-to-solo. Finished results can be reopened from the HUD, including draws.
+
+Validation: 74 tests and TypeScript pass. Changed-file lint has no errors (one existing image warning). Phase 7 live integration/deployment checks remain pending, along with deferred disconnect adjudication and server-side leave/host-transfer decisions. No lightning emojis were reintroduced.

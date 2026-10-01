@@ -198,3 +198,14 @@ Validation: 60 tests pass, TypeScript passes, changed-file lint has zero errors 
 - No new disconnect adjudication or rematch policy. Local leave does not release the server slot; these lifecycle decisions remain a release prerequisite.
 
 Validation: 67 tests pass, TypeScript passes, changed-file lint passes. Tests use deterministic transport/storage and do not substitute for live Redis or two-browser integration.
+
+
+## Multiplayer Completion Phase 6 — Rematch protocol
+
+PATCH room accepts `action: rematch` and `rematchAction: request | accept | cancel | decline`. Non-request actions require `rematchRequestId` (UUID). All actions require existing bearer membership and `roundId`. Unexpected rematch fields on other actions are rejected.
+
+`rematchRequest` is public metadata containing a server UUID and requesting member ID. Manager mutations authenticate and serialize consent/reset. The private target changes only on acceptance. Cancellation/decline preserve the final result and guesses. A stale round or invitation cannot change a later round or request.
+
+The shared RematchControls component provides pending/disabled, request, waiting, cancel, accept and decline states in the result modal and HUD. New-round reconciliation opens the lobby without repeatedly reopening it on polls. ResultModal includes the two-player scorecard and local leave action.
+
+Validation: 74 regression tests and TypeScript pass. Changed-file lint has no errors and one pre-existing image warning. Redis/two-browser/deployment verification and unresolved disconnect policies remain pending.

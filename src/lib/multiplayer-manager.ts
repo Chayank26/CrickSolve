@@ -28,7 +28,7 @@ export function toPublicRoom(room: MultiplayerRoom): PublicMultiplayerRoom {
     })), createdAt: room.createdAt,
     roundId: room.roundId, revision: room.revision, startedAt: room.startedAt,
     finishedAt: room.finishedAt, winnerUserId: room.winnerUserId, winnerNickname: room.winnerNickname,
-    reveal: room.reveal, countdownEndsAt: room.countdownEndsAt, finishReason: room.finishReason,
+    rematchRequest: room.rematchRequest, reveal: room.reveal, countdownEndsAt: room.countdownEndsAt, finishReason: room.finishReason,
   };
 }
 
@@ -271,15 +271,33 @@ export async function rematchRoomForUser(
   roomCode: string,
   userId: string,
   roundId: string,
-  membershipToken: string
+  membershipToken: string,
+  action: 'request' | 'accept' | 'cancel' | 'decline' = 'request',
+  requestId?: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
   return withRoomMutation(roomCode, async (save) => {
     const room = await requireRound(roomCode, userId, roundId, membershipToken);
-    if (!room.participants.some((participant) => participant.userId === userId)) {
-      return { room: null, error: 'You are not a member of this room' };
-    }
-
     if (room.status !== 'finished') throw new RoomActionError('Only finished matches can be reset');
+    if (room.participants.length !== 2) throw new RoomActionError('Two players are required for a rematch');
+    const pending = room.rematchRequest;
+    if (action === 'request') {
+      if (pending) return { room }; // Retry or simultaneous requests never imply acceptance.
+      room.rematchRequest = { id: randomUUID(), requestedBy: userId };
+      room.revision += 1;
+      await save(room);
+      return { room };
+    }
+    if (!pending || pending.id !== requestId) throw new RoomActionError('This rematch request has ended. Sync the room.');
+    if (action === 'cancel' ? pending.requestedBy !== userId : pending.requestedBy === userId) {
+      throw new RoomActionError('You cannot perform this action on this rematch request', 403);
+    }
+    if (action !== 'accept' && action !== 'cancel' && action !== 'decline') throw new RoomActionError('Invalid rematch action', 400);
+    room.rematchRequest = undefined;
+    if (action !== 'accept') {
+      room.revision += 1;
+      await save(room);
+      return { room };
+    }
     room.finishReason = undefined;
     room.guessedPlayerIdsByUser = {};
     room.hintsByUser = {};

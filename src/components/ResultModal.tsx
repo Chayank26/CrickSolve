@@ -1,5 +1,6 @@
 'use client';
 
+import { RematchControls } from '@/components/RematchControls';
 import { useEffect, useState } from 'react';
 import { useActiveGame } from '@/hooks/useActiveGame';
 import confetti from 'canvas-confetti';
@@ -25,7 +26,7 @@ export function ResultModal() {
     victoryToken,
     setNickname,
   } = useActiveGame();
-  const { room, reveal, userId, matchWinner } = useMultiplayerStore();
+  const { room, reveal, userId, matchWinner, error, leaveRoom } = useMultiplayerStore();
 
   const [inputName, setInputName] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -213,6 +214,18 @@ export function ResultModal() {
             </div>
           </form>
         )}
+
+        {room && <div className="border-t-2 border-black pt-3 flex flex-col gap-3">
+          <div className="text-xs font-bold" aria-label="Duel scorecard">
+            {room.participants.map((player) => <p key={player.userId}>
+              {player.nickname}{player.userId === userId ? ' (you)' : ''}: {player.guessesCount}/7 guesses
+              {player.isSolved ? ` · solved in ${formatMmSs(player.solveTimeMs || 0)}` : ' · not solved'}
+            </p>)}
+          </div>
+          {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
+          <RematchControls />
+          <button onClick={leaveRoom} className="text-xs font-bold underline text-left">Leave duel and return to solo</button>
+        </div>}
 
         {/* Footer Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-2">

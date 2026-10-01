@@ -72,7 +72,7 @@ interface MultiplayerState {
   startMatchCountdown: () => Promise<void>;
   broadcastGuess: (guessNumber: number, attributes: AttributeMatchResult, numbers: NumericMatchResult, isCorrect: boolean) => void;
   broadcastFinish: (tries: number, solveTimeMs: number, reveal?: MultiplayerReveal) => void;
-  requestRematch: () => Promise<void>;
+  requestRematch: (action?: 'request' | 'accept' | 'cancel' | 'decline') => Promise<void>;
   leaveRoom: () => void;
   cleanupChannel: () => void;
   _subscribeToRoom: (roomCode: string) => void;
@@ -159,6 +159,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     if (startsRound) {
       useGameStore.getState().setActiveModal(null);
     }
+    if (newRound && room.status === 'waiting') useGameStore.getState().setActiveModal('multiplayer');
     if (finishesRound) useGameStore.getState().setActiveModal('result');
     if (room.status === 'countdown' && !get().countdownTimer) get()._runCountdown();
   },
@@ -297,7 +298,10 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
   toggleReady: () => get()._mutateRoom({ action: 'ready' }, 'ROOM_UPDATED'),
   startMatchCountdown: () => get()._mutateRoom({ status: 'countdown' }, 'MATCH_COUNTDOWN'),
-  requestRematch: () => get()._mutateRoom({ action: 'rematch' }, 'REMATCH'),
+  requestRematch: (action = 'request') => get()._mutateRoom({
+    action: 'rematch', rematchAction: action,
+    ...(action !== 'request' ? { rematchRequestId: get().room?.rematchRequest?.id } : {}),
+  }, 'REMATCH'),
 
   // Broadcasts only notify peers to fetch state; they never decide local outcomes.
   broadcastGuess: () => {

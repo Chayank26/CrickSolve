@@ -102,6 +102,7 @@ test('stale guesses and mutations cannot affect a new round', async () => {
   const f = await setup(); await f.start();
   await f.guess('host', 1, f.room.targetPlayerId);
   await f.manager.rematchRoomForUser(f.room.roomCode, 'host', f.room.roundId, f.token('host'));
+  await f.manager.rematchRoomForUser(f.room.roomCode, 'guest', f.room.roundId, f.token('guest'), 'accept', (await f.current()).rematchRequest.id);
   await assert.rejects(f.guess('host', 1), /round has ended/);
   await assert.rejects(f.manager.toggleReadyForUser(f.room.roomCode, 'guest', f.room.roundId, f.token('guest')), /round has ended/);
   await assert.rejects(f.manager.rematchRoomForUser(f.room.roomCode, 'host', f.room.roundId, f.token('host')), /round has ended/);
@@ -215,4 +216,62 @@ test('authenticated heartbeats are throttled and preserve round outcome and atte
   assert.equal(updated.participants[1].guessesCount, 0);
   const repeated = await f.manager.syncRoomForUser(f.room.roomCode, 'guest', f.token('guest'));
   assert.equal(repeated.revision, updated.revision);
+});
+
+async function finishedRematch() {
+  const f = await setup(); await f.start();
+  await f.guess('host', 1, f.room.targetPlayerId);
+  const act = (user, action = 'request', id) => f.manager.rematchRoomForUser(f.room.roomCode, user, f.room.roundId, f.token(user), action, id);
+  return { ...f, act };
+}
+test('request and retries preserve the result until the other player accepts', async () => {
+  const f = await finishedRematch();
+  const before = await f.current();
+  await f.act('host'); const requested = await f.current();
+  await f.act('host'); await f.act('guest');
+  assert.equal((await f.current()).revision, requested.revision);
+  assert.equal(requested.roundId, before.roundId);
+  assert.equal(requested.winnerUserId, before.winnerUserId);
+  assert.equal(requested.reveal.id, before.reveal.id);
+  await assert.rejects(f.act('host', 'accept', requested.rematchRequest.id), /cannot perform/);
+  await f.act('guest', 'accept', requested.rematchRequest.id);
+  const next = await f.current();
+  assert.notEqual(next.roundId, before.roundId);
+  assert.notEqual(next.targetPlayerId, before.targetPlayerId);
+  assert.equal(next.status, 'waiting');
+  assert.equal(next.rematchRequest, undefined);
+  assert.equal(next.winnerUserId, undefined);
+  assert.equal(next.reveal, undefined);
+  assert.equal(next.startedAt, undefined);
+  assert.ok(next.participants.every((p) => p.guessesCount === 0 && !p.isSolved));
+  assert.equal(next.participants[1].isReady, false);
+});
+test('cancellation and decline preserve results and stale acceptance cannot accept a new request', async () => {
+  const f = await finishedRematch();
+  await f.act('host'); const first = (await f.current()).rematchRequest.id;
+  await assert.rejects(f.act('guest', 'cancel', first), /cannot perform/);
+  await assert.rejects(f.act('host', 'decline', first), /cannot perform/);
+  await f.act('guest', 'decline', first);
+  await f.act('host'); const second = (await f.current()).rematchRequest.id;
+  assert.notEqual(first, second);
+  await assert.rejects(f.act('guest', 'accept', first), /request has ended/);
+  await f.act('host', 'cancel', second);
+  assert.equal((await f.current()).status, 'finished');
+  assert.equal((await f.current()).rematchRequest, undefined);
+});
+test('concurrent accepts create exactly one new round', async () => {
+  const f = await finishedRematch(); await f.act('host');
+  const id = (await f.current()).rematchRequest.id;
+  const results = await Promise.allSettled([f.act('guest', 'accept', id), f.act('guest', 'accept', id)]);
+  assert.equal(results.filter((r) => r.status === 'fulfilled').length, 1);
+  assert.equal((await f.current()).status, 'waiting');
+});
+test('seven-guess draws support the same consent flow', async () => {
+  const f = await setup(); await f.start();
+  for (let i = 1; i <= 7; i++) { await f.guess('host', i); await f.guess('guest', i); }
+  await f.manager.rematchRoomForUser(f.room.roomCode, 'guest', f.room.roundId, f.token('guest'));
+  const room = await f.current();
+  assert.equal(room.finishReason, 'exhausted');
+  await f.manager.rematchRoomForUser(f.room.roomCode, 'host', f.room.roundId, f.token('host'), 'accept', room.rematchRequest.id);
+  assert.equal((await f.current()).status, 'waiting');
 });

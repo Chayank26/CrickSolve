@@ -19,7 +19,7 @@ export async function PATCH(request: Request) {
   try {
     await limitMultiplayerRequest(request, 'mutation-network', 120);
     const body = await readJsonObject(request);
-    onlyFields(body, ['roomCode', 'roundId', 'action', 'status', 'attribute']);
+    onlyFields(body, ['roomCode', 'roundId', 'action', 'status', 'attribute', 'rematchAction', 'rematchRequestId']);
     const roomCode = readRoomCode(body.roomCode);
     const roundId = readRoundId(body.roundId);
     const { userId, membershipToken, membership } = requestMembership(request, roomCode);
@@ -34,12 +34,17 @@ export async function PATCH(request: Request) {
       throw new RoomActionError('Invalid hint attribute', 400);
     }
     if (action !== 'hint' && body.attribute !== undefined) throw new RoomActionError('Unexpected hint attribute', 400);
+    if (action !== 'rematch' && (body.rematchAction !== undefined || body.rematchRequestId !== undefined)) throw new RoomActionError('Unexpected rematch fields', 400);
+    const rematchAction = body.rematchAction ?? 'request';
+    if (action === 'rematch' && !['request', 'accept', 'cancel', 'decline'].includes(rematchAction as string)) throw new RoomActionError('Invalid rematch action', 400);
+    const rematchRequestId = action === 'rematch' && rematchAction !== 'request' ? readRoundId(body.rematchRequestId) : undefined;
+    if (action === 'rematch' && rematchAction === 'request' && body.rematchRequestId !== undefined) throw new RoomActionError('Unexpected rematch request ID', 400);
     const result = action === 'hint'
       ? await claimRoomHint(roomCode, userId, roundId, membershipToken, body.attribute as MultiplayerHintKey)
       : action === 'ready'
       ? await toggleReadyForUser(roomCode, userId, roundId, membershipToken)
       : action === 'rematch'
-      ? await rematchRoomForUser(roomCode, userId, roundId, membershipToken)
+      ? await rematchRoomForUser(roomCode, userId, roundId, membershipToken, rematchAction as 'request' | 'accept' | 'cancel' | 'decline', rematchRequestId)
       : status === 'countdown' || status === 'in_progress'
       ? await updateRoomStatusForUser(roomCode, userId, status, roundId, membershipToken)
       : null;

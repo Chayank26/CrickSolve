@@ -666,3 +666,12 @@ Presence is advisory: authenticated reads refresh lastSeenAt at five-second inte
 Transient errors preserve credentials; invalid membership/room responses clear them. SessionStorage availability and the room/token lifetime bound refresh recovery. Browser tab duplication can copy credentials; tabs are not guaranteed independent identities. Use separate browser contexts to test two players.
 
 Validation: 67 regression tests, TypeScript and changed-file lint pass. Lightning emojis removed throughout project source/docs. Live integration remains pending.
+
+
+## Multiplayer Completion Phase 6 — Mutual rematch consent
+
+Replaced unilateral rematch reset with request/accept/cancel/decline. The requester cannot accept their own request; only the requester can cancel, and only the opponent can accept or decline. Concurrent requests preserve the first invitation and require explicit acceptance. Requests retain the previous result until acceptance.
+
+Each invitation has a server-generated ID bound to the finished round. All changes run under the existing room mutation lock and membership validation. Acceptance rotates the round/target once, clears private guesses/hints and public results, and restores host-ready/guest-not-ready lobby state. Tokens retain their existing expiry; rematches do not extend membership validity.
+
+Result/HUD controls work for wins and draws. Both player score lines are displayed; solo leaderboard behavior remains separate. Disconnect forfeits, host transfer and server-side leave remain deferred. Validation: 74 tests, TypeScript, zero changed-file lint errors (existing image warning). Phase 7 not started.

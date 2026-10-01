@@ -59,3 +59,22 @@ test('multiplayer rules and share cards describe the duel without solo streaks o
   assert.match(share, /Won the duel/);
   assert.doesNotMatch(share, /Streak:/);
 });
+
+test('rematch controls distinguish request, waiting, acceptance and draw states', () => {
+  const state = { userId: 'host', room: { status: 'finished', finishReason: 'exhausted' } };
+  const load = createLoader({ modules: { '@/store/useMultiplayerStore': { useMultiplayerStore: () => state } } });
+  const Controls = load('src/components/RematchControls.tsx').RematchControls;
+  const html = () => renderToStaticMarkup(createElement(Controls));
+  assert.match(html(), /Request rematch/);
+  state.room.rematchRequest = { id: 'request', requestedBy: 'host' };
+  assert.match(html(), /Waiting for opponent/);
+  assert.match(html(), /Cancel request/);
+  assert.doesNotMatch(html(), /Accept rematch/);
+  state.userId = 'guest';
+  assert.match(html(), /Accept rematch/);
+  assert.match(html(), /Decline/);
+  state.isReconnecting = true;
+  assert.equal((html().match(/disabled=""/g) || []).length, 2);
+  state.room.status = 'waiting';
+  assert.equal(html(), '');
+});

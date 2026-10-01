@@ -536,3 +536,14 @@ Refresh recovery, missed guess response reconstruction and disconnect policy rem
 6. Server heartbeat timestamps drive an advisory opponent-disconnected message; they do not change match outcomes. Forfeit, server leave and host-transfer flows remain deferred.
 
 Checks: 67 automated regressions, TypeScript and changed-file lint pass; two-browser/Redis verification remains pending.
+
+
+## Multiplayer Completion Phase 6 — Rematch flow
+
+1. A finished round displays results and Request rematch for either player, including draws.
+2. The first request stores an invitation ID and requester. The result remains visible; the requester sees Waiting/Cancel and the opponent sees Accept/Decline.
+3. Cancel or decline clears only that invitation. A delayed response to a replaced invitation is rejected.
+4. Acceptance by the other authenticated participant resets the room atomically with a new round ID and different target. Duplicate accepts cannot reset twice.
+5. Both clients reconcile, clear their old guesses/hint/result and open the lobby once. The guest becomes ready, then the host starts the usual countdown. A fresh round again permits seven guesses and one bonus after guess four.
+
+Refresh recovers invitation state from the server. The HUD can reopen dismissed results. Tests cover retries, authorization, stale IDs, concurrent acceptance, draws and lobby transitions; live integration remains Phase 7.

@@ -200,3 +200,24 @@ test('solo guess route still returns its normal evaluation and session token', a
   assert.ok(body.sessionToken);
   assert.ok(body.victoryToken);
 });
+
+test('rematch HTTP actions require valid intent, request ID and the other member consent', async () => {
+  const f = setup(); const h = await f.host(); const g = await f.guest(h);
+  const storage = f.load('src/lib/multiplayer-room-store.ts');
+  const room = await storage.getStoredRoom(h.room.roomCode);
+  room.status = 'finished'; room.finishReason = 'exhausted';
+  await storage.saveStoredRoom(room);
+  const patch = (extra, token = h.membershipToken) => f.PATCH(f.post({ roomCode: room.roomCode, roundId: room.roundId, action: 'rematch', ...extra }, token));
+  assert.equal((await patch({ rematchAction: 'invalid' })).status, 400);
+  assert.equal((await patch({ rematchAction: 'accept' })).status, 400);
+  const requested = await (await patch({ rematchAction: 'request' })).json();
+  const rematchRequestId = requested.room.rematchRequest.id;
+  assert.equal((await patch({ rematchAction: 'accept', rematchRequestId })).status, 403);
+  const accepted = await patch({ rematchAction: 'accept', rematchRequestId }, g.membershipToken);
+  assert.equal(accepted.status, 200);
+  const next = await accepted.json();
+  assert.equal(next.room.status, 'waiting');
+  assert.notEqual(next.room.roundId, room.roundId);
+  assert.deepEqual(next.guesses, []);
+  assert.equal(next.hint, null);
+});

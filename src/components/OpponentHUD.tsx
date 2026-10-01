@@ -1,9 +1,10 @@
 'use client';
 
+import { RematchControls } from '@/components/RematchControls';
 import { motion } from 'framer-motion';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 import { useGameStore } from '@/store/useGameStore';
-import { Swords, Trophy, Crown, LogOut, RefreshCw } from 'lucide-react';
+import { Swords, Trophy, Crown, LogOut } from 'lucide-react';
 import { AttributeMatchResult, NumericMatchResult } from '@/types/game';
 
 interface OpponentHUDProps {
@@ -11,7 +12,7 @@ interface OpponentHUDProps {
 }
 
 export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
-  const { room, guesses, userId, error, isReconnecting, isMatchActive, matchWinner, requestRematch, leaveRoom } = useMultiplayerStore();
+  const { room, guesses, userId, error, isReconnecting, isMatchActive, matchWinner, leaveRoom } = useMultiplayerStore();
   const { setActiveModal } = useGameStore();
 
   if (!room) return null;
@@ -114,15 +115,8 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
 
         {/* Quick Room Actions */}
         <div className="flex items-center gap-2">
-          {matchWinner && (
-            <button
-              onClick={requestRematch}
-              className="bg-[#7E22CE] text-white border-2 border-white px-2.5 py-1 text-xs font-black uppercase hover:brightness-110 active:translate-x-0.5 transition-all flex items-center gap-1"
-            >
-              <RefreshCw className="w-3 h-3 text-[#CCFF00]" />
-              <span>REMATCH</span>
-            </button>
-          )}
+          {room.status === 'finished' && <button onClick={() => setActiveModal('result')} className="border px-2 py-1 text-xs font-black">RESULTS</button>}
+          <RematchControls />
 
           <button
             onClick={() => {

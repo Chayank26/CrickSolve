@@ -290,3 +290,16 @@ test('restoring a finished round opens its result', async () => {
   await f.store.getState().restoreSession();
   assert.equal(f.modal(), 'result');
 });
+
+test('accepted rematch clears private round state and opens the lobby once', () => {
+  const f = setup();
+  f.store.getState().setRoomSnapshot({ ...f.room, status: 'finished', revision: 5 }, { key: 'country', value: 'India' }, [{ guessedPlayer: { id: 'old' } }]);
+  f.store.getState().setRoomSnapshot({ ...f.room, roundId: 'next', revision: 6 }, null, []);
+  assert.equal(f.modal(), 'multiplayer');
+  assert.equal(f.store.getState().guesses.length, 0);
+  assert.equal(f.store.getState().hint, null);
+  f.dismiss();
+  f.store.getState().setRoomSnapshot({ ...f.room, roundId: 'next', revision: 7 });
+  assert.equal(f.modal(), null);
+  assert.equal(f.resets(), 0);
+});

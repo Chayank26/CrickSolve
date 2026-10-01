@@ -50,6 +50,7 @@ export interface MultiplayerRoom {
   winnerNickname?: string;
   reveal?: MultiplayerReveal;
   countdownEndsAt?: number;
+  rematchRequest?: { id: string; requestedBy: string };
   finishReason?: 'solved' | 'exhausted';
 }
 
