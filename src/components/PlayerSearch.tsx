@@ -26,7 +26,7 @@ export function PlayerSearch() {
     startHintSelection,
   } = useActiveGame();
 
-  const { room, membershipToken, userId, setRoomSnapshot, addGuess: addMultiplayerGuess, isClaimingHint, broadcastGuess, broadcastFinish } = useMultiplayerStore();
+  const { room, membershipToken, userId, setRoomSnapshot, addGuess: addMultiplayerGuess, isClaimingHint, isReconnecting, broadcastGuess, broadcastFinish } = useMultiplayerStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function PlayerSearch() {
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const hasNoGuessesLeft = !!room && (room.participants.find((player) => player.userId === userId)?.guessesCount || 0) >= MULTIPLAYER_MAX_GUESSES;
-  const isGameOver = hasNoGuessesLeft || gameStatus !== 'IN_PROGRESS' || (!!room && room.status !== 'in_progress');
+  const isGameOver = (!!room && isReconnecting) || hasNoGuessesLeft || gameStatus !== 'IN_PROGRESS' || (!!room && room.status !== 'in_progress');
 
   // Resolve target player across full player pool
   const todayStr = new Date().toISOString().split('T')[0];
@@ -97,6 +97,7 @@ export function PlayerSearch() {
       try {
         const res = await fetch('/api/puzzle/guess', {
           method: 'POST',
+          ...(room ? { signal: AbortSignal.timeout(10000) } : {}),
           headers: { 'Content-Type': 'application/json', ...(room && membershipToken ? { Authorization: `Bearer ${membershipToken}` } : {}) },
           body: JSON.stringify(room ? {
             mode: 'multiplayer', roomCode: room.roomCode, roundId: room.roundId,
@@ -110,10 +111,11 @@ export function PlayerSearch() {
         if (!isCurrentRequest()) return;
         if (room && (!res.ok || !data.evaluation || !data.room)) {
           setSubmissionError(data.error || 'Unable to submit guess. Please retry.');
+          void useMultiplayerStore.getState().syncRoomSnapshot();
           return;
         }
         if (room && data.room.roundId !== room.roundId) return;
-        if (room && data.room) setRoomSnapshot(data.room, data.hint);
+        if (room && data.room) setRoomSnapshot(data.room, data.hint, data.guesses);
         let evalResult = data.evaluation;
         if (evalResult) {
           if (room) addMultiplayerGuess(evalResult, room.roundId, guesses.length + 1);
@@ -150,7 +152,9 @@ export function PlayerSearch() {
       } catch {
         if (!isCurrentRequest()) return;
         if (room) {
-          setSubmissionError('Could not submit your guess. Check your connection and retry.');
+          setSubmissionError('Checking whether your guess was accepted. Reconnecting…');
+          useMultiplayerStore.setState({ isReconnecting: true });
+          void useMultiplayerStore.getState().syncRoomSnapshot();
           return;
         }
         const evalResult = evaluatePlayerGuess(targetId, targetPlayer!.id, guesses.length + 1);
@@ -186,7 +190,7 @@ export function PlayerSearch() {
               if (e.key === 'Enter') handleGuessSubmit();
             }}
             disabled={isGameOver || isSubmitting}
-            placeholder={hasNoGuessesLeft && room?.status === 'in_progress' ? 'NO GUESSES LEFT — WAITING FOR OPPONENT' : isGameOver ? 'GAME FINISHED' : 'Enter Cricketer Name (e.g. Virat Kohli)...'}
+            placeholder={room && isReconnecting ? 'RECONNECTING TO YOUR DUEL…' : hasNoGuessesLeft && room?.status === 'in_progress' ? 'NO GUESSES LEFT — WAITING FOR OPPONENT' : isGameOver ? 'GAME FINISHED' : 'Enter Cricketer Name (e.g. Virat Kohli)...'}
             className="w-full bg-white text-black font-black placeholder-slate-400 border-3 border-black px-4 py-3.5 text-sm sm:text-base uppercase focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:opacity-70"
           />
 

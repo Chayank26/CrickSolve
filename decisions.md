@@ -655,3 +655,14 @@ This document logs all key technical and architectural decisions taken during th
 - TypeScript passes; changed files have no lint errors (the existing ResultModal image warning remains). Full-project lint is now 10 errors and 8 warnings.
 - UI tests render components to HTML; they do not replace real browser interaction tests. Live Redis, two-browser play and production-build verification remain pending.
 - Phase 5 requires decisions about disconnect/recovery behavior. Phase 6's rematch consent/design remains deferred. No new disconnect or rematch product policy was introduced in Phase 4.
+
+
+## Multiplayer Completion Phase 5 — Recovery and presence
+
+Implemented authenticated same-tab refresh recovery using sessionStorage credentials and server-reconstructed personal history. Opponent history and the hidden target remain private. Revision/connection guards prevent stale responses from resurrecting a left room or rewinding guesses. Finished-session restoration opens the result once.
+
+Presence is advisory: authenticated reads refresh lastSeenAt at five-second intervals; the server marks participants disconnected after 15 seconds. No automatic forfeit, host transfer, server leave policy or new rematch policy is introduced because those product decisions remain deferred. The existing local leave clears saved credentials; a vacated server slot can remain occupied until room expiry. This limitation must be resolved before release.
+
+Transient errors preserve credentials; invalid membership/room responses clear them. SessionStorage availability and the room/token lifetime bound refresh recovery. Browser tab duplication can copy credentials; tabs are not guaranteed independent identities. Use separate browser contexts to test two players.
+
+Validation: 67 regression tests, TypeScript and changed-file lint pass. Lightning emojis removed throughout project source/docs. Live integration remains pending.

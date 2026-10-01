@@ -5,7 +5,32 @@ import { MultiplayerHint, MultiplayerHintKey, MULTIPLAYER_HINT_AFTER, MULTIPLAYE
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { AttributeMatchResult, GuessEvaluation, NumericMatchResult } from '@/types/game';
 
+const SESSION_KEY = 'cricksolve.multiplayer.session.v1';
+interface SavedSession { roomCode: string; roomId: string; userId: string; membershipToken: string; }
+function saveSession(session: SavedSession | null) {
+  try {
+    if (session) window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    else window.sessionStorage.removeItem(SESSION_KEY);
+  } catch { /* Private browsing/storage restrictions must not prevent playing. */ }
+}
+function readSession(): SavedSession | null {
+  try {
+    const value = JSON.parse(window.sessionStorage.getItem(SESSION_KEY) || 'null');
+    if (value && /^[A-Z2-9]{6}$/.test(value.roomCode) &&
+        ['roomId', 'userId', 'membershipToken'].every((key) => typeof value[key] === 'string' && value[key].length > 0)) return value;
+    saveSession(null);
+  } catch { saveSession(null); }
+  return null;
+}
+function roomFetch(url: string, options: RequestInit) {
+  return fetch(url, { ...options, ...(typeof AbortSignal !== 'undefined' ? { signal: AbortSignal.timeout(10000) } : {}) });
+}
+const expiredSession = (status: number) => [401, 403, 404, 410].includes(status);
+
 interface MultiplayerState {
+  isReconnecting: boolean;
+  recoveryPending: boolean;
+  restoreSession: () => Promise<void>;
   guesses: GuessEvaluation[];
   hint: MultiplayerHint | null;
   isHintSelecting: boolean;
@@ -37,7 +62,7 @@ interface MultiplayerState {
   syncTimer: ReturnType<typeof setInterval> | null;
   countdownTimer: ReturnType<typeof setInterval> | null;
   setNickname: (name: string) => void;
-  setRoomSnapshot: (room: PublicMultiplayerRoom, hint?: MultiplayerHint | null) => void;
+  setRoomSnapshot: (room: PublicMultiplayerRoom, hint?: MultiplayerHint | null, guesses?: GuessEvaluation[]) => void;
   syncRoomSnapshot: () => Promise<void>;
   startRoomSync: () => void;
   stopRoomSync: () => void;
@@ -57,6 +82,7 @@ interface MultiplayerState {
 }
 
 export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
+  isReconnecting: false, recoveryPending: false,
   guesses: [], hint: null, isHintSelecting: false, isClaimingHint: false,
   userId: 'user_anon',
   nickname: 'Cricketer',
@@ -87,7 +113,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   startHintSelection: () => {
     const state = get();
     const count = state.room?.participants.find((player) => player.userId === state.userId)?.guessesCount || 0;
-    if (state.room?.status === 'in_progress' && count >= MULTIPLAYER_HINT_AFTER && count < MULTIPLAYER_MAX_GUESSES && !state.hint) {
+    if (!state.isReconnecting && state.room?.status === 'in_progress' && count >= MULTIPLAYER_HINT_AFTER && count < MULTIPLAYER_MAX_GUESSES && !state.hint) {
       set({ isHintSelecting: true });
     }
   },
@@ -102,7 +128,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     return get().hint?.key === key;
   },
 
-  setRoomSnapshot: (room, hint) => {
+  setRoomSnapshot: (room, hint, guesses) => {
     const state = get();
     const previous = state.room;
     if (!previous || previous.id !== room.id || room.revision < previous.revision) return;
@@ -111,13 +137,14 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     const newRound = state.initializedRoundId !== room.roundId;
     const startsRound = room.status === 'in_progress' && (newRound || previous.status !== 'in_progress');
     const finishesRound = room.status === 'finished' &&
-      (previous.status !== 'finished' || previous.roundId !== room.roundId);
+      (newRound || previous.status !== 'finished' || previous.roundId !== room.roundId);
     const winner = room.participants.find((participant) => participant.userId === room.winnerUserId);
     if (room.status !== 'countdown' && state.countdownTimer) clearInterval(state.countdownTimer);
     set({
       room,
       ...(newRound ? { guesses: [], hint: null, isHintSelecting: false, isClaimingHint: false, initializedRoundId: room.roundId } : {}),
       ...(hint !== undefined ? { hint } : {}),
+      ...(guesses !== undefined ? { guesses } : {}),
       ...(hint || room.status !== 'in_progress' || (room.participants.find((p) => p.userId === state.userId)?.guessesCount || 0) >= MULTIPLAYER_MAX_GUESSES ? { isHintSelecting: false } : {}),
       reveal: room.reveal || null,
       isMatchActive: room.status === 'in_progress',
@@ -144,24 +171,70 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     const isCurrent = () => get().connectionVersion === connectionVersion && get().room?.id === room.id;
     try {
       const params = new URLSearchParams({ code: room.roomCode });
-      const response = await fetch(`/api/multiplayer/room?${params}`, { cache: 'no-store', headers: { Authorization: `Bearer ${membershipToken}` } });
+      const response = await roomFetch(`/api/multiplayer/room?${params}`, { cache: 'no-store', headers: { Authorization: `Bearer ${membershipToken}` } });
       const data = await response.json();
       if (!isCurrent()) return;
+      if (expiredSession(response.status)) {
+        get().leaveRoom();
+        set({ error: data.error || 'Your multiplayer session has expired. Join a new room.' });
+        return;
+      }
       if (!response.ok || !data.room) throw new Error(data.error || 'Unable to sync the room');
-      get().setRoomSnapshot(data.room, data.hint);
+      set({ isReconnecting: false });
+      get().setRoomSnapshot(data.room, data.hint, data.guesses);
       // Do not erase an actionable mutation error on every background poll.
       if (get().error?.startsWith('Room sync:')) set({ error: null });
     } catch (error) {
-      if (isCurrent()) set({ error: `Room sync: ${error instanceof Error ? error.message : 'Connection interrupted'}. Retrying…` });
+      if (isCurrent()) set({ isReconnecting: true, error: `Room sync: ${error instanceof Error ? error.message : 'Connection interrupted'}. Retrying…` });
     } finally {
       if (isCurrent()) set({ syncInFlight: false });
+    }
+  },
+
+  restoreSession: async () => {
+    if (get().room || get().isConnecting) return;
+    const session = readSession();
+    if (!session) return;
+    const version = get().connectionVersion;
+    set({ isConnecting: true, recoveryPending: true, isReconnecting: true, error: null });
+    try {
+      const response = await roomFetch(`/api/multiplayer/room?${new URLSearchParams({ code: session.roomCode })}`, {
+        cache: 'no-store', headers: { Authorization: `Bearer ${session.membershipToken}` },
+      });
+      const data = await response.json();
+      if (get().connectionVersion !== version) return;
+      if (expiredSession(response.status)) {
+        get().leaveRoom();
+        set({ error: data.error || 'Your multiplayer session has expired. Join a new room.' });
+        return;
+      }
+      if (!response.ok || !data.room) throw new Error(data.error || 'Unable to restore your duel');
+      if (data.room.id !== session.roomId || !data.room.participants.some((p: { userId: string }) => p.userId === session.userId)) {
+        get().leaveRoom();
+        set({ error: 'Your saved room membership is no longer available.' });
+        return;
+      }
+      set({ userId: session.userId, membershipToken: session.membershipToken, room: data.room,
+        nickname: data.room.participants.find((p: { userId: string }) => p.userId === session.userId).nickname,
+        isConnecting: false, recoveryPending: false, isReconnecting: false, error: null });
+      get().setRoomSnapshot(data.room, data.hint, data.guesses);
+      if (data.room.status === 'waiting') useGameStore.getState().setActiveModal('multiplayer');
+      get()._subscribeToRoom(data.room.roomCode);
+    } catch (error) {
+      if (get().connectionVersion === version) {
+        set({ isConnecting: false, error: `Room sync: ${error instanceof Error ? error.message : 'Connection interrupted'}. Retrying…` });
+        get().startRoomSync();
+      }
     }
   },
 
   startRoomSync: () => {
     if (get().syncTimer) return;
     void get().syncRoomSnapshot();
-    set({ syncTimer: setInterval(() => { void get().syncRoomSnapshot(); }, 1000) });
+    set({ syncTimer: setInterval(() => {
+      if (get().room) void get().syncRoomSnapshot();
+      else if (get().recoveryPending) void get().restoreSession();
+    }, 1000) });
   },
   stopRoomSync: () => {
     const timer = get().syncTimer;
@@ -175,14 +248,15 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     const version = get().connectionVersion;
     set({ isConnecting: true, error: null });
     try {
-      const response = await fetch(path, {
+      const response = await roomFetch(path, {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...(membershipToken ? { Authorization: `Bearer ${membershipToken}` } : {}) }, body: JSON.stringify(body),
       });
       const data = await response.json();
       if (get().connectionVersion !== version) return false;
       if (!response.ok || !data.room || !data.membershipToken || !data.userId) throw new Error(data.error || 'Unable to connect to room');
       set({ userId: data.userId, room: data.room, membershipToken: data.membershipToken, isConnecting: false });
-      get().setRoomSnapshot(data.room, data.hint);
+      get().setRoomSnapshot(data.room, data.hint, data.guesses);
+      saveSession({ roomCode: data.room.roomCode, roomId: data.room.id, userId: data.userId, membershipToken: data.membershipToken });
       get()._subscribeToRoom(data.room.roomCode);
       return true;
     } catch (error) {
@@ -205,14 +279,14 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     const isCurrent = () => get().connectionVersion === connectionVersion &&
       get().room?.id === room.id && get().room?.roundId === room.roundId;
     try {
-      const response = await fetch('/api/multiplayer/room', {
+      const response = await roomFetch('/api/multiplayer/room', {
         method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${membershipToken}` },
         body: JSON.stringify({ ...body, roomCode: room.roomCode, roundId: room.roundId }),
       });
       const data = await response.json();
       if (!isCurrent()) return;
       if (!response.ok || !data.room) throw new Error(data.error || 'Unable to update room');
-      get().setRoomSnapshot(data.room, data.hint);
+      get().setRoomSnapshot(data.room, data.hint, data.guesses);
       set({ error: null });
       void get().channel?.send({ type: 'broadcast', event, payload: {
         roomCode: data.room.roomCode, roundId: data.room.roundId, revision: data.room.revision,
@@ -242,6 +316,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   leaveRoom: () => {
+    saveSession(null);
     if (get().room) useGameStore.getState().setActiveModal(null);
     const timer = get().countdownTimer;
     if (timer) clearInterval(timer);
@@ -251,6 +326,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       connectionVersion: get().connectionVersion + 1, syncInFlight: false, lastSyncAt: 0,
       guesses: [], hint: null, isHintSelecting: false, isClaimingHint: false,
       userId: 'user_anon', room: null, reveal: null, membershipToken: null, countdown: null, countdownTimer: null,
+      isReconnecting: false, recoveryPending: false,
       initializedRoundId: null, isMatchActive: false, matchWinner: null, error: null, isConnecting: false,
     });
   },

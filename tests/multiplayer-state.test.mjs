@@ -13,6 +13,7 @@ const source = ts.transpileModule(readFileSync(new URL('../src/store/useMultipla
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText;
 function setup() {
+  const saved = new Map();
   const timers = new Map();
   let nextTimer = 0;
   let resets = 0;
@@ -31,6 +32,7 @@ function setup() {
       return require(name);
     },
     URLSearchParams, Date, console,
+    window: { sessionStorage: { getItem: (key) => saved.get(key) ?? null, setItem: (key, value) => saved.set(key, value), removeItem: (key) => saved.delete(key) } },
     fetch: (...args) => fetchImpl(...args),
     setInterval(callback) { timers.set(++nextTimer, callback); return nextTimer; },
     clearInterval(id) { timers.delete(id); },
@@ -45,7 +47,7 @@ function setup() {
     ],
   };
   store.setState({ room, membershipToken: 'token', userId: 'guest' });
-  return { store, room, timers, resets: () => resets, modal: () => modal, dismiss: () => { modal = null; }, fetch: (fn) => { fetchImpl = fn; } };
+  return { store, room, timers, saved, resets: () => resets, modal: () => modal, dismiss: () => { modal = null; }, fetch: (fn) => { fetchImpl = fn; } };
 }
 const response = (room) => ({ ok: true, json: async () => ({ room }) });
 
@@ -229,4 +231,62 @@ test('public broadcasts contain no membership token or guess data', () => {
   assert.equal(payload.attributeMatches, undefined);
   assert.equal(payload.isCorrect, undefined);
   assert.equal(payload.roundId, f.room.roundId);
+});
+
+const sessionKey = 'cricksolve.multiplayer.session.v1';
+function saveRecoverySession(f) {
+  f.store.setState({ room: null, membershipToken: null, userId: 'user_anon' });
+  f.saved.set(sessionKey, JSON.stringify({ roomCode: f.room.roomCode, roomId: f.room.id, userId: 'guest', membershipToken: 'token' }));
+}
+test('refresh restores private history and hint without touching solo progress', async () => {
+  const f = setup(); saveRecoverySession(f);
+  const guesses = [{ guessedPlayer: { id: 'accepted' } }];
+  const hint = { key: 'country', value: 'India' };
+  f.fetch(async (_url, options) => {
+    assert.equal(options.headers.Authorization, 'Bearer token');
+    return { ok: true, json: async () => ({ room: { ...f.room, status: 'in_progress' }, guesses, hint }) };
+  });
+  await f.store.getState().restoreSession();
+  assert.equal(f.store.getState().userId, 'guest');
+  assert.equal(f.store.getState().guesses[0].guessedPlayer.id, 'accepted');
+  assert.equal(f.store.getState().hint.value, 'India');
+  assert.equal(f.store.getState().isReconnecting, false);
+  assert.equal(f.resets(), 0);
+});
+test('offline recovery keeps credentials and retries; explicit leave cancels a pending restore', async () => {
+  const f = setup(); saveRecoverySession(f);
+  await f.store.getState().restoreSession();
+  assert.equal(f.store.getState().recoveryPending, true);
+  assert.equal(f.saved.has(sessionKey), true);
+  assert.equal(f.timers.size, 1);
+  let resolve;
+  f.fetch(() => new Promise((done) => { resolve = done; }));
+  const pending = f.store.getState().restoreSession();
+  f.store.getState().leaveRoom();
+  resolve(response(f.room)); await pending;
+  assert.equal(f.store.getState().room, null);
+  assert.equal(f.saved.size, 0);
+  assert.equal(f.timers.size, 0);
+});
+test('expired recovery credentials are cleared and polling stops', async () => {
+  const f = setup(); saveRecoverySession(f);
+  f.fetch(async () => ({ ok: false, status: 401, json: async () => ({ error: 'Expired membership' }) }));
+  await f.store.getState().restoreSession();
+  assert.equal(f.saved.size, 0);
+  assert.equal(f.store.getState().recoveryPending, false);
+  assert.equal(f.store.getState().error, 'Expired membership');
+  assert.equal(f.timers.size, 0);
+});
+test('authoritative history recovers a lost guess response and rejects stale history', () => {
+  const f = setup();
+  const guesses = [{ guessedPlayer: { id: 'accepted' } }];
+  f.store.getState().setRoomSnapshot({ ...f.room, revision: 4 }, null, guesses);
+  f.store.getState().setRoomSnapshot({ ...f.room, revision: 3 }, null, []);
+  assert.equal(f.store.getState().guesses.length, 1);
+});
+test('restoring a finished round opens its result', async () => {
+  const f = setup(); saveRecoverySession(f);
+  f.fetch(async () => response({ ...f.room, status: 'finished', finishReason: 'exhausted' }));
+  await f.store.getState().restoreSession();
+  assert.equal(f.modal(), 'result');
 });

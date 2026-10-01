@@ -367,7 +367,7 @@ Below is a complete collection of interview questions ranging from frontend engi
 
 ---
 
-## ⚡ Category C: Frontend Performance, React 19 & UX
+## Category C: Frontend Performance, React 19 & UX
 
 ### Q7: How do you ensure the autocomplete search doesn't lag or drop frames on low-end mobile devices when searching through 300+ players?
 > **Answer**:  
@@ -524,3 +524,15 @@ Current credentials remain in the in-memory client store. Refresh recovery and s
 The duel photo remains hidden until the round finishes. Multiplayer rules/share text describe the duel, not a daily streak or solo practice round. If all six attribute cards already match, no additional selectable clue is needed and the UI explains that.
 
 Refresh recovery, missed guess response reconstruction and disconnect policy remain later-phase work. Phase 4 restores private hint state through existing authenticated snapshots but does not implement general reconnect recovery.
+
+
+## Multiplayer Completion Phase 5 — Recovery flow
+
+1. Create/join saves room ID/code, participant ID and bearer credential in sessionStorage.
+2. On mount, authenticate a room fetch with the saved bearer credential. Restore the server snapshot, own evaluations and own bonus hint; restart polling/realtime notifications.
+3. During interruptions, retain credentials, show reconnecting state and retry. Online/visible events request synchronization. Fetches have a ten-second timeout.
+4. Accepted server history repairs a lost guess response without consuming a second attempt. Old connection/round/revision responses cannot replace current state.
+5. Expired/invalid membership or missing room clears the session. Local leave cancels timers, drops credentials and restores the unchanged solo board.
+6. Server heartbeat timestamps drive an advisory opponent-disconnected message; they do not change match outcomes. Forfeit, server leave and host-transfer flows remain deferred.
+
+Checks: 67 automated regressions, TypeScript and changed-file lint pass; two-browser/Redis verification remains pending.

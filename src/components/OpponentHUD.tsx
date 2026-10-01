@@ -11,7 +11,7 @@ interface OpponentHUDProps {
 }
 
 export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
-  const { room, guesses, userId, error, isMatchActive, matchWinner, requestRematch, leaveRoom } = useMultiplayerStore();
+  const { room, guesses, userId, error, isReconnecting, isMatchActive, matchWinner, requestRematch, leaveRoom } = useMultiplayerStore();
   const { setActiveModal } = useGameStore();
 
   if (!room) return null;
@@ -76,6 +76,7 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
       className="w-full bg-black text-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-4 flex flex-col gap-3 mb-2"
     >
       {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
+      {isReconnecting && <p role="status" className="text-sm text-yellow-300">Reconnecting… Your accepted guesses and bonus hint are saved.</p>}
       {/* Top Header Status Row */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-b-2 border-neutral-800 pb-2">
         <div className="flex items-center gap-2">
@@ -212,6 +213,9 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
                 </div>
               </div>
 
+              {room.status !== 'finished' && !isReconnecting && opp.isConnected === false && (
+                <p className="text-xs text-yellow-300">Opponent connection interrupted. Waiting for them to reconnect.</p>
+              )}
               {/* Opponent's Realtime Wordle Color Grid */}
               <div className="flex items-center justify-between text-[11px] text-neutral-400 uppercase font-bold pt-1">
                 <span>Opponent&apos;s Grid:</span>

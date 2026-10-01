@@ -191,3 +191,28 @@ test('room PATCH rejects invalid status and stale round requests', async () => {
   assert.equal((await PATCH(request({ action: 'ready', roundId: '00000000-0000-0000-0000-000000000000' }))).status, 409);
   assert.equal((await PATCH(request({ action: 'ready', status: 'countdown' }))).status, 400);
 });
+
+test('member recovery returns only own evaluations and strips solo trivia', async () => {
+  const f = await setup(); await f.start();
+  const accepted = await f.guess('host', 1);
+  await f.guess('guest', 1, f.wrong[1]);
+  const room = await f.current();
+  const host = f.manager.toMemberRoomResponse(room, 'host');
+  assert.equal(host.guesses.length, 1);
+  assert.equal(JSON.stringify(host.guesses[0]), JSON.stringify(accepted.evaluation));
+  assert.equal(host.guesses[0].unlockedHint, undefined);
+  assert.equal(host.room.guessedPlayerIdsByUser, undefined);
+  assert.equal(host.room.targetPlayerId, undefined);
+});
+test('authenticated heartbeats are throttled and preserve round outcome and attempts', async () => {
+  const f = await setup(); await f.start();
+  const before = await f.current();
+  f.advance(16000);
+  await assert.rejects(f.manager.syncRoomForUser(f.room.roomCode, 'guest', f.token('host')), /membership/);
+  const updated = await f.manager.syncRoomForUser(f.room.roomCode, 'guest', f.token('guest'));
+  assert.equal(updated.revision, before.revision + 1);
+  assert.equal(updated.status, 'in_progress');
+  assert.equal(updated.participants[1].guessesCount, 0);
+  const repeated = await f.manager.syncRoomForUser(f.room.roomCode, 'guest', f.token('guest'));
+  assert.equal(repeated.revision, updated.revision);
+});

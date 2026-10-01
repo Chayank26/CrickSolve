@@ -27,6 +27,8 @@ export interface RoomParticipant {
     numericMatches: NumericMatchResult;
   };
   connectedAt: number;
+  lastSeenAt?: number;
+  isConnected?: boolean;
 }
 
 export interface MultiplayerRoom {

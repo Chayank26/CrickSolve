@@ -23,15 +23,38 @@ export function pickRandomMysteryPlayerId(excludeId?: string): string {
 export function toPublicRoom(room: MultiplayerRoom): PublicMultiplayerRoom {
   return {
     id: room.id, roomCode: room.roomCode, hostId: room.hostId, hostName: room.hostName,
-    status: room.status, participants: room.participants, createdAt: room.createdAt,
+    status: room.status, participants: room.participants.map((participant) => ({
+      ...participant, isConnected: Date.now() - (participant.lastSeenAt ?? participant.connectedAt) <= 15000,
+    })), createdAt: room.createdAt,
     roundId: room.roundId, revision: room.revision, startedAt: room.startedAt,
     finishedAt: room.finishedAt, winnerUserId: room.winnerUserId, winnerNickname: room.winnerNickname,
     reveal: room.reveal, countdownEndsAt: room.countdownEndsAt, finishReason: room.finishReason,
   };
 }
 
+function evaluateMultiplayerGuess(playerId: string, targetId: string, attempt: number) {
+  const evaluation = evaluatePlayerGuess(playerId, targetId, attempt);
+  const target = PLAYERS.find((player) => player.id === targetId);
+  if (!evaluation || !target) return null;
+    // Multiplayer has one selectable attribute bonus, not the solo trivia hint.
+    delete evaluation.unlockedHint;
+    evaluation.revealedAttributes = {
+      country: evaluation.attributeMatches.country ? target.country : undefined,
+      battingHand: evaluation.attributeMatches.battingHand ? target.battingHand : undefined,
+      bowlingType: evaluation.attributeMatches.bowlingType ? target.bowlingType : undefined,
+      role: evaluation.attributeMatches.role ? target.role : undefined,
+      iplTeam: evaluation.attributeMatches.iplTeam ? target.iplTeam : undefined,
+      retired: evaluation.attributeMatches.retired ? (target.retired ? 'YES' : 'NO') : undefined,
+    };
+  return evaluation;
+}
+
 export function toMemberRoomResponse(room: MultiplayerRoom, userId: string) {
-  return { room: toPublicRoom(room), hint: room.hintsByUser?.[userId] || null };
+  return {
+    room: toPublicRoom(room), hint: room.hintsByUser?.[userId] || null,
+    guesses: (room.guessedPlayerIdsByUser?.[userId] || []).map((id, index) =>
+      evaluateMultiplayerGuess(id, room.targetPlayerId, index + 1)),
+  };
 }
 
 export async function claimRoomHint(roomCode: string, userId: string, roundId: string, membershipToken: string, key: MultiplayerHintKey): Promise<{ room: MultiplayerRoom | null; error?: string }> {
@@ -184,19 +207,9 @@ export async function submitRoomGuess(input: {
     }
     const previousGuesses = room.guessedPlayerIdsByUser?.[userId] || [];
     if (previousGuesses.includes(guessedPlayerId)) throw new RoomActionError('You already guessed this player');
-    const evaluation = evaluatePlayerGuess(guessedPlayerId, room.targetPlayerId, attemptNumber);
+    const evaluation = evaluateMultiplayerGuess(guessedPlayerId, room.targetPlayerId, attemptNumber);
     const target = PLAYERS.find((player) => player.id === room.targetPlayerId);
     if (!evaluation || !target) throw new RoomActionError('Invalid player ID', 400);
-    // Multiplayer has one selectable attribute bonus, not the solo trivia hint.
-    delete evaluation.unlockedHint;
-    evaluation.revealedAttributes = {
-      country: evaluation.attributeMatches.country ? target.country : undefined,
-      battingHand: evaluation.attributeMatches.battingHand ? target.battingHand : undefined,
-      bowlingType: evaluation.attributeMatches.bowlingType ? target.bowlingType : undefined,
-      role: evaluation.attributeMatches.role ? target.role : undefined,
-      iplTeam: evaluation.attributeMatches.iplTeam ? target.iplTeam : undefined,
-      retired: evaluation.attributeMatches.retired ? (target.retired ? 'YES' : 'NO') : undefined,
-    };
     room.guessedPlayerIdsByUser = { ...room.guessedPlayerIdsByUser, [userId]: [...previousGuesses, guessedPlayerId] };
     participant.guessesCount = attemptNumber;
     participant.isSolved = evaluation.isCorrect;
@@ -314,3 +327,18 @@ export async function toggleReadyForUser(
   });
 }
 
+
+// Only an authenticated HTTP request refreshes presence; public broadcasts cannot.
+export async function syncRoomForUser(roomCode: string, userId: string, membershipToken: string) {
+  return withRoomMutation(roomCode, async (save) => {
+    const room = await getStoredRoom(roomCode);
+    if (!room) throw new RoomActionError('Room not found', 404);
+    const participant = assertRoomMembership(room, membershipToken, userId);
+    if (Date.now() - (participant.lastSeenAt ?? participant.connectedAt) >= 5000) {
+      participant.lastSeenAt = Date.now();
+      room.revision += 1;
+      await save(room);
+    }
+    return room;
+  });
+}

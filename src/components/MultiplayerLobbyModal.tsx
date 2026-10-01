@@ -224,7 +224,7 @@ export function MultiplayerLobbyModal() {
                     className="w-full bg-[#CCFF00] text-black border-3 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] py-3.5 text-sm md:text-base font-black uppercase hover:brightness-105 active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-5 h-5 text-black" />
-                    <span>{isConnecting ? 'CREATING ROOM...' : '⚡ CREATE BATTLE ROOM'}</span>
+                    <span>{isConnecting ? 'CREATING ROOM...' : 'CREATE BATTLE ROOM'}</span>
                   </button>
                 </div>
               ) : (

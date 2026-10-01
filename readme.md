@@ -47,7 +47,7 @@ Multiplayer is under phased development. Completion Phase 1 stabilizes round ini
 | 2 | Atomic server validation, round/attempt checks, seven-guess enforcement | Implemented; regression checks pass |
 | 3 | Secure anonymous participant identity and permissions | Implemented; regression checks pass |
 | 4 | Dedicated multiplayer rules/UI, bonus hint after guess four, progress isolation | Implemented; regression checks pass |
-| 5 | Disconnect and recovery | Product decisions deferred |
+| 5 | Disconnect detection and recovery | Recovery implemented; forfeit/host-transfer policies deferred |
 | 6 | Rematch lifecycle and result polish | Product decisions deferred |
 | 7 | Integration tests and deployment verification | Planned |
 
@@ -68,7 +68,7 @@ The store tests isolate network and timer behavior; they do not replace two-brow
 
 Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
 
-Current checks: 60 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis, two-browser integration and production build verification remain pending. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
+Current checks: 67 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis, two-browser integration and production build verification remain pending. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
 
 
 ## Phase 3 API and configuration notes
@@ -79,7 +79,7 @@ Current checks: 60 regression tests and TypeScript pass; changed files have no l
 - Configure `CRICKSOLVE_SECRET_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for deployment. Stable signing keys are also needed across development server processes.
 - Rate limits use shared Redis when configured; otherwise counters are local to the process. Network limits default to a shared bucket. Set `CRICKSOLVE_TRUST_PROXY=1` only if the deployment proxy overwrites/sanitizes `x-forwarded-for`; this enables per-address grouping.
 - Per-minute network limits: create 10, join 30, room reads 600, room mutations 120, guesses 120. Additional member limits: reads 180, mutations 30, guesses 30. Production capacity and proxy configuration still need verification.
-- Realtime channels remain public, carrying only sync notifications; state is fetched through authenticated APIs. Credentials are held in memory, so refresh recovery remains future work.
+- Realtime channels remain public, carrying only sync notifications; state is fetched through authenticated APIs. Credentials are saved in per-tab sessionStorage for refresh recovery; game progress is restored from authenticated server snapshots.
 
 
 ## Multiplayer gameplay — Phase 4
@@ -91,3 +91,15 @@ Current checks: 60 regression tests and TypeScript pass; changed files have no l
 - Disconnect/recovery and rematch policies still require product decisions before Phases 5 and 6. Existing behavior has not been redesigned in this phase.
 
 Validation includes server/store tests and rendered component checks. Live Redis, browser interactions and production-build verification remain outstanding. Full-project lint currently reports 10 errors and 8 warnings outside this phase's completed fixes.
+
+
+## Multiplayer recovery — Completion Phase 5
+
+- Refresh the same tab to restore your membership, accepted guesses, fourth-guess bonus hint, timer and result. Only room credentials are cached in sessionStorage; the server supplies gameplay state.
+- Transient failures retain credentials and retry. Requests time out after 10 seconds; browser online/visibility events also trigger reconciliation. Expired or missing memberships clear the saved session and stop polling.
+- Authenticated room reads refresh presence at most once per five seconds. After 15 seconds without a heartbeat, the opponent sees a connection-interrupted message. This indicator does not pause the clock or determine a winner.
+- Explicit local Leave/Return to solo clears the saved session and cancels local polling. Server slot removal, automatic forfeits and host transfer remain deferred product decisions. Closing the tab may discard sessionStorage; recovery is not cross-device.
+- Reconciliation restores guesses accepted by the server even if their response was lost. Seven guesses, one bonus after four, and no eighth guess remain unchanged.
+- Removed lightning emojis from the header, room-creation button and documentation.
+
+Validation: 67 regression tests, TypeScript and changed-file lint pass. Live two-browser/Redis and deployment verification remain for Phase 7. Phase 6 is not started.

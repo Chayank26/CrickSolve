@@ -1,5 +1,5 @@
 import { MULTIPLAYER_HINT_LABELS, MultiplayerHintKey } from '@/types/multiplayer';
-import { claimRoomHint, assertRoomMembership, getRoom, rematchRoomForUser, toMemberRoomResponse, toggleReadyForUser, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
+import { claimRoomHint, syncRoomForUser, rematchRoomForUser, toMemberRoomResponse, toggleReadyForUser, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
 import { RoomActionError } from '@/lib/multiplayer-errors';
 import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readRoomCode, readRoundId, requestMembership } from '@/lib/multiplayer-http';
 import { enforceRateLimit, limitMultiplayerRequest } from '@/lib/multiplayer-rate-limit';
@@ -10,9 +10,7 @@ export async function GET(request: Request) {
     const code = readRoomCode(new URL(request.url).searchParams.get('code'));
     const { userId, membershipToken, membership } = requestMembership(request, code);
     await enforceRateLimit('read-member', `${membership.roomId}:${userId}`, 180);
-    const room = await getRoom(code);
-    if (!room) throw new RoomActionError('Room not found', 404);
-    assertRoomMembership(room, membershipToken, userId);
+    const room = await syncRoomForUser(code, userId, membershipToken);
     return multiplayerJson({ success: true, ...toMemberRoomResponse(room, userId) });
   } catch (error) { return multiplayerError(error); }
 }

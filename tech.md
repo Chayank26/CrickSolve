@@ -187,3 +187,14 @@ Current verification: 45 tests pass; TypeScript and changed-file lint pass. Full
 Solo persistence now includes timer and hint/bonus fields previously omitted by `partialize`. Multiplayer remains unpersisted; there is no room-to-solo save/restore copy that can overwrite solo state. The active-game projection reads the correct store for grids, results, timer, search, cards and shares.
 
 Validation: 60 tests pass, TypeScript passes, changed-file lint has zero errors and one pre-existing image warning. Full lint reports 10 errors and 8 warnings. Tests cover authenticated hint delivery, independent per-player bonuses, concurrency, stale/terminal rejection, solo persistence isolation, full client-store-to-route hint selection, and rendered UI behavior. Rendered HTML tests are not browser E2E tests; real Redis and browser verification remain pending.
+
+
+## Multiplayer Completion Phase 5 — Session recovery
+
+- `multiplayer-manager.ts`: reconstructs only the requesting member's evaluations from private guessed IDs using the same evaluation projection as submissions. Public snapshots include server-computed connection indicators, never hidden targets or opponent guessed IDs.
+- Authenticated GET serializes heartbeats with other room writes using the existing memory/Redis lock. Writes are throttled to five seconds per participant; a 15-second gap marks interrupted presence. Room TTL and membership token expiry still apply.
+- `useMultiplayerStore.ts`: per-tab sessionStorage credentials, bounded fetches, authoritative guess reconciliation, retry state, expired-session cleanup and connection-version guards.
+- `MultiplayerSession.tsx`: mount recovery, online/visibility reconciliation and recovery controls. PlayerSearch blocks guesses while reconnecting; HUD shows interrupted opponent presence.
+- No new disconnect adjudication or rematch policy. Local leave does not release the server slot; these lifecycle decisions remain a release prerequisite.
+
+Validation: 67 tests pass, TypeScript passes, changed-file lint passes. Tests use deterministic transport/storage and do not substitute for live Redis or two-browser integration.
