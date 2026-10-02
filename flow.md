@@ -556,3 +556,12 @@ Run `npm test`, `npm run typecheck`, then build production with `npm run build -
 The browser suite owns a local production server on port 3107, opens two isolated contexts, dismisses first-run help, creates a room and joins through its invite URL. It exercises readiness/countdown and actual guess requests. When the target remains unsolved after four guesses, it checks the bonus hint, refresh identity/history restoration and offline/online recovery. A solve or both players reaching seven ends the round. Both clients see results, decline the first invitation, accept a new one and return to a clean lobby.
 
 This local scenario passes along with 74 deterministic regression tests and TypeScript. Public deployment still requires the live-service checklist in `docs/multiplayer-release-checklist.md`; no staging credentials or deployment were available during this phase.
+
+
+## Phase 8 — Release hardening checks
+
+Dependency audit → pinned Next.js/lint patch update → compatible transitive fixes → zero known advisories. Then full-project lint cleanup, regression/TypeScript checks, production webpack build and the two-browser multiplayer scenario.
+
+Leaderboard requests are scheduled on opening/date change; closing cancels the scheduled work and aborts active fetches. A stale response is ignored before updating scores or rank. This preserves the existing merge/sort behavior while preventing obsolete state updates.
+
+76 regressions and the browser flow pass. The Battle button remains emoji-free. Disconnect/leave/host-transfer behavior is unchanged pending the policy decision; no deployment was performed.

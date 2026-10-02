@@ -222,3 +222,14 @@ Validation: 74 regression tests and TypeScript pass. Changed-file lint has no er
 - Dependency installation reported three high and one critical advisory; review and resolve applicable findings before release rather than applying unchecked force-upgrades.
 
 See `docs/multiplayer-release-checklist.md` for configuration, commands and remaining blockers. Phase 7 local verification is complete; deployed verification and deferred disconnect/leave/host-transfer policies remain open.
+
+
+## Phase 8 — Dependencies and release hygiene
+
+Next.js and eslint-config-next are pinned to 16.3.8; package-lock includes compatible fixes for sharp, brace-expansion and js-yaml. npm audit reports zero known vulnerabilities at verification time. Recheck the registry before release.
+
+ESLint recognizes the two existing CommonJS maintenance scripts via a file-scoped override and ignores generated browser reports. Application rules remain intact. All lint errors are resolved; six existing warnings remain. Script edits do not execute data conversion or seeding.
+
+LeaderboardModal owns its loader inside the effect, cancels scheduled work, aborts fetch on cleanup and ignores late results. Two deterministic effect-lifecycle tests cover cancellation and stale-response handling. The header render check asserts a plain 1v1 BATTLE label with no lightning emoji.
+
+Validation: 76 tests, TypeScript, lint, production webpack build and two-browser multiplayer integration pass. Staging Redis/Supabase checks and deferred lifecycle decisions remain outstanding; no deployment.

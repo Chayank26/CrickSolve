@@ -38,6 +38,8 @@ test('bonus cards are accessible buttons and show the server hint value', () => 
 test('multiplayer header names the mode and disables solo mode changes', () => {
   const html = render('Header');
   assert.match(html, /MULTIPLAYER • 7 GUESSES/);
+  assert.match(html, /<span>1v1 BATTLE<\/span>/);
+  assert.doesNotMatch(html, /\u26a1/);
   assert.match(html, /Leave the duel to switch modes/);
   assert.equal((html.match(/disabled=""/g) || []).length, 3);
 });

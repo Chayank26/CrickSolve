@@ -43,11 +43,16 @@ On an isolated staging deployment, verify:
 
 - Automatic disconnect forfeits, server-side leave/slot removal and host transfer remain deferred. Current Leave clears only the local session; a server slot may remain occupied until expiry. Multiplayer is not ready for public release with these lifecycle questions unresolved.
 - Live Redis/Supabase and deployed multi-instance checks require a configured staging environment.
-- Full-project lint currently has 10 pre-existing errors and 8 warnings in scripts and solo/leaderboard components. Multiplayer's changed files have no lint errors.
-- Dependency audit findings must be reviewed before release; installation reported three high and one critical advisory. No force-upgrade was applied as part of multiplayer verification.
+- Phase 8 resolved all lint errors. Full-project lint passes with six non-blocking warnings.
+- Phase 8 updated Next.js/eslint-config-next to pinned 16.3.8 and compatible transitive dependencies; npm audit reports zero known vulnerabilities at verification time. Recheck advisories before deployment.
 
 No deployment is performed by these checks.
 
 ## Recorded local result (2026-10-02)
 
 74 unit/regression tests passed; TypeScript passed; production webpack build passed; the two-context browser scenario passed in 12.7 seconds total using installed headless Chrome. New test/config files pass lint. Real Redis/Supabase and deployed multi-instance checks remain unexecuted. Default Turbopack failed on the environment restriction noted above. These results do not constitute deployment approval or completion of the staging checklist.
+
+
+## Phase 8 follow-up
+
+The 2026-10-02 dependency update and lint cleanup pass 76 regression tests, TypeScript, full-project lint (six warnings), a webpack production build and the two-browser integration scenario. Two new tests prevent stale leaderboard updates after closure/date changes. The 1v1 Battle header is verified without a lightning emoji. Previously deferred lifecycle policies and live staging verification remain open; this does not authorize a deployment.

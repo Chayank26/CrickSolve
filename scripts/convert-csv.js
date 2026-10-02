@@ -7,7 +7,6 @@ const outputPath = path.join(__dirname, '../src/data/players.ts');
 const content = fs.readFileSync(csvPath, 'utf-8');
 const lines = content.split('\n').filter((l) => l.trim().length > 0);
 
-const header = lines[0].split(',');
 const dataLines = lines.slice(1);
 
 function parseCsvLine(text) {

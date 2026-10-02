@@ -686,3 +686,14 @@ The target remains random with no test backdoor. An early correct guess is valid
 Results: 74 regressions, TypeScript, one real two-browser scenario and the webpack production build pass. New test/config lint passes. Existing full-project lint failures remain unchanged. Turbopack could not bind an internal port in this environment; webpack was used without changing the default build command.
 
 No staging configuration was available, so real Redis/Supabase and deployed multi-instance behavior remain unverified. No deployment occurred. Disconnect penalties, server leave and host transfer remain deferred product decisions. Local Phase 7 checks are complete; release approval should wait for these outstanding items and dependency audit review.
+
+
+## Phase 8 — Release hardening
+
+Prioritized verifiable local release blockers while the previously deferred disconnect/host-transfer policy question remains pending. No disconnect penalties, slot-release or host-transfer behavior changed.
+
+Pinned Next.js and its lint config to 16.3.8, applied compatible transitive audit fixes without force-upgrading, and verified zero known npm advisories. Resolved existing lint errors while keeping application checks enabled: the two intentional CommonJS maintenance scripts get a narrowly scoped module-rule override; immutable script arrays use const; leaderboard JSX and effect ownership are corrected.
+
+Leaderboard loads now have cancellation and stale-response protection. Tests cover close-before-load and old-date responses arriving after a new one. The existing emoji-free Battle label has a rendered regression assertion.
+
+Validation: 76 tests, TypeScript, full lint (zero errors/six warnings), webpack production build and two-browser integration pass. No deployment occurred. Live service verification and lifecycle product decisions remain open.

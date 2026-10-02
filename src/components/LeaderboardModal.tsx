@@ -14,76 +14,80 @@ export function LeaderboardModal() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (activeModal === 'leaderboard') {
-      fetchAndMergeLeaderboard();
+    if (activeModal !== 'leaderboard') return;
+    let cancelled = false;
+    const controller = new AbortController();
+    async function fetchAndMergeLeaderboard() {
+      setIsLoading(true);
+
+      let remoteEntries: LeaderboardEntry[] = [];
+      let fetchedTodayPlayer = null;
+
+      // 1. Fetch remote Supabase entries
+      try {
+        const res = await fetch(`/api/leaderboard?date=${currentDate}&category=${category}`, { signal: controller.signal });
+        const data = await res.json();
+        remoteEntries = data.leaderboard || [];
+        fetchedTodayPlayer = data.todayPlayer || null;
+      } catch (err) {
+        if (cancelled) return;
+        console.error('Failed to fetch remote leaderboard', err);
+      }
+
+      // 2. Read local entries from localStorage
+      let localEntries: LeaderboardEntry[] = [];
+      try {
+        const raw = localStorage.getItem('cricksolve_leaderboard_v1');
+        if (raw) {
+          const parsed: LeaderboardEntry[] = JSON.parse(raw);
+          localEntries = parsed.filter((e) => e.date === currentDate);
+        }
+      } catch (err) {
+        console.error('Failed to read local leaderboard entries', err);
+      }
+
+      // 3. Merge & Deduplicate entries by nickname
+      const entryMap = new Map<string, LeaderboardEntry>();
+
+      // Put remote entries first
+      remoteEntries.forEach((entry) => {
+        entryMap.set(entry.nickname.toLowerCase(), entry);
+      });
+
+      // Put/override with local entries
+      localEntries.forEach((entry) => {
+        entryMap.set(entry.nickname.toLowerCase(), entry);
+      });
+
+      const combined = Array.from(entryMap.values());
+
+      // 4. Sort strictly by fastest solve time (time_ms / timeMs ASC) then attempts ASC
+      combined.sort((a, b) => {
+        const timeA = a.time_ms ?? a.timeMs ?? 999999;
+        const timeB = b.time_ms ?? b.timeMs ?? 999999;
+        if (timeA !== timeB) {
+          return timeA - timeB;
+        }
+        return a.attempts - b.attempts;
+      });
+
+      if (cancelled) return;
+      // Update player standing rank in store
+      const userIndex = combined.findIndex((e) => e.nickname.toLowerCase() === useGameStore.getState().nickname.toLowerCase());
+      if (userIndex !== -1) {
+        useGameStore.getState().setUserRank(userIndex + 1);
+      } else {
+        useGameStore.getState().setUserRank(null);
+      }
+
+      setLeaderboard(combined);
+      setTodayPlayer(fetchedTodayPlayer);
+      setIsLoading(false);
     }
+    // Coalesce rapid open/date changes and cancel stale responses on close.
+    const timer = setTimeout(() => { void fetchAndMergeLeaderboard(); }, 0);
+    return () => { cancelled = true; clearTimeout(timer); controller.abort(); };
   }, [activeModal, currentDate, category]);
-
-  async function fetchAndMergeLeaderboard() {
-    setIsLoading(true);
-
-    let remoteEntries: LeaderboardEntry[] = [];
-    let fetchedTodayPlayer = null;
-
-    // 1. Fetch remote Supabase entries
-    try {
-      const res = await fetch(`/api/leaderboard?date=${currentDate}&category=${category}`);
-      const data = await res.json();
-      remoteEntries = data.leaderboard || [];
-      fetchedTodayPlayer = data.todayPlayer || null;
-    } catch (err) {
-      console.error('Failed to fetch remote leaderboard', err);
-    }
-
-    // 2. Read local entries from localStorage
-    let localEntries: LeaderboardEntry[] = [];
-    try {
-      const raw = localStorage.getItem('cricksolve_leaderboard_v1');
-      if (raw) {
-        const parsed: LeaderboardEntry[] = JSON.parse(raw);
-        localEntries = parsed.filter((e) => e.date === currentDate);
-      }
-    } catch (err) {
-      console.error('Failed to read local leaderboard entries', err);
-    }
-
-    // 3. Merge & Deduplicate entries by nickname
-    const entryMap = new Map<string, LeaderboardEntry>();
-
-    // Put remote entries first
-    remoteEntries.forEach((entry) => {
-      entryMap.set(entry.nickname.toLowerCase(), entry);
-    });
-
-    // Put/override with local entries
-    localEntries.forEach((entry) => {
-      entryMap.set(entry.nickname.toLowerCase(), entry);
-    });
-
-    const combined = Array.from(entryMap.values());
-
-    // 4. Sort strictly by fastest solve time (time_ms / timeMs ASC) then attempts ASC
-    combined.sort((a, b) => {
-      const timeA = a.time_ms ?? a.timeMs ?? 999999;
-      const timeB = b.time_ms ?? b.timeMs ?? 999999;
-      if (timeA !== timeB) {
-        return timeA - timeB;
-      }
-      return a.attempts - b.attempts;
-    });
-
-    // Update player standing rank in store
-    const userIndex = combined.findIndex((e) => e.nickname.toLowerCase() === useGameStore.getState().nickname.toLowerCase());
-    if (userIndex !== -1) {
-      useGameStore.getState().setUserRank(userIndex + 1);
-    } else {
-      useGameStore.getState().setUserRank(null);
-    }
-
-    setLeaderboard(combined);
-    setTodayPlayer(fetchedTodayPlayer);
-    setIsLoading(false);
-  }
 
   if (activeModal !== 'leaderboard') return null;
 
@@ -98,7 +102,7 @@ export function LeaderboardModal() {
             </div>
             <div>
               <h2 className="text-xl font-black uppercase tracking-tight text-black">
-                TODAY'S LEADERBOARD
+                TODAY&apos;S LEADERBOARD
               </h2>
               <p className="text-xs font-bold text-slate-600">Ranked by fastest solve time</p>
             </div>
@@ -121,7 +125,7 @@ export function LeaderboardModal() {
                 className="w-12 h-12 border-2 border-black object-cover bg-slate-200"
               />
               <div>
-                <div className="text-xs font-black uppercase text-[#CCFF00]">TODAY'S MYSTERY PLAYER</div>
+                <div className="text-xs font-black uppercase text-[#CCFF00]">TODAY&apos;S MYSTERY PLAYER</div>
                 <div className="text-base font-black uppercase">{todayPlayer.name}</div>
                 <div className="text-xs font-semibold opacity-90">
                   {todayPlayer.country} • {todayPlayer.role}

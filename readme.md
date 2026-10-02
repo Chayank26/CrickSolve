@@ -50,6 +50,7 @@ Multiplayer is under phased development. Completion Phase 1 stabilizes round ini
 | 5 | Disconnect detection and recovery | Recovery implemented; forfeit/host-transfer policies deferred |
 | 6 | Rematch lifecycle and result polish | Implemented; mutual consent and regression checks pass |
 | 7 | Integration tests and deployment verification | Local production/browser checks pass; live staging verification blocked by missing configuration |
+| 8 | Release hardening | Dependency advisories and lint errors resolved; lifecycle policy decision pending |
 
 Confirmed rules: **seven guesses**, a **daily-style bonus hint after the fourth guess**, and **no eighth guess**. Phase 2 enforces the seven-guess cap and removes the multiplayer eighth-attempt flow. The fourth-guess bonus hint is implemented in Phase 4: choose one still-locked attribute without consuming a guess.
 
@@ -68,7 +69,7 @@ The store tests isolate network and timer behavior; they do not replace two-brow
 
 Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
 
-Current checks: 74 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis and deployed multi-instance verification remain pending; local two-browser integration and webpack production build pass. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
+Current checks: 76 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis and deployed multi-instance verification remain pending; local two-browser integration and webpack production build pass. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
 
 
 ## Phase 3 API and configuration notes
@@ -130,3 +131,14 @@ Verified locally:
 The default Turbopack build failed on this environment's internal port-binding restriction; the supported webpack build passed. Browser testing used installed headless Chrome and an isolated in-memory room store, not live Redis/Supabase. No deployment was performed.
 
 See [the release checklist](docs/multiplayer-release-checklist.md) for repeatable commands, staging configuration and launch blockers. Live shared-service verification, unresolved disconnect/server-leave/host-transfer policies and dependency audit review remain required before release. Phase 7's local verification is complete; deployment verification remains open.
+
+
+## Phase 8 — Release hardening (2026-10-02)
+
+- Updated pinned Next.js and eslint-config-next from 16.3.2 to 16.3.8 and applied compatible transitive dependency fixes. npm's audit reports zero known vulnerabilities at verification time.
+- Resolved all 10 pre-existing lint errors. Existing CommonJS maintenance scripts are configured as CommonJS; application lint rules remain enabled. Six non-blocking warnings remain.
+- Leaderboard loading now cancels pending work when closed/date changes and ignores stale responses. Two regression tests cover cancellation and stale-response protection.
+- Confirmed the 1v1 Battle button has no lightning emoji and added a rendered-header regression assertion. Its current source was already clean; no deployment/cache change was performed.
+- Documentation and the release checklist reflect resolved lint/audit blockers.
+
+Checks: 76 tests, TypeScript, full-project lint (zero errors), production webpack build and two-browser multiplayer flow pass. Live Redis/Supabase staging verification and the previously deferred disconnect/server-leave/host-transfer policies remain outstanding. The lifecycle choice is pending user input; those rules are unchanged in this phase.

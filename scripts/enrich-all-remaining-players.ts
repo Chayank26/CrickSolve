@@ -96,7 +96,7 @@ async function run() {
   console.log(`Starting complete portrait resolution for all ${PLAYERS.length} cricketers...`);
   let alreadyDone = 0;
   let newlyDownloaded = 0;
-  let failed: string[] = [];
+  const failed: string[] = [];
 
   for (let i = 0; i < PLAYERS.length; i++) {
     const player = PLAYERS[i];
@@ -112,7 +112,7 @@ async function run() {
 
     console.log(`[${i + 1}/${PLAYERS.length}] Finding portrait for: ${player.name} (${player.country})...`);
 
-    let candidateUrls: string[] = [];
+    const candidateUrls: string[] = [];
 
     // 1. Wikipedia direct lead
     const wikiUrl = await fetchWikiThumb(player.name);
