@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useSyncExternalStore } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/useGameStore';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
@@ -35,6 +35,7 @@ export function MultiplayerLobbyModal() {
     setNickname,
     room,
     isConnecting,
+    isLeaving,
     error,
     countdown,
     createRoom,
@@ -52,9 +53,14 @@ export function MultiplayerLobbyModal() {
   const inputRoomCode = editedRoomCode ?? inviteCode;
   const [copied, setCopied] = useState(false);
 
+  const handledInvite = useRef<string | null>(null);
+
   // The URL is an external browser store, with an empty server snapshot for hydration.
   useEffect(() => {
-    if (inviteCode && !room) setActiveModal('multiplayer');
+    if (inviteCode && !room && handledInvite.current !== inviteCode) {
+      handledInvite.current = inviteCode;
+      setActiveModal('multiplayer');
+    }
   }, [inviteCode, room, setActiveModal]);
 
   // Gameplay initialization is owned by server snapshot reconciliation.
@@ -98,10 +104,7 @@ export function MultiplayerLobbyModal() {
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleLeave = () => {
-    leaveRoom();
-    setActiveModal(null);
-  };
+  const handleLeave = () => { void leaveRoom(); };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/75 backdrop-blur-sm overflow-y-auto">
@@ -392,6 +395,7 @@ export function MultiplayerLobbyModal() {
 
                 {/* Leave Room Button */}
                 <button
+                  disabled={isLeaving}
                   onClick={handleLeave}
                   className="w-full bg-white text-red-600 border-2 border-black hover:bg-red-50 py-2 text-xs font-black uppercase transition-all flex items-center justify-center gap-1.5"
                 >

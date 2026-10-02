@@ -46,7 +46,7 @@ export function HowToModal() {
             • After <strong>4 guesses</strong>, choose one locked attribute card to reveal as your bonus hint.
           </div>
           <div className="p-3 bg-slate-100 border-2 border-black">
-            {inMultiplayer ? '• Solve first to win. The photo is revealed when the round ends. If both players use all seven guesses, there is no winner.' : <>• The <strong>Photo Silhouette</strong> unblurs with every attempt made.</>}
+            {inMultiplayer ? '• Solve first to win. The photo is revealed when the round ends. If both players use all seven guesses, there is no winner. Reconnect within 60 seconds of your last contact or forfeit. Leaving an active duel forfeits immediately; lobby ownership transfers when the host leaves.' : <>• The <strong>Photo Silhouette</strong> unblurs with every attempt made.</>}
           </div>
         </div>
 

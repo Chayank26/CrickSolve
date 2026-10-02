@@ -697,3 +697,14 @@ Pinned Next.js and its lint config to 16.3.8, applied compatible transitive audi
 Leaderboard loads now have cancellation and stale-response protection. Tests cover close-before-load and old-date responses arriving after a new one. The existing emoji-free Battle label has a rendered regression assertion.
 
 Validation: 76 tests, TypeScript, full lint (zero errors/six warnings), webpack production build and two-browser integration pass. No deployment occurred. Live service verification and lifecycle product decisions remain open.
+
+
+## Phase 9 — Approved disconnect and host-transfer policy
+
+The user's approval to proceed following the proposed 60-second reconnect/forfeit and lobby host-transfer policy authorizes this lifecycle phase. Server adjudication uses 60 seconds from last recorded authenticated contact, recorded at five-second intervals. Reconciliation runs inside the mutation lock before refreshing a returning actor, so late actions cannot revive a lost round. Both expired participants produce abandonment/no winner; terminal results cannot be rewritten.
+
+Explicit leave forfeits active play immediately. Lobby/countdown leave or expiry removes the participant, cancels countdown and promotes the remaining member; an empty room is closed with a TTL-bound tombstone. Finished rooms retain departed participants for score history, revoke their access and disable rematch. Closed rooms reject joins. Remaining players can leave; playing a new opponent after a finished departure requires a new room.
+
+Promotion exchanges the signed guest credential for a host credential during authenticated sync without extending expiry. Host-only mutations require the new role; self-leave remains permitted during the exchange race. Client leave clears credentials only after success or terminal membership rejection; transport failures retain them for retry.
+
+No cron/background adjudicator is added: the next room interaction settles expiry. Tests validate exact boundaries, both offline, explicit leave, host transfer and stale credentials. 92 tests, TypeScript, lint and production/browser checks validate local behavior; live Redis/Supabase remains pending.

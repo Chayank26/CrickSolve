@@ -86,7 +86,7 @@ test('countdown requires both ready, cannot be skipped, and starts at the server
   f.advance(1000);
   await f.status('in_progress');
   assert.equal((await f.current()).startedAt, deadline);
-  assert.equal((await f.current()).revision, revision);
+  assert.equal((await f.current()).revision, revision + 1); // Throttled heartbeat only; no second start.
 });
 
 test('arbitrary status changes and active-round rematches are rejected', async () => {
@@ -274,4 +274,104 @@ test('seven-guess draws support the same consent flow', async () => {
   assert.equal(room.finishReason, 'exhausted');
   await f.manager.rematchRoomForUser(f.room.roomCode, 'host', f.room.roundId, f.token('host'), 'accept', room.rematchRequest.id);
   assert.equal((await f.current()).status, 'waiting');
+});
+
+const syncMember = (f, user) => f.manager.syncRoomForUser(f.room.roomCode, user, f.token(user));
+const leaveMember = (f, user) => f.manager.leaveRoomForUser(f.room.roomCode, user, f.room.roundId, f.token(user));
+
+test('reconnecting just before the 60-second deadline preserves the round and guesses', async () => {
+  const f = await setup(); await f.start(); await f.guess('guest', 1);
+  f.advance(56999); // Last guest heartbeat was at 10000, current time is 69999.
+  await syncMember(f, 'guest');
+  const room = await f.current();
+  assert.equal(room.status, 'in_progress');
+  assert.equal(room.participants[1].guessesCount, 1);
+});
+test('deadline expires before a returning player can revive or submit a winning guess', async () => {
+  const f = await setup(); await f.start();
+  f.advance(30000); await syncMember(f, 'host');
+  f.advance(27000); // Guest reaches exactly 60 seconds since last contact.
+  await assert.rejects(f.guess('guest', 1, f.room.targetPlayerId), /not active/);
+  const room = await f.current();
+  assert.equal(room.finishReason, 'forfeit');
+  assert.equal(room.winnerUserId, 'host');
+  assert.equal(room.participants[1].guessesCount, 0);
+  assert.equal(room.participants[0].isSolved, false);
+  assert.equal(room.participants[0].solveTimeMs, undefined);
+  await syncMember(f, 'guest');
+  assert.equal((await f.current()).winnerUserId, 'host');
+});
+test('both expired players produce an abandoned round, never a polling-order winner', async () => {
+  const f = await setup(); await f.start(); f.advance(60000);
+  await syncMember(f, 'host');
+  const room = await f.current();
+  assert.equal(room.finishReason, 'abandoned');
+  assert.equal(room.winnerUserId, undefined);
+  assert.equal(room.reveal.id, f.room.targetPlayerId);
+});
+test('explicit active leave forfeits immediately, revokes access and disables rematches', async () => {
+  const f = await setup(); await f.start();
+  await leaveMember(f, 'guest');
+  const room = await f.current();
+  assert.equal(room.finishReason, 'forfeit');
+  assert.equal(room.winnerUserId, 'host');
+  await assert.rejects(syncMember(f, 'guest'), /not authorized/);
+  await assert.rejects(f.manager.joinRoom(room.roomCode, 'guest', 'Guest', f.token('guest')), /not authorized/);
+  await assert.rejects(f.manager.rematchRoomForUser(room.roomCode, 'host', room.roundId, f.token('host')), /still be in the room/);
+  await leaveMember(f, 'host');
+  await assert.rejects(f.manager.joinRoom(room.roomCode, 'new', 'New'), /closed/);
+});
+test('leaving a finished round cannot rewrite the winner', async () => {
+  const f = await finishedRematch();
+  await leaveMember(f, 'host');
+  const room = await f.current();
+  assert.equal(room.finishReason, 'solved');
+  assert.equal(room.winnerUserId, 'host');
+});
+test('guest lobby leave frees a slot; a former member cannot reclaim it', async () => {
+  const f = await setup(); await leaveMember(f, 'guest');
+  const room = await f.current();
+  assert.equal(room.participants.length, 1);
+  assert.equal(room.hostId, 'host');
+  await assert.rejects(syncMember(f, 'guest'), /not authorized/);
+  const joined = await f.manager.joinRoom(room.roomCode, 'replacement', 'Replacement');
+  assert.equal(joined.room.participants.length, 2);
+});
+test('host leaving during countdown cancels it and transfers host to the guest', async () => {
+  const f = await setup(); await f.status('countdown');
+  await leaveMember(f, 'host');
+  const room = await syncMember(f, 'guest');
+  assert.equal(room.status, 'waiting');
+  assert.equal(room.countdownEndsAt, undefined);
+  assert.equal(room.hostId, 'guest');
+  assert.equal(room.participants[0].role, 'host');
+  assert.equal(room.participants[0].isReady, true);
+  // Old guest token can sync for exchange, but cannot grant itself host mutation rights.
+  await assert.rejects(f.manager.toggleReadyForUser(room.roomCode, 'guest', room.roundId, f.token('guest')), /not authorized/);
+  const crypto = f.load('src/lib/server-crypto.ts');
+  const hostToken = crypto.createMultiplayerMembershipToken(room, 'guest', 'host');
+  await f.manager.toggleReadyForUser(room.roomCode, 'guest', room.roundId, hostToken);
+  assert.equal((await f.current()).participants[0].isReady, false);
+});
+test('lobby timeout transfers ownership, while an entirely expired lobby closes', async () => {
+  const f = await setup(); f.advance(30000); await syncMember(f, 'guest'); f.advance(30000);
+  await syncMember(f, 'guest');
+  assert.equal((await f.current()).hostId, 'guest');
+  await assert.rejects(syncMember(f, 'host'), /not authorized/);
+  const empty = await setup(); empty.advance(60000);
+  await assert.rejects(syncMember(empty, 'host'), /closed/);
+  await assert.rejects(empty.manager.joinRoom(empty.room.roomCode, 'new', 'New'), /closed/);
+});
+test('stale round leave cannot evict someone from an accepted rematch', async () => {
+  const f = await finishedRematch(); await f.act('host');
+  await f.act('guest', 'accept', (await f.current()).rematchRequest.id);
+  await assert.rejects(leaveMember(f, 'guest'), /round has ended/);
+  assert.equal((await f.current()).participants.length, 2);
+});
+
+test('newly promoted host can leave before exchanging its guest token', async () => {
+  const f = await setup();
+  await leaveMember(f, 'host');
+  await leaveMember(f, 'guest');
+  assert.notEqual((await f.current()).closedAt, undefined);
 });

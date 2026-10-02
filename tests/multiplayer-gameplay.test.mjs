@@ -144,7 +144,7 @@ test('duel state never replaces persisted solo progress and leaving restores the
   assert.equal(f.view().gameStatus, 'LOST');
   assert.equal(f.view().endTimeMs, 2500);
   assert.equal(f.saved.get('cricksolve-game-storage'), persisted);
-  f.mp.getState().leaveRoom();
+  f.mp.getState()._resetLocal();
   assert.equal(f.view().gameMode, 'daily');
   assert.equal(f.view().sessionToken, 'solo-session');
   assert.equal(f.view().guesses.length, 1);

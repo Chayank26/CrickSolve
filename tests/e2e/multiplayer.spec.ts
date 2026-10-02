@@ -88,5 +88,25 @@ test('two browser contexts create, play, recover, finish and mutually rematch', 
     expect(reset.guesses).toEqual([]); expect(reset.hint).toBeNull();
     expect(reset.room.status).toBe('waiting');
     expect(reset.room.participants.every((p: { guessesCount: number }) => p.guessesCount === 0)).toBeTruthy();
+
+    // A host leave frees its slot and gives the remaining player host controls.
+    await host.getByRole('button', { name: /LEAVE LOBBY/ }).click();
+    await expect.poll(() => session(host)).toBeNull();
+    await expect.poll(async () => (await snapshot(guest)).room.hostId).toBe((await session(guest)).userId);
+    await guest.reload();
+    await expect(guest.getByRole('button', { name: /NEED AT LEAST 2 PLAYERS/ }).last()).toBeVisible();
+    await host.goto(`/?room=${saved.roomCode}`);
+    await host.getByRole('button', { name: 'ENTER BATTLE ROOM' }).click();
+    await expect.poll(() => session(host)).toBeTruthy();
+    await host.getByRole('button', { name: /I AM READY/ }).click();
+    await guest.getByRole('button', { name: /START MATCH NOW/ }).click();
+    await expect(host.getByPlaceholder('Enter Cricketer Name (e.g. Virat Kohli)...')).toBeEnabled();
+    await host.getByTitle('Leave and forfeit this duel').click();
+    await expect.poll(() => session(host)).toBeNull();
+    await expect(guest.getByRole('heading', { name: 'WIN BY FORFEIT' })).toBeVisible();
+    await expect(guest.getByText(/Your opponent left or did not reconnect/)).toBeVisible();
+    expect((await snapshot(guest)).room.finishReason).toBe('forfeit');
+    await expect(guest.getByRole('button', { name: 'Request rematch', exact: true })).toHaveCount(0);
+
   } finally { await hostContext.close(); await guestContext.close(); }
 });

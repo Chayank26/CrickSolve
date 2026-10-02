@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 
 export function MultiplayerSession() {
-  const { room, recoveryPending, isConnecting, error, restoreSession, leaveRoom } = useMultiplayerStore();
+  const { room, recoveryPending, isConnecting, error, restoreSession } = useMultiplayerStore();
   useEffect(() => {
     const resume = () => {
       const state = useMultiplayerStore.getState();
@@ -31,7 +31,7 @@ export function MultiplayerSession() {
       <p>{error || 'Restoring your multiplayer duel…'}</p>
       {recoveryPending && <div className="flex gap-4 mt-2">
         <button disabled={isConnecting} onClick={() => void restoreSession()} className="underline disabled:opacity-50">Retry connection</button>
-        <button onClick={leaveRoom} className="underline">Return to solo</button>
+        <p className="text-xs">Reconnect before leaving. During an active duel, a 60-second absence forfeits the round.</p>
       </div>}
     </div>
   );

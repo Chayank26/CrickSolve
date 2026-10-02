@@ -50,7 +50,8 @@ Multiplayer is under phased development. Completion Phase 1 stabilizes round ini
 | 5 | Disconnect detection and recovery | Recovery implemented; forfeit/host-transfer policies deferred |
 | 6 | Rematch lifecycle and result polish | Implemented; mutual consent and regression checks pass |
 | 7 | Integration tests and deployment verification | Local production/browser checks pass; live staging verification blocked by missing configuration |
-| 8 | Release hardening | Dependency advisories and lint errors resolved; lifecycle policy decision pending |
+| 8 | Release hardening | Dependency advisories and lint errors resolved |
+| 9 | Disconnect adjudication, server leave and host transfer | Implemented; live shared-service verification remains pending |
 
 Confirmed rules: **seven guesses**, a **daily-style bonus hint after the fourth guess**, and **no eighth guess**. Phase 2 enforces the seven-guess cap and removes the multiplayer eighth-attempt flow. The fourth-guess bonus hint is implemented in Phase 4: choose one still-locked attribute without consuming a guess.
 
@@ -69,7 +70,7 @@ The store tests isolate network and timer behavior; they do not replace two-brow
 
 Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
 
-Current checks: 76 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis and deployed multi-instance verification remain pending; local two-browser integration and webpack production build pass. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
+Current checks: 92 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis and deployed multi-instance verification remain pending; local two-browser integration and webpack production build pass. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
 
 
 ## Phase 3 API and configuration notes
@@ -142,3 +143,14 @@ See [the release checklist](docs/multiplayer-release-checklist.md) for repeatabl
 - Documentation and the release checklist reflect resolved lint/audit blockers.
 
 Checks: 76 tests, TypeScript, full-project lint (zero errors), production webpack build and two-browser multiplayer flow pass. Live Redis/Supabase staging verification and the previously deferred disconnect/server-leave/host-transfer policies remain outstanding. The lifecycle choice is pending user input; those rules are unchanged in this phase.
+
+
+## Phase 9 — Multiplayer lifecycle
+
+The approved policy is now implemented: players have 60 seconds from their last recorded authenticated heartbeat to reconnect. During active play, missing that deadline forfeits to the remaining connected player; if both deadlines expire, the duel is abandoned without a winner. Refresh does not count as leaving. Presence is recorded at most every five seconds, and pending deadlines are settled on the next room interaction, not by a background scheduler.
+
+Explicit Leave is now a server action. Leaving an active duel forfeits immediately. In the lobby/countdown it frees the slot, cancels any countdown and transfers host to the remaining participant; a fully empty lobby closes. Lobby members also expire after 60 seconds. Existing finished results remain unchanged when someone leaves, and a departed participant cannot rematch or reuse their credential. Closed rooms reject new joins.
+
+A promoted guest receives a host credential during authenticated sync, with the original expiry retained. Refresh restores it. Leave waits for server acknowledgement; transient failures keep credentials so it can be retried. Forfeit/abandoned results, shares and reconnect messages describe the actual outcome without claiming an unsolved puzzle was solved.
+
+Validation: 92 regressions, TypeScript, lint (zero errors/six existing warnings), webpack production build and the expanded two-browser flow. Seven guesses, the fourth-guess bonus and no eighth attempt remain unchanged. Remaining release work is live Redis/Supabase and deployed multi-instance verification; no deployment was performed.

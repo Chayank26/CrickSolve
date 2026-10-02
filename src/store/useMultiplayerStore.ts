@@ -73,7 +73,9 @@ interface MultiplayerState {
   broadcastGuess: (guessNumber: number, attributes: AttributeMatchResult, numbers: NumericMatchResult, isCorrect: boolean) => void;
   broadcastFinish: (tries: number, solveTimeMs: number, reveal?: MultiplayerReveal) => void;
   requestRematch: (action?: 'request' | 'accept' | 'cancel' | 'decline') => Promise<void>;
-  leaveRoom: () => void;
+  leaveRoom: () => Promise<void>;
+  isLeaving: boolean;
+  _resetLocal: () => void;
   cleanupChannel: () => void;
   _subscribeToRoom: (roomCode: string) => void;
   _runCountdown: () => void;
@@ -84,6 +86,7 @@ interface MultiplayerState {
 export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   isReconnecting: false, recoveryPending: false,
   guesses: [], hint: null, isHintSelecting: false, isClaimingHint: false,
+  isLeaving: false,
   userId: 'user_anon',
   nickname: 'Cricketer',
   membershipToken: null,
@@ -159,7 +162,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     if (startsRound) {
       useGameStore.getState().setActiveModal(null);
     }
-    if (newRound && room.status === 'waiting') useGameStore.getState().setActiveModal('multiplayer');
+    if (room.status === 'waiting' && (newRound || previous.status === 'countdown')) useGameStore.getState().setActiveModal('multiplayer');
     if (finishesRound) useGameStore.getState().setActiveModal('result');
     if (room.status === 'countdown' && !get().countdownTimer) get()._runCountdown();
   },
@@ -176,12 +179,16 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       const data = await response.json();
       if (!isCurrent()) return;
       if (expiredSession(response.status)) {
-        get().leaveRoom();
+        get()._resetLocal();
         set({ error: data.error || 'Your multiplayer session has expired. Join a new room.' });
         return;
       }
       if (!response.ok || !data.room) throw new Error(data.error || 'Unable to sync the room');
       set({ isReconnecting: false });
+      if (data.membershipToken) {
+        set({ membershipToken: data.membershipToken });
+        saveSession({ roomCode: room.roomCode, roomId: room.id, userId: get().userId, membershipToken: data.membershipToken });
+      }
       get().setRoomSnapshot(data.room, data.hint, data.guesses);
       // Do not erase an actionable mutation error on every background poll.
       if (get().error?.startsWith('Room sync:')) set({ error: null });
@@ -205,19 +212,20 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       const data = await response.json();
       if (get().connectionVersion !== version) return;
       if (expiredSession(response.status)) {
-        get().leaveRoom();
+        get()._resetLocal();
         set({ error: data.error || 'Your multiplayer session has expired. Join a new room.' });
         return;
       }
       if (!response.ok || !data.room) throw new Error(data.error || 'Unable to restore your duel');
       if (data.room.id !== session.roomId || !data.room.participants.some((p: { userId: string }) => p.userId === session.userId)) {
-        get().leaveRoom();
+        get()._resetLocal();
         set({ error: 'Your saved room membership is no longer available.' });
         return;
       }
-      set({ userId: session.userId, membershipToken: session.membershipToken, room: data.room,
+      set({ userId: session.userId, membershipToken: data.membershipToken || session.membershipToken, room: data.room,
         nickname: data.room.participants.find((p: { userId: string }) => p.userId === session.userId).nickname,
         isConnecting: false, recoveryPending: false, isReconnecting: false, error: null });
+      if (data.membershipToken) saveSession({ ...session, membershipToken: data.membershipToken });
       get().setRoomSnapshot(data.room, data.hint, data.guesses);
       if (data.room.status === 'waiting') useGameStore.getState().setActiveModal('multiplayer');
       get()._subscribeToRoom(data.room.roomCode);
@@ -244,7 +252,8 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
   },
 
   _connect: async (path, body, membershipToken) => {
-    get().leaveRoom();
+    if (get().room) { set({ error: 'Leave your current room before connecting to another.' }); return false; }
+    get()._resetLocal();
     useGameStore.getState().setActiveModal('multiplayer');
     const version = get().connectionVersion;
     set({ isConnecting: true, error: null });
@@ -276,7 +285,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
 
   _mutateRoom: async (body, event) => {
     const { room, membershipToken, connectionVersion } = get();
-    if (!room || !membershipToken) return;
+    if (!room || !membershipToken || get().isLeaving) return;
     const isCurrent = () => get().connectionVersion === connectionVersion &&
       get().room?.id === room.id && get().room?.roundId === room.roundId;
     try {
@@ -319,7 +328,32 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
     } });
   },
 
-  leaveRoom: () => {
+  leaveRoom: async () => {
+    const { room, membershipToken, connectionVersion, isLeaving } = get();
+    if (isLeaving) return;
+    if (!room) {
+      // Recovery may be offline: retain its credential until the server can settle leave.
+      if (readSession()) { set({ error: 'Reconnect to the room before leaving so the server can confirm your departure.' }); return; }
+      get()._resetLocal(); return;
+    }
+    if (!membershipToken) return;
+    set({ isLeaving: true, error: null });
+    try {
+      const response = await roomFetch('/api/multiplayer/room', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${membershipToken}` },
+        body: JSON.stringify({ roomCode: room.roomCode, roundId: room.roundId, action: 'leave' }),
+      });
+      if (get().connectionVersion !== connectionVersion) return;
+      if (response.ok || expiredSession(response.status)) { get()._resetLocal(); return; }
+      const data = await response.json();
+      throw new Error(data.error || 'Unable to leave the room');
+    } catch (error) {
+      if (get().connectionVersion === connectionVersion) set({ error: `Leave failed: ${error instanceof Error ? error.message : 'Connection interrupted'}. Please retry.` });
+    } finally {
+      if (get().connectionVersion === connectionVersion) set({ isLeaving: false });
+    }
+  },
+  _resetLocal: () => {
     saveSession(null);
     if (get().room) useGameStore.getState().setActiveModal(null);
     const timer = get().countdownTimer;
@@ -330,7 +364,7 @@ export const useMultiplayerStore = create<MultiplayerState>()((set, get) => ({
       connectionVersion: get().connectionVersion + 1, syncInFlight: false, lastSyncAt: 0,
       guesses: [], hint: null, isHintSelecting: false, isClaimingHint: false,
       userId: 'user_anon', room: null, reveal: null, membershipToken: null, countdown: null, countdownTimer: null,
-      isReconnecting: false, recoveryPending: false,
+      isLeaving: false, isReconnecting: false, recoveryPending: false,
       initializedRoundId: null, isMatchActive: false, matchWinner: null, error: null, isConnecting: false,
     });
   },

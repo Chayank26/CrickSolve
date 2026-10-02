@@ -26,12 +26,14 @@ export function ResultModal() {
     victoryToken,
     setNickname,
   } = useActiveGame();
-  const { room, reveal, userId, matchWinner, error, leaveRoom } = useMultiplayerStore();
+  const { room, reveal, userId, matchWinner, error, leaveRoom, isLeaving } = useMultiplayerStore();
 
   const [inputName, setInputName] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isForfeit = room?.finishReason === 'forfeit';
+  const isAbandoned = room?.finishReason === 'abandoned';
   const isDraw = room?.status === 'finished' && room.finishReason === 'exhausted';
   const isWon = room ? room.status === 'finished' && room.winnerUserId === userId : gameStatus === 'WON';
   const isLost = room ? room.status === 'finished' && room.winnerUserId !== userId : gameStatus === 'LOST';
@@ -149,10 +151,10 @@ export function ResultModal() {
           )}
 
           <h2 className="text-2xl font-black uppercase tracking-tight text-black">
-            {isWon ? 'SPECTACULAR WIN!' : isDraw ? 'NO ONE SOLVED IT' : room ? 'DUEL FINISHED' : 'MYSTERY PLAYER REVEALED'}
+            {isAbandoned ? 'DUEL ABANDONED' : isForfeit ? (isWon ? 'WIN BY FORFEIT' : 'DUEL FORFEITED') : isWon ? 'SPECTACULAR WIN!' : isDraw ? 'NO ONE SOLVED IT' : room ? 'DUEL FINISHED' : 'MYSTERY PLAYER REVEALED'}
           </h2>
           <p className="text-xs font-bold text-slate-600">
-            {isWon
+            {isAbandoned ? 'Both players missed the reconnect window. No winner.' : isForfeit ? (isWon ? 'Your opponent left or did not reconnect within 60 seconds.' : 'You left or missed the 60-second reconnect window.') : isWon
               ? `You solved the puzzle in ${tries} tries!`
               : isDraw ? 'Both players used all seven guesses.' : room ? `${matchWinner?.winnerNickname || 'Your opponent'} solved first.` : 'Here is the target cricketer for today.'}
           </p>
@@ -177,7 +179,7 @@ export function ResultModal() {
         )}
 
         {/* Solve Time & Stats Box for Winners (mm:ss) */}
-        {isWon && (
+        {isWon && !isForfeit && (
           <div className="bg-[#CCFF00] border-3 border-black p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-around font-black text-xs uppercase text-black">
             <div className="flex items-center gap-1.5">
               <Timer className="w-4 h-4 text-black" />
@@ -224,7 +226,7 @@ export function ResultModal() {
           </div>
           {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
           <RematchControls />
-          <button onClick={leaveRoom} className="text-xs font-bold underline text-left">Leave duel and return to solo</button>
+          <button disabled={isLeaving} onClick={() => void leaveRoom()} className="text-xs font-bold underline text-left">{isLeaving ? 'Leaving…' : 'Leave duel and return to solo'}</button>
         </div>}
 
         {/* Footer Action Buttons */}

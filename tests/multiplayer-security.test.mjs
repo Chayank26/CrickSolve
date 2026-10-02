@@ -221,3 +221,23 @@ test('rematch HTTP actions require valid intent, request ID and the other member
   assert.deepEqual(next.guesses, []);
   assert.equal(next.hint, null);
 });
+
+test('lobby host transfer exchanges only the promoted member token and preserves its expiry', async () => {
+  const f = setup(); const h = await f.host(); const g = await f.guest(h);
+  const crypto = f.load('src/lib/server-crypto.ts');
+  const original = crypto.verifyMultiplayerMembershipToken(g.membershipToken, h.room.roomCode, g.userId);
+  const leave = await f.PATCH(f.post({ roomCode: h.room.roomCode, roundId: h.room.roundId, action: 'leave' }, h.membershipToken));
+  assert.equal(leave.status, 200);
+  const promotedResponse = await f.get(g);
+  assert.equal(promotedResponse.status, 200);
+  const promoted = await promotedResponse.json();
+  assert.equal(promoted.room.hostId, g.userId);
+  assert.equal(promoted.room.promotedHostIds, undefined);
+  const token = crypto.verifyMultiplayerMembershipToken(promoted.membershipToken, h.room.roomCode, g.userId);
+  assert.equal(token.role, 'host');
+  assert.equal(token.expiresAt, original.expiresAt);
+  const ready = { roomCode: h.room.roomCode, roundId: h.room.roundId, action: 'ready' };
+  assert.equal((await f.PATCH(f.post(ready, g.membershipToken))).status, 403);
+  assert.equal((await f.PATCH(f.post(ready, promoted.membershipToken))).status, 200);
+  assert.equal((await f.get(h)).status, 403);
+});

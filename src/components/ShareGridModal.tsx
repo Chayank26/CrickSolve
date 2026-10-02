@@ -23,7 +23,7 @@ export function ShareGridModal() {
     })
     .join('\n');
 
-  const outcome = room?.finishReason === 'exhausted' ? 'No winner' : room?.winnerUserId === userId ? 'Won the duel' : 'Opponent won';
+  const outcome = room?.finishReason === 'abandoned' ? 'Duel abandoned — no winner' : room?.finishReason === 'forfeit' ? (room.winnerUserId === userId ? 'Won by forfeit' : 'Lost by forfeit') : room?.finishReason === 'exhausted' ? 'No winner' : room?.winnerUserId === userId ? 'Won the duel' : 'Opponent won';
   const shareText = room
     ? `CrickSolve 1v1\n${room.status === 'finished' ? outcome : 'Duel in progress'} • Guesses: ${guesses.length}/7\n\n${emojiGrid}\n\nPlay at: https://cricksolve.vercel.app`
     : `CrickSolve ${currentDate}\nGuesses: ${guesses.length}/7 • Streak: ${streak}\n\n${emojiGrid}\n\nPlay at: https://cricksolve.vercel.app`;

@@ -41,7 +41,7 @@ On an isolated staging deployment, verify:
 
 ## Release blockers still requiring decisions or external verification
 
-- Automatic disconnect forfeits, server-side leave/slot removal and host transfer remain deferred. Current Leave clears only the local session; a server slot may remain occupied until expiry. Multiplayer is not ready for public release with these lifecycle questions unresolved.
+- Phase 9 implements the approved 60-second reconnect/forfeit policy, server leave and lobby host transfer. Verify these on staging, including both-player expiry, countdown cancellation and credential exchange. Deadline settlement is request-driven, with no background scheduler.
 - Live Redis/Supabase and deployed multi-instance checks require a configured staging environment.
 - Phase 8 resolved all lint errors. Full-project lint passes with six non-blocking warnings.
 - Phase 8 updated Next.js/eslint-config-next to pinned 16.3.8 and compatible transitive dependencies; npm audit reports zero known vulnerabilities at verification time. Recheck advisories before deployment.
@@ -56,3 +56,10 @@ No deployment is performed by these checks.
 ## Phase 8 follow-up
 
 The 2026-10-02 dependency update and lint cleanup pass 76 regression tests, TypeScript, full-project lint (six warnings), a webpack production build and the two-browser integration scenario. Two new tests prevent stale leaderboard updates after closure/date changes. The 1v1 Battle header is verified without a lightning emoji. Previously deferred lifecycle policies and live staging verification remain open; this does not authorize a deployment.
+
+
+## Phase 9 lifecycle follow-up
+
+92 regressions cover timeout boundaries, both-player expiry, immutable results, leave authorization, host credential exchange, stale-round requests and failed/lost leave acknowledgements. The two-browser flow now additionally leaves the host lobby, refreshes the promoted guest, joins a replacement and verifies an immediate forfeit through the UI. TypeScript, lint and the production webpack build pass. Real shared-service verification remains open; no deployment has occurred.
+
+Policy: 60 seconds from the last recorded heartbeat (recorded at five-second intervals). A late request settles deadlines before refreshing its own presence. During active play one expired participant forfeits; both expired means abandoned/no winner. Lobby/countdown expiry removes missing members, transfers host if needed and closes empty rooms. Explicit active leave forfeits immediately. Finished results are immutable. A finished participant who explicitly left cannot rejoin/rematch; create a new room instead.

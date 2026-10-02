@@ -565,3 +565,15 @@ Dependency audit → pinned Next.js/lint patch update → compatible transitive 
 Leaderboard requests are scheduled on opening/date change; closing cancels the scheduled work and aborts active fetches. A stale response is ignored before updating scores or rank. This preserves the existing merge/sort behavior while preventing obsolete state updates.
 
 76 regressions and the browser flow pass. The Battle button remains emoji-free. Disconnect/leave/host-transfer behavior is unchanged pending the policy decision; no deployment was performed.
+
+
+## Phase 9 — Disconnect, leave and host transfer
+
+1. Authenticated polling/mutations refresh recorded presence at five-second intervals. After 15 seconds the HUD indicates interruption and displays time remaining to the 60-second deadline.
+2. A room interaction settles expired members under the room lock before allowing them to refresh presence. Active play: one expired player forfeits, both expired abandons without a winner. Lobby/countdown: remove expired members and transfer host or close the empty room.
+3. Explicit Leave PATCH carries the current round and membership token. Active leave forfeits; lobby leave releases the slot and cancels countdown. Finished results remain intact, and departed identities lose access.
+4. A promoted guest syncs with its original credential and receives a host-role replacement with the same expiry. Save it to sessionStorage. Host actions use the replacement token; self-leave works while the exchange is in flight.
+5. Client leave remains pending until acknowledged. Failed connections retain credentials for retry; successful/terminal responses clear local state. Invite URLs no longer reopen the lobby immediately after leaving.
+6. UI distinguishes wins by solve, forfeit and abandonment. Rematches are unavailable after explicit departure. Existing seven-guess/fourth-guess-hint rules stay intact.
+
+Local verification: 92 regression tests plus extended two-browser lifecycle flow. Staging shared-service behavior remains to be verified.

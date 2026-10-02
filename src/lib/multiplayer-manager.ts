@@ -4,7 +4,7 @@ import { randomInt, randomUUID } from 'crypto';
 import { evaluatePlayerGuess } from '@/lib/game-engine';
 import { verifyMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { PLAYERS } from '@/data/players';
-import { MultiplayerRoom, PublicMultiplayerRoom, RoomParticipant, RoomStatus, MULTIPLAYER_MAX_GUESSES, MULTIPLAYER_HINT_AFTER, MULTIPLAYER_HINT_LABELS, MultiplayerHintKey } from '@/types/multiplayer';
+import { MULTIPLAYER_RECONNECT_MS, MultiplayerRoom, PublicMultiplayerRoom, RoomParticipant, RoomStatus, MULTIPLAYER_MAX_GUESSES, MULTIPLAYER_HINT_AFTER, MULTIPLAYER_HINT_LABELS, MultiplayerHintKey } from '@/types/multiplayer';
 import { getStoredRoom, saveStoredRoom, withRoomMutation } from '@/lib/multiplayer-room-store';
 
 function generateRoomCode(): string {
@@ -24,7 +24,8 @@ export function toPublicRoom(room: MultiplayerRoom): PublicMultiplayerRoom {
   return {
     id: room.id, roomCode: room.roomCode, hostId: room.hostId, hostName: room.hostName,
     status: room.status, participants: room.participants.map((participant) => ({
-      ...participant, isConnected: Date.now() - (participant.lastSeenAt ?? participant.connectedAt) <= 15000,
+      ...participant, isConnected: participant.leftAt === undefined && Date.now() - (participant.lastSeenAt ?? participant.connectedAt) <= 15000,
+      reconnectSeconds: Math.max(0, Math.ceil(((participant.lastSeenAt ?? participant.connectedAt) + MULTIPLAYER_RECONNECT_MS - Date.now()) / 1000)),
     })), createdAt: room.createdAt,
     roundId: room.roundId, revision: room.revision, startedAt: room.startedAt,
     finishedAt: room.finishedAt, winnerUserId: room.winnerUserId, winnerNickname: room.winnerNickname,
@@ -59,7 +60,7 @@ export function toMemberRoomResponse(room: MultiplayerRoom, userId: string) {
 
 export async function claimRoomHint(roomCode: string, userId: string, roundId: string, membershipToken: string, key: MultiplayerHintKey): Promise<{ room: MultiplayerRoom | null; error?: string }> {
   return withRoomMutation(roomCode, async (save) => {
-    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    const room = await requireRound(roomCode, userId, roundId, membershipToken, save);
     if (!Object.hasOwn(MULTIPLAYER_HINT_LABELS, key)) throw new RoomActionError('Invalid hint attribute', 400);
     const participant = room.participants.find((player) => player.userId === userId)!;
     if (room.status !== 'in_progress' || participant.isSolved || participant.guessesCount >= MULTIPLAYER_MAX_GUESSES) {
@@ -134,17 +135,20 @@ export async function joinRoom(
       return { room: null, error: 'Room not found. Please verify the 6-character room code.' };
     }
 
+    if (membershipToken) assertRoomMembership(room, membershipToken, userId, true);
+    await reconcilePresence(room, save);
+    if (room.closedAt !== undefined) throw new RoomActionError('This room has closed', 410);
     if (room.status !== 'waiting' && !room.participants.some((p) => p.userId === userId)) {
       return { room: null, error: 'Match is already in progress.' };
     }
 
-    if (membershipToken) assertRoomMembership(room, membershipToken, userId);
+    if (membershipToken) assertRoomMembership(room, membershipToken, userId, true);
     const existingIdx = room.participants.findIndex((p) => p.userId === userId);
     if (existingIdx >= 0) {
-      assertRoomMembership(room, membershipToken || '', userId);
+      assertRoomMembership(room, membershipToken || '', userId, true);
       // Existing identities can only be reclaimed with their own valid credential.
       room.participants[existingIdx].nickname = nickname || room.participants[existingIdx].nickname;
-      room.participants[existingIdx].connectedAt = Date.now();
+      room.participants[existingIdx].lastSeenAt = Date.now();
       if (room.hostId === userId) room.hostName = room.participants[existingIdx].nickname;
     } else {
       // Multiplayer rooms are currently strict 1v1 matches.
@@ -169,24 +173,29 @@ export async function joinRoom(
     return { room };
   });
 }
-export function assertRoomMembership(room: MultiplayerRoom, membershipToken: string, userId: string) {
+export function assertRoomMembership(room: MultiplayerRoom, membershipToken: string, userId: string, allowPromotion = false) {
   const membership = verifyMultiplayerMembershipToken(membershipToken, room.roomCode, userId);
   if (!membership || membership.roomId !== room.id) throw new RoomActionError('Valid room membership is required', 401);
+  if (room.closedAt !== undefined) throw new RoomActionError('This room has closed', 410);
   const participant = room.participants.find((item) => item.userId === userId);
-  if (!participant || participant.role !== membership.role || (membership.role === 'host' && room.hostId !== userId)) {
+  const promoted = allowPromotion && membership.role === 'guest' && participant?.role === 'host' && room.hostId === userId && room.promotedHostIds?.includes(userId);
+  if (!participant || participant.leftAt !== undefined || (participant.role !== membership.role && !promoted) || (membership.role === 'host' && room.hostId !== userId)) {
     throw new RoomActionError('You are not authorized as this room participant', 403);
   }
   return participant;
 }
 
-async function requireRound(roomCode: string, userId: string, roundId: string, membershipToken: string) {
+async function requireRound(roomCode: string, userId: string, roundId: string, membershipToken: string, save: (room: MultiplayerRoom) => Promise<void>, allowPromotion = false) {
   if (!verifyMultiplayerMembershipToken(membershipToken, roomCode, userId)) {
     throw new RoomActionError('Valid room membership is required', 401);
   }
   const room = await getStoredRoom(roomCode);
   if (!room) throw new RoomActionError('Room not found', 404);
-  assertRoomMembership(room, membershipToken, userId);
+  assertRoomMembership(room, membershipToken, userId, allowPromotion);
   if (room.roundId !== roundId) throw new RoomActionError('This round has ended. Sync the room and try again.');
+  await reconcilePresence(room, save);
+  const participant = assertRoomMembership(room, membershipToken, userId, allowPromotion);
+  await touchParticipant(room, participant, save);
   return room;
 }
 
@@ -196,7 +205,7 @@ export async function submitRoomGuess(input: {
 }) {
   const { roomCode, userId, roundId, membershipToken, guessedPlayerId, attemptNumber } = input;
   return withRoomMutation(roomCode, async (save) => {
-    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    const room = await requireRound(roomCode, userId, roundId, membershipToken, save);
     if (room.status !== 'in_progress' || room.startedAt === undefined) throw new RoomActionError('The match is not active');
     const participant = room.participants.find((item) => item.userId === userId)!;
     if (participant.isSolved || participant.guessesCount >= MULTIPLAYER_MAX_GUESSES) {
@@ -243,12 +252,13 @@ export async function updateRoomStatusForUser(
   membershipToken: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
   return withRoomMutation(roomCode, async (save) => {
-    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    const room = await requireRound(roomCode, userId, roundId, membershipToken, save);
     if (room.hostId !== userId) return { room: null, error: 'Only the host can change room status' };
     if (status !== 'countdown' && status !== 'in_progress') throw new RoomActionError('Invalid room status', 400);
     if (room.participants.length !== 2 || !room.participants.every((participant) => participant.isReady)) {
       throw new RoomActionError('Both players must be ready before the match starts');
     }
+    if (room.participants.some((p) => Date.now() - (p.lastSeenAt ?? p.connectedAt) > 15000)) throw new RoomActionError('Both players must be connected to start');
     // Retrying an already accepted transition must not restart the countdown or timer.
     if (room.status === status) return { room };
     if (status === 'countdown') {
@@ -276,9 +286,9 @@ export async function rematchRoomForUser(
   requestId?: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
   return withRoomMutation(roomCode, async (save) => {
-    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    const room = await requireRound(roomCode, userId, roundId, membershipToken, save);
     if (room.status !== 'finished') throw new RoomActionError('Only finished matches can be reset');
-    if (room.participants.length !== 2) throw new RoomActionError('Two players are required for a rematch');
+    if (room.participants.length !== 2 || room.participants.some((p) => p.leftAt !== undefined)) throw new RoomActionError('Both players must still be in the room to rematch');
     const pending = room.rematchRequest;
     if (action === 'request') {
       if (pending) return { room }; // Retry or simultaneous requests never imply acceptance.
@@ -332,7 +342,7 @@ export async function toggleReadyForUser(
   membershipToken: string
 ): Promise<{ room: MultiplayerRoom | null; error?: string }> {
   return withRoomMutation(roomCode, async (save) => {
-    const room = await requireRound(roomCode, userId, roundId, membershipToken);
+    const room = await requireRound(roomCode, userId, roundId, membershipToken, save);
     if (room.status !== 'waiting') return { room: null, error: 'Readiness can only change while waiting' };
 
     const participant = room.participants.find((item) => item.userId === userId);
@@ -346,17 +356,82 @@ export async function toggleReadyForUser(
 }
 
 
-// Only an authenticated HTTP request refreshes presence; public broadcasts cannot.
+// All callers hold the room mutation lock. Expiry is settled before a late request
+// can refresh its own heartbeat, and persisted even when the requested action fails.
+async function touchParticipant(room: MultiplayerRoom, participant: RoomParticipant, save: (room: MultiplayerRoom) => Promise<void>) {
+  if (Date.now() - (participant.lastSeenAt ?? participant.connectedAt) >= 5000) {
+    participant.lastSeenAt = Date.now();
+    room.revision += 1;
+    await save(room);
+  }
+}
+function finishDeparture(room: MultiplayerRoom, winner?: RoomParticipant) {
+  const target = PLAYERS.find((p) => p.id === room.targetPlayerId)!;
+  room.status = 'finished';
+  room.finishReason = winner ? 'forfeit' : 'abandoned';
+  room.finishedAt = Date.now();
+  room.countdownEndsAt = undefined;
+  room.rematchRequest = undefined;
+  room.winnerUserId = winner?.userId;
+  room.winnerNickname = winner?.nickname;
+  room.reveal = { id: target.id, name: target.name, country: target.country, role: target.role, photoUrl: target.photoUrl };
+}
+function removeLobbyParticipants(room: MultiplayerRoom, ids: Set<string>) {
+  room.participants = room.participants.filter((p) => !ids.has(p.userId));
+  room.status = 'waiting';
+  room.countdownEndsAt = undefined;
+  if (!room.participants.length) { room.closedAt = Date.now(); return; }
+  if (ids.has(room.hostId)) {
+    const host = room.participants[0];
+    host.role = 'host';
+    room.hostId = host.userId;
+    room.hostName = host.nickname;
+    room.promotedHostIds = [...(room.promotedHostIds || []), host.userId];
+  }
+  room.participants.forEach((p) => { p.isReady = p.role === 'host'; });
+}
+async function reconcilePresence(room: MultiplayerRoom, save: (room: MultiplayerRoom) => Promise<void>) {
+  if (room.closedAt !== undefined || room.status === 'finished') return;
+  const expired = room.participants.filter((p) => Date.now() - (p.lastSeenAt ?? p.connectedAt) >= MULTIPLAYER_RECONNECT_MS);
+  if (!expired.length) return;
+  const ids = new Set(expired.map((p) => p.userId));
+  if (room.status === 'in_progress') {
+    finishDeparture(room, room.participants.find((p) => !ids.has(p.userId)));
+  } else {
+    removeLobbyParticipants(room, ids);
+  }
+  room.revision += 1;
+  await save(room);
+}
+
+// Promotion can exchange an original guest credential for its new host credential
+// only through authenticated synchronization, not by bypassing mutation role checks.
 export async function syncRoomForUser(roomCode: string, userId: string, membershipToken: string) {
   return withRoomMutation(roomCode, async (save) => {
     const room = await getStoredRoom(roomCode);
     if (!room) throw new RoomActionError('Room not found', 404);
-    const participant = assertRoomMembership(room, membershipToken, userId);
-    if (Date.now() - (participant.lastSeenAt ?? participant.connectedAt) >= 5000) {
-      participant.lastSeenAt = Date.now();
-      room.revision += 1;
-      await save(room);
-    }
+    assertRoomMembership(room, membershipToken, userId, true);
+    await reconcilePresence(room, save);
+    const participant = assertRoomMembership(room, membershipToken, userId, true);
+    await touchParticipant(room, participant, save);
     return room;
+  });
+}
+
+export async function leaveRoomForUser(roomCode: string, userId: string, roundId: string, membershipToken: string) {
+  return withRoomMutation(roomCode, async (save) => {
+    const room = await requireRound(roomCode, userId, roundId, membershipToken, save, true);
+    if (room.status === 'waiting' || room.status === 'countdown') {
+      removeLobbyParticipants(room, new Set([userId]));
+    } else {
+      const participant = room.participants.find((p) => p.userId === userId)!;
+      participant.leftAt = Date.now();
+      room.rematchRequest = undefined;
+      if (room.status === 'in_progress') finishDeparture(room, room.participants.find((p) => p.userId !== userId && p.leftAt === undefined));
+      if (room.participants.every((p) => p.leftAt !== undefined)) room.closedAt = Date.now();
+    }
+    room.revision += 1;
+    await save(room);
+    return { room };
   });
 }

@@ -94,7 +94,7 @@ test('a pending room fetch cannot restore a room after leaving', async () => {
   let resolve;
   f.fetch(() => new Promise((done) => { resolve = done; }));
   const sync = f.store.getState().syncRoomSnapshot();
-  f.store.getState().leaveRoom();
+  f.store.getState()._resetLocal();
   resolve(response({ ...f.room, revision: 2 }));
   await sync;
   assert.equal(f.store.getState().room, null);
@@ -105,7 +105,7 @@ test('old connection responses cannot overwrite a new connection even to the sam
   let resolve;
   f.fetch(() => new Promise((done) => { resolve = done; }));
   const sync = f.store.getState().syncRoomSnapshot();
-  f.store.getState().leaveRoom();
+  f.store.getState()._resetLocal();
   f.store.setState({ room: f.room, membershipToken: 'new-token' });
   resolve(response({ ...f.room, revision: 100, status: 'finished' }));
   await sync;
@@ -116,7 +116,7 @@ test('leaving during countdown cancels timers and cannot activate gameplay', () 
   const f = setup();
   f.store.getState().setRoomSnapshot({ ...f.room, status: 'countdown', revision: 2, countdownEndsAt: Date.now() + 3000 });
   assert.equal(f.timers.size, 1);
-  f.store.getState().leaveRoom();
+  f.store.getState()._resetLocal();
   assert.equal(f.timers.size, 0);
   assert.equal(f.store.getState().isMatchActive, false);
 });
@@ -170,12 +170,13 @@ test('late readiness mutation cannot replace a new round', async () => {
   assert.equal(f.store.getState().room.roundId, 'round2');
 });
 
-test('a pending join cannot reconnect after the user leaves', async () => {
+test('a pending join cannot reconnect after local cancellation', async () => {
   const f = setup();
+  f.store.getState()._resetLocal();
   let resolve;
   f.fetch(() => new Promise((done) => { resolve = done; }));
   const join = f.store.getState().joinRoom('AAAAAA');
-  f.store.getState().leaveRoom();
+  f.store.getState()._resetLocal();
   resolve({ ok: true, json: async () => ({ room: f.room, membershipToken: 'token' }) });
   assert.equal(await join, false);
   assert.equal(f.store.getState().room, null);
@@ -195,6 +196,7 @@ test('room sync sends credentials only in the authorization header', async () =>
 
 test('client adopts the server-issued identity and does not send its previous ID on creation', async () => {
   const f = setup();
+  f.store.getState()._resetLocal();
   f.fetch(async (url, options) => {
     if (options.method === 'POST') {
       assert.equal(JSON.parse(options.body).hostId, undefined);
@@ -204,7 +206,7 @@ test('client adopts the server-issued identity and does not send its previous ID
   });
   assert.equal(await f.store.getState().createRoom('Name'), true);
   assert.equal(f.store.getState().userId, 'server-issued');
-  f.store.getState().leaveRoom();
+  f.store.getState()._resetLocal();
 });
 
 test('repeated untrusted sync triggers cannot create concurrent room requests', async () => {
@@ -262,7 +264,7 @@ test('offline recovery keeps credentials and retries; explicit leave cancels a p
   let resolve;
   f.fetch(() => new Promise((done) => { resolve = done; }));
   const pending = f.store.getState().restoreSession();
-  f.store.getState().leaveRoom();
+  f.store.getState()._resetLocal();
   resolve(response(f.room)); await pending;
   assert.equal(f.store.getState().room, null);
   assert.equal(f.saved.size, 0);
@@ -302,4 +304,43 @@ test('accepted rematch clears private round state and opens the lobby once', () 
   f.store.getState().setRoomSnapshot({ ...f.room, roundId: 'next', revision: 7 });
   assert.equal(f.modal(), null);
   assert.equal(f.resets(), 0);
+});
+
+test('server leave waits for acknowledgement and retains membership on failure', async () => {
+  const f = setup();
+  let resolve;
+  f.fetch((_url, options) => {
+    assert.equal(JSON.parse(options.body).action, 'leave');
+    return new Promise((done) => { resolve = done; });
+  });
+  const pending = f.store.getState().leaveRoom();
+  assert.equal(f.store.getState().isLeaving, true);
+  assert.equal(f.store.getState().room.id, f.room.id);
+  resolve({ ok: false, status: 503, json: async () => ({ error: 'Unavailable' }) });
+  await pending;
+  assert.equal(f.store.getState().membershipToken, 'token');
+  assert.equal(f.store.getState().isLeaving, false);
+  assert.match(f.store.getState().error, /Leave failed/);
+  f.fetch(async () => ({ ok: true, status: 200 }));
+  await f.store.getState().leaveRoom();
+  assert.equal(f.store.getState().room, null);
+  assert.equal(f.store.getState().membershipToken, null);
+});
+test('lost leave acknowledgement is safely settled by revoked membership', async () => {
+  const f = setup();
+  f.fetch(async () => ({ ok: false, status: 403 }));
+  await f.store.getState().leaveRoom();
+  assert.equal(f.store.getState().room, null);
+});
+test('promoted host credentials from synchronization are persisted for refresh', async () => {
+  const f = setup();
+  f.fetch(async () => ({ ok: true, json: async () => ({ room: { ...f.room, hostId: 'guest', revision: 2 }, membershipToken: 'promoted-token' }) }));
+  await f.store.getState().syncRoomSnapshot();
+  assert.equal(f.store.getState().membershipToken, 'promoted-token');
+  assert.equal(JSON.parse(f.saved.get(sessionKey)).membershipToken, 'promoted-token');
+});
+test('creating another room cannot silently abandon current server membership', async () => {
+  const f = setup();
+  assert.equal(await f.store.getState().createRoom('Another'), false);
+  assert.equal(f.store.getState().room.id, f.room.id);
 });

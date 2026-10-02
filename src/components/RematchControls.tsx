@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { useMultiplayerStore } from '@/store/useMultiplayerStore';
 
 export function RematchControls() {
-  const { room, userId, isReconnecting, requestRematch } = useMultiplayerStore();
+  const { room, userId, isReconnecting, isLeaving, requestRematch } = useMultiplayerStore();
   const [pending, setPending] = useState(false);
   if (room?.status !== 'finished') return null;
+  if (room.participants?.some((p) => p.leftAt !== undefined)) return <p className="text-xs">A player has left. Create a new room to play again.</p>;
   const request = room.rematchRequest;
   const mine = request?.requestedBy === userId;
   const act = async (action: 'request' | 'accept' | 'cancel' | 'decline') => {
@@ -15,7 +16,7 @@ export function RematchControls() {
     try { await requestRematch(action); } finally { setPending(false); }
   };
   const button = (label: string, action: 'request' | 'accept' | 'cancel' | 'decline') => (
-    <button disabled={pending || isReconnecting} onClick={() => void act(action)}
+    <button disabled={pending || isReconnecting || isLeaving} onClick={() => void act(action)}
       className="border-2 border-current px-3 py-2 text-xs font-black uppercase disabled:opacity-50">
       {label}
     </button>

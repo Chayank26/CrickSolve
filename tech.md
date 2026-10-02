@@ -233,3 +233,14 @@ ESLint recognizes the two existing CommonJS maintenance scripts via a file-scope
 LeaderboardModal owns its loader inside the effect, cancels scheduled work, aborts fetch on cleanup and ignores late results. Two deterministic effect-lifecycle tests cover cancellation and stale-response handling. The header render check asserts a plain 1v1 BATTLE label with no lightning emoji.
 
 Validation: 76 tests, TypeScript, lint, production webpack build and two-browser multiplayer integration pass. Staging Redis/Supabase checks and deferred lifecycle decisions remain outstanding; no deployment.
+
+
+## Phase 9 — Server lifecycle and credential transitions
+
+`reconcilePresence` runs under the existing Redis/memory mutation lock before heartbeat refresh. A 60,000ms deadline uses `lastSeenAt ?? connectedAt`; GET synchronization, join and round mutations settle expiry. Active outcomes add `forfeit` and `abandoned`. A closed room retains a TTL-bound tombstone rather than an unsafe unlocked deletion. No scheduled worker is introduced.
+
+PATCH `action: leave` is authenticated and round-bound. Lobby members are removed; active/finished departures retain score records with `leftAt`, revoke authorization and clear pending rematches. Host transfer metadata is private. Only an actually promoted member may exchange its old guest token during GET synchronization; the replacement preserves the original expiration. Host mutation role checks remain strict. Self-leave can use a promoted guest's original token to avoid a token-exchange race.
+
+Public presence includes a server-computed reconnect countdown. Client leave separates server acknowledgement from local teardown, retains credentials on transient failures, and persists replacement host tokens. Forfeit/abandonment result/share text avoids fabricated solve times or solved status. Invite handling consumes each invite once per mount so leave returns to solo.
+
+Validation: 92 deterministic tests, TypeScript, lint (six existing warnings), webpack production build and expanded browser integration. Timeout policy, slot release and host transfer are now implemented; live Redis/Supabase and deployed multi-instance verification remain open.

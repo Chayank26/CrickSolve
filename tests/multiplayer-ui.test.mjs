@@ -4,20 +4,21 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import test from 'node:test';
 import { createLoader } from './helpers/load-typescript.mjs';
 
-function render(component, { hint = null, selecting = false, status = 'in_progress', count = 4 } = {}) {
-  const room = { id: 'room', roundId: 'round', roomCode: 'ABCDEF', status, startedAt: 1000,
+function render(component, { hint = null, selecting = false, status = 'in_progress', count = 4, finishReason } = {}) {
+  const room = { id: 'room', roundId: 'round', roomCode: 'ABCDEF', status, finishReason, startedAt: 1000,
     participants: [{ userId: 'host', guessesCount: count }], winnerUserId: status === 'finished' ? 'host' : undefined };
   const guesses = Array.from({ length: count }, (_, i) => ({ guessedPlayer: { id: `p${i}`, name: `Player ${i}` },
     isCorrect: false, attributeMatches: { country: false, battingHand: false, bowlingType: false, role: false, iplTeam: false, retired: false }, numericMatches: {} }));
   const active = { guesses, gameStatus: 'IN_PROGRESS', currentDate: '2026-09-28', gameMode: 'multiplayer', unlimitedTargetId: null,
     category: 'International', isHintSelecting: selecting, manuallyUnlockedAttributes: hint ? { [hint.key]: hint.value } : {},
     unlockedHint: hint ? `COUNTRY: ${hint.value}` : null, soundEnabled: true, streak: 10, startTimeMs: 1000, endTimeMs: null,
-    activeModal: component === 'ShareGridModal' ? 'share' : component === 'HowToModal' ? 'howTo' : null,
+    activeModal: component === 'ResultModal' ? 'result' : component === 'ShareGridModal' ? 'share' : component === 'HowToModal' ? 'howTo' : null,
   };
   const multiplayer = { room, hint, userId: 'host', guesses, isClaimingHint: false };
   const useMultiplayerStore = (selector) => selector ? selector(multiplayer) : multiplayer;
   const filename = component === 'HowToModal' ? 'TacticalHintModal' : component;
   const load = createLoader({ modules: {
+    '@/components/RematchControls': { RematchControls: () => null },
     '@/hooks/useActiveGame': { useActiveGame: () => active },
     '@/store/useGameStore': { useGameStore: () => active },
     '@/store/useMultiplayerStore': { useMultiplayerStore },
@@ -79,4 +80,13 @@ test('rematch controls distinguish request, waiting, acceptance and draw states'
   assert.equal((html().match(/disabled=""/g) || []).length, 2);
   state.room.status = 'waiting';
   assert.equal(html(), '');
+});
+
+test('forfeit results and shares do not claim a solved puzzle', () => {
+  const result = render('ResultModal', { status: 'finished', finishReason: 'forfeit' });
+  assert.match(result, /WIN BY FORFEIT/);
+  assert.match(result, /did not reconnect within 60 seconds/);
+  assert.doesNotMatch(result, /You solved the puzzle|SOLVE TIME:/);
+  const share = render('ShareGridModal', { status: 'finished', finishReason: 'forfeit' });
+  assert.match(share, /Won by forfeit/);
 });

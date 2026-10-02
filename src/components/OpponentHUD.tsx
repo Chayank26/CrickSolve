@@ -12,7 +12,7 @@ interface OpponentHUDProps {
 }
 
 export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
-  const { room, guesses, userId, error, isReconnecting, isMatchActive, matchWinner, leaveRoom } = useMultiplayerStore();
+  const { room, guesses, userId, error, isReconnecting, isMatchActive, matchWinner, leaveRoom, isLeaving } = useMultiplayerStore();
   const { setActiveModal } = useGameStore();
 
   if (!room) return null;
@@ -97,12 +97,12 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
               <Trophy className="w-3.5 h-3.5" />
               <span>
                 {matchWinner.winnerUserId === userId
-                  ? 'VICTORY! YOU SOLVED FIRST! 🏆'
+                  ? (room.finishReason === 'forfeit' ? 'VICTORY BY FORFEIT' : 'VICTORY! YOU SOLVED FIRST! 🏆')
                   : `${matchWinner.winnerNickname} WON THE DUEL!`}
               </span>
             </span>
           ) : room.status === 'finished' ? (
-            <span className="text-[#CCFF00]">NO ONE SOLVED IT — ROUND FINISHED</span>
+            <span className="text-[#CCFF00]">{room.finishReason === 'abandoned' ? 'DUEL ABANDONED — NO WINNER' : 'NO ONE SOLVED IT — ROUND FINISHED'}</span>
           ) : isMatchActive || room.status === 'in_progress' ? (
             <span className="text-[#CCFF00] flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#CCFF00] animate-ping" />
@@ -129,9 +129,10 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
           </button>
 
           <button
-            onClick={leaveRoom}
+            disabled={isLeaving}
+            onClick={() => void leaveRoom()}
             className="text-red-400 hover:text-red-300 p-1 transition-colors"
-            title="Leave Multiplayer Match"
+            title={isLeaving ? 'Leaving…' : room.status === 'in_progress' ? 'Leave and forfeit this duel' : 'Leave Multiplayer Match'}
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -151,7 +152,7 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
             </div>
 
             <div className="text-xs font-black uppercase text-[#CCFF00]">
-              {isWon ? 'SOLVED! 🏆' : `GUESS: ${guesses.length}/7`}
+              {isWon ? (self?.isSolved ? 'SOLVED! 🏆' : 'WON BY FORFEIT') : `GUESS: ${guesses.length}/7`}
             </div>
           </div>
 
@@ -208,8 +209,9 @@ export function OpponentHUD({ onOpenLobby }: OpponentHUDProps) {
               </div>
 
               {room.status !== 'finished' && !isReconnecting && opp.isConnected === false && (
-                <p className="text-xs text-yellow-300">Opponent connection interrupted. Waiting for them to reconnect.</p>
+                <p className="text-xs text-yellow-300">Opponent disconnected. Reconnect window: {opp.reconnectSeconds ?? 0}s remaining.</p>
               )}
+              {opp.leftAt !== undefined && <p className="text-xs text-yellow-300">Opponent left the room.</p>}
               {/* Opponent's Realtime Wordle Color Grid */}
               <div className="flex items-center justify-between text-[11px] text-neutral-400 uppercase font-bold pt-1">
                 <span>Opponent&apos;s Grid:</span>

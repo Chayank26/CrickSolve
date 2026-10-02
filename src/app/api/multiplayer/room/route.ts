@@ -1,5 +1,6 @@
+import { createMultiplayerMembershipToken } from '@/lib/server-crypto';
 import { MULTIPLAYER_HINT_LABELS, MultiplayerHintKey } from '@/types/multiplayer';
-import { claimRoomHint, syncRoomForUser, rematchRoomForUser, toMemberRoomResponse, toggleReadyForUser, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
+import { claimRoomHint, leaveRoomForUser, syncRoomForUser, rematchRoomForUser, toMemberRoomResponse, toggleReadyForUser, updateRoomStatusForUser } from '@/lib/multiplayer-manager';
 import { RoomActionError } from '@/lib/multiplayer-errors';
 import { multiplayerError, multiplayerJson, onlyFields, readJsonObject, readRoomCode, readRoundId, requestMembership } from '@/lib/multiplayer-http';
 import { enforceRateLimit, limitMultiplayerRequest } from '@/lib/multiplayer-rate-limit';
@@ -11,7 +12,10 @@ export async function GET(request: Request) {
     const { userId, membershipToken, membership } = requestMembership(request, code);
     await enforceRateLimit('read-member', `${membership.roomId}:${userId}`, 180);
     const room = await syncRoomForUser(code, userId, membershipToken);
-    return multiplayerJson({ success: true, ...toMemberRoomResponse(room, userId) });
+    const role = room.participants.find((p) => p.userId === userId)!.role;
+    return multiplayerJson({ success: true, ...toMemberRoomResponse(room, userId),
+      ...(role !== membership.role ? { membershipToken: createMultiplayerMembershipToken(room, userId, role, membership.expiresAt) } : {}),
+    });
   } catch (error) { return multiplayerError(error); }
 }
 
@@ -26,7 +30,7 @@ export async function PATCH(request: Request) {
     await enforceRateLimit('mutation-member', `${membership.roomId}:${userId}`, 30);
     const { action, status } = body;
     if ((action !== undefined && status !== undefined) ||
-        (action !== undefined && action !== 'ready' && action !== 'rematch' && action !== 'hint') ||
+        (action !== undefined && action !== 'ready' && action !== 'rematch' && action !== 'hint' && action !== 'leave') ||
         (status !== undefined && status !== 'countdown' && status !== 'in_progress')) {
       throw new RoomActionError('Invalid action or status', 400);
     }
@@ -39,6 +43,10 @@ export async function PATCH(request: Request) {
     if (action === 'rematch' && !['request', 'accept', 'cancel', 'decline'].includes(rematchAction as string)) throw new RoomActionError('Invalid rematch action', 400);
     const rematchRequestId = action === 'rematch' && rematchAction !== 'request' ? readRoundId(body.rematchRequestId) : undefined;
     if (action === 'rematch' && rematchAction === 'request' && body.rematchRequestId !== undefined) throw new RoomActionError('Unexpected rematch request ID', 400);
+    if (action === 'leave') {
+      await leaveRoomForUser(roomCode, userId, roundId, membershipToken);
+      return multiplayerJson({ success: true });
+    }
     const result = action === 'hint'
       ? await claimRoomHint(roomCode, userId, roundId, membershipToken, body.attribute as MultiplayerHintKey)
       : action === 'ready'

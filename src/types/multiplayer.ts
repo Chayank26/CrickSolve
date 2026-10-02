@@ -1,5 +1,6 @@
 import { AttributeMatchResult, NumericMatchResult } from './game';
 
+export const MULTIPLAYER_RECONNECT_MS = 60000;
 export const MULTIPLAYER_MAX_GUESSES = 7;
 export const MULTIPLAYER_HINT_AFTER = 4;
 export const MULTIPLAYER_HINT_LABELS = {
@@ -29,6 +30,8 @@ export interface RoomParticipant {
   connectedAt: number;
   lastSeenAt?: number;
   isConnected?: boolean;
+  leftAt?: number;
+  reconnectSeconds?: number;
 }
 
 export interface MultiplayerRoom {
@@ -37,6 +40,8 @@ export interface MultiplayerRoom {
   hostId: string;
   hostName: string;
   status: RoomStatus;
+  closedAt?: number;
+  promotedHostIds?: string[];
   targetPlayerId: string;
   guessedPlayerIdsByUser?: Record<string, string[]>;
   hintsByUser?: Record<string, MultiplayerHint>;
@@ -51,10 +56,10 @@ export interface MultiplayerRoom {
   reveal?: MultiplayerReveal;
   countdownEndsAt?: number;
   rematchRequest?: { id: string; requestedBy: string };
-  finishReason?: 'solved' | 'exhausted';
+  finishReason?: 'solved' | 'exhausted' | 'forfeit' | 'abandoned';
 }
 
-export type PublicMultiplayerRoom = Omit<MultiplayerRoom, 'targetPlayerId' | 'guessedPlayerIdsByUser' | 'hintsByUser'>;
+export type PublicMultiplayerRoom = Omit<MultiplayerRoom, 'targetPlayerId' | 'guessedPlayerIdsByUser' | 'hintsByUser' | 'closedAt' | 'promotedHostIds'>;
 
 export interface MultiplayerReveal {
   id: string;

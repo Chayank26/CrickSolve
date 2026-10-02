@@ -26,7 +26,7 @@ export function PlayerSearch() {
     startHintSelection,
   } = useActiveGame();
 
-  const { room, membershipToken, userId, setRoomSnapshot, addGuess: addMultiplayerGuess, isClaimingHint, isReconnecting, broadcastGuess, broadcastFinish } = useMultiplayerStore();
+  const { room, membershipToken, userId, setRoomSnapshot, addGuess: addMultiplayerGuess, isClaimingHint, isReconnecting, isLeaving, broadcastGuess, broadcastFinish } = useMultiplayerStore();
 
   const [query, setQuery] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function PlayerSearch() {
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const hasNoGuessesLeft = !!room && (room.participants.find((player) => player.userId === userId)?.guessesCount || 0) >= MULTIPLAYER_MAX_GUESSES;
-  const isGameOver = (!!room && isReconnecting) || hasNoGuessesLeft || gameStatus !== 'IN_PROGRESS' || (!!room && room.status !== 'in_progress');
+  const isGameOver = (!!room && (isReconnecting || isLeaving)) || hasNoGuessesLeft || gameStatus !== 'IN_PROGRESS' || (!!room && room.status !== 'in_progress');
 
   // Resolve target player across full player pool
   const todayStr = new Date().toISOString().split('T')[0];
