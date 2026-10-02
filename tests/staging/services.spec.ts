@@ -3,7 +3,7 @@ import { Redis } from '@upstash/redis';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
 import { randomUUID } from 'node:crypto';
 
-// Run only via playwright.staging.config.ts against dedicated staging services.
+// Run via the staging or services-only config against dedicated staging services.
 test('staging Redis shares data and enforces atomic lock ownership', async () => {
   const options = { url: process.env.UPSTASH_REDIS_REST_URL!, token: process.env.UPSTASH_REDIS_REST_TOKEN! };
   const writer = new Redis(options); const reader = new Redis(options);

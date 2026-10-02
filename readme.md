@@ -161,3 +161,14 @@ Validation: 92 regressions, TypeScript, lint (zero errors/six existing warnings)
 Added `npm run test:staging` for an existing HTTPS staging deployment. It runs the two-browser lifecycle flow and real Redis/Supabase probes; missing settings fail immediately with no in-memory fallback. Local configuration validation passes, and all 95 regression tests pass.
 
 **This final phase is not complete:** the current checkout/session has no staging URL, service credentials, environment files or linked deployment. Live shared-service and deployed multi-instance checks have not run. Provide a dedicated staging URL and the configuration file/location to continue. See [the release checklist](docs/multiplayer-release-checklist.md) for required variables and exact commands. No deployment occurred.
+
+
+## Live service configuration verified
+
+The supplied ignored `.env.local` configuration passed both live service probes: shared Redis reads/NX locking/token-checked writes and Supabase broadcasts between independent clients. Added `npm run test:services` / `playwright.services.config.ts` to verify services before a staging URL exists:
+
+```sh
+node --env-file=.env.local node_modules/@playwright/test/cli.js test --config=playwright.services.config.ts
+```
+
+Both probes pass, as do TypeScript, tooling lint and the webpack production build using the configured environment. This supersedes the earlier missing-service-configuration blocker. There is still no linked Vercel project or staging URL; deployed browser and multi-instance verification remain pending. No credentials were printed or committed.

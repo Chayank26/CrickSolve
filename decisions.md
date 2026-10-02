@@ -717,3 +717,10 @@ Do not equate another local/in-memory pass with live verification. This session 
 Added a separate staging Playwright config that requires a dedicated HTTPS origin and all service settings, disables the local webServer fixture and includes live Redis/Supabase probes plus the existing browser scenario. No deployment signing key is required by the runner. The operator must confirm the deployment uses these services and prove different application instances through routing/log evidence.
 
 Probe data is isolated: unique expiring Redis keys, temporary realtime channels and cleanup of the browser test's own memberships. No credentials are printed. Added three configuration/discovery checks; 95 regressions pass. No live tests or deployment were performed.
+
+
+## Live services connected — deployment still pending
+
+The user supplied Redis and Supabase settings through ignored `.env.local`. Added a services-only Playwright entry point so actual services can be verified before a hosted URL exists. The real Redis atomic ownership/read-sharing check and independent Supabase broadcast check both pass. TypeScript/tooling lint and the configured webpack production build pass.
+
+No deployment account token or linked Vercel project is available to the agent. The next step is importing the GitHub repository as a dedicated staging Vercel project and configuring the same five application environment variables. Live service probes do not replace deployed browser/multi-instance verification; the final phase remains open. Secrets remain local and excluded from Git.

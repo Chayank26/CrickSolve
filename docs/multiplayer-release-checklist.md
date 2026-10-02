@@ -90,3 +90,24 @@ The staging suite includes the existing two-browser lifecycle scenario plus real
 These checks do not prove that deployed requests reached different application instances or that the configured test services are the deployment's actual services. Confirm deployment configuration and use deployment logs/routing controls to perform the multi-instance and proxy/rate-limit checks above. Real lease-expiry races, realtime-failure fallback and narrow-screen staging behavior also require completion of the checklist before release sign-off.
 
 Local evidence: 95 regressions pass, including fail-closed staging configuration/discovery tests; TypeScript and new-tooling lint pass. Live checks remain blocked by missing environment access. Provide the staging URL and configuration location without pasting secrets into chat.
+
+
+## Latest result — services configured and verified
+
+The user supplied the four required service fields in ignored `.env.local`. The services-only runner passed both live Redis and Supabase tests (2 tests, 3.7 seconds). TypeScript, tooling lint and the webpack production build using this environment pass. Earlier missing-service-configuration notes above are historical; the remaining access gap is the hosted staging deployment.
+
+Run the service checks without a staging URL:
+
+```sh
+node --env-file=.env.local node_modules/@playwright/test/cli.js test --config=playwright.services.config.ts
+```
+
+First deployment setup:
+
+1. In Vercel, import `Chayank26/CrickSolve` as a dedicated project named `cricksolve-staging` (or another unused staging name).
+2. Select Next.js and repository root `./`. Use the verified build command `npm run build -- --webpack`.
+3. Copy these five application variables from `.env.local` into Vercel's environment-variable fields: CRICKSOLVE_SECRET_KEY, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY. Keep values out of chat/Git. A separate staging project's first deployment uses its Production environment; it still uses dedicated staging services. Do not mix it with a future public production project.
+4. Deploy and record its HTTPS origin as STAGING_BASE_URL locally. This variable is for the test runner and is not required by the app.
+5. Run the full staging suite. If deployment protection requires authentication, arrange approved automation access rather than removing protection blindly. Complete deployed multi-instance/proxy checks before release sign-off.
+
+No Vercel project has been linked or deployed during the service verification. Successful independent service probes are not yet proof that a hosted application is configured correctly.

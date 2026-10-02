@@ -253,3 +253,10 @@ Validation: 92 deterministic tests, TypeScript, lint (six existing warnings), we
 `tests/staging-configuration.test.mjs` validates fail-closed configuration, suite discovery without contacting placeholder hosts, and rejection of credential-bearing URLs. The full 95-test local regression suite passes, alongside TypeScript and new-tooling lint. These are preparation results, not live service validation.
 
 The session lacks staging URL/configuration and a deployment link. Live checks and multi-instance evidence remain blocked. Shared service probes alone do not demonstrate that deployed app instances share those services; deployment configuration/log/routing verification remains required. No deployment was performed.
+
+
+## Services-only verification entry point
+
+Added `playwright.services.config.ts` and `npm run test:services`. The config requires the four service fields, starts no web server/browser and runs the existing Redis/Supabase probes without requiring STAGING_BASE_URL. Use Node's `--env-file=.env.local` to load the ignored local configuration.
+
+Both real service tests pass (2 tests). TypeScript, config lint and the configured webpack production build also pass. Vercel linking, hosted browser verification and deployed multi-instance evidence remain pending; no deployment or credential commit occurred.

@@ -11,7 +11,8 @@
     "test": "node --test tests/*.test.mjs",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit --incremental false",
-    "test:staging": "playwright test --config=playwright.staging.config.ts"
+    "test:staging": "playwright test --config=playwright.staging.config.ts",
+    "test:services": "playwright test --config=playwright.services.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

@@ -586,3 +586,10 @@ Local verification: 92 regression tests plus extended two-browser lifecycle flow
 3. The suite exercises two browsers on the deployment, shared Redis visibility/atomic ownership and independent Supabase broadcast delivery. It cleans up its own probe keys/channels/memberships where reachable.
 4. Confirm the test services match deployment settings and complete multi-instance/rate-limit/realtime-failure/mobile checks with routing/log evidence.
 5. Record results before release sign-off. Current status: blocked at step 1; 95 local regressions pass, live tests remain unexecuted.
+
+
+## Configuration-ready verification
+
+Read only field-presence/URL validity from `.env.local` without displaying values → run the services-only suite with real network access → confirm Redis and Supabase probes pass → build production using the configured public service settings.
+
+Completed these steps successfully. Next: import the repository to a dedicated Vercel staging project, set the five application variables and deploy; save the resulting HTTPS origin as STAGING_BASE_URL, then run the full staging suite and multi-instance checks. No deployment has occurred yet.
