@@ -63,3 +63,30 @@ The 2026-10-02 dependency update and lint cleanup pass 76 regression tests, Type
 92 regressions cover timeout boundaries, both-player expiry, immutable results, leave authorization, host credential exchange, stale-round requests and failed/lost leave acknowledgements. The two-browser flow now additionally leaves the host lobby, refreshes the promoted guest, joins a replacement and verifies an immediate forfeit through the UI. TypeScript, lint and the production webpack build pass. Real shared-service verification remains open; no deployment has occurred.
 
 Policy: 60 seconds from the last recorded heartbeat (recorded at five-second intervals). A late request settles deadlines before refreshing its own presence. During active play one expired participant forfeits; both expired means abandoned/no winner. Lobby/countdown expiry removes missing members, transfers host if needed and closes empty rooms. Explicit active leave forfeits immediately. Finished results are immutable. A finished participant who explicitly left cannot rejoin/rematch; create a new room instead.
+
+
+## Final staging phase — prepared, blocked on configuration
+
+No staging origin, Redis credentials, Supabase configuration, environment file or linked Vercel project is available in this checkout/session. The final live phase has **not** passed or completed. No deployment or live-service test was performed.
+
+The new `npm run test:staging` command runs against an already deployed dedicated staging environment and requires:
+
+- `STAGING_BASE_URL`: HTTPS staging origin, without a path, query or embedded credentials.
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`: dedicated staging Redis credentials.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`: the staging project's public configuration.
+
+The deployment must itself use those services and a stable private `CRICKSOLVE_SECRET_KEY`. The test runner does not need the deployment signing key and does not start a server or apply local test credentials. Supply configuration through environment variables or an ignored `.env.staging.local` file:
+
+```sh
+# When configuration is already exported:
+npm run test:staging
+
+# Alternatively, using an ignored local configuration file (Node with --env-file support):
+node --env-file=.env.staging.local node_modules/@playwright/test/cli.js test --config=playwright.staging.config.ts
+```
+
+The staging suite includes the existing two-browser lifecycle scenario plus real Redis cross-client visibility/atomic-owner checks and a Supabase broadcast round trip between two independent clients. Redis probes use unique verification keys with a 30-second TTL and delete only those keys. Realtime probes use a unique temporary channel. Browser cleanup attempts server-side leave for its own memberships.
+
+These checks do not prove that deployed requests reached different application instances or that the configured test services are the deployment's actual services. Confirm deployment configuration and use deployment logs/routing controls to perform the multi-instance and proxy/rate-limit checks above. Real lease-expiry races, realtime-failure fallback and narrow-screen staging behavior also require completion of the checklist before release sign-off.
+
+Local evidence: 95 regressions pass, including fail-closed staging configuration/discovery tests; TypeScript and new-tooling lint pass. Live checks remain blocked by missing environment access. Provide the staging URL and configuration location without pasting secrets into chat.

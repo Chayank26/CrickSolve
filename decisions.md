@@ -708,3 +708,12 @@ Explicit leave forfeits active play immediately. Lobby/countdown leave or expiry
 Promotion exchanges the signed guest credential for a host credential during authenticated sync without extending expiry. Host-only mutations require the new role; self-leave remains permitted during the exchange race. Client leave clears credentials only after success or terminal membership rejection; transport failures retain them for retry.
 
 No cron/background adjudicator is added: the next room interaction settles expiry. Tests validate exact boundaries, both offline, explicit leave, host transfer and stale credentials. 92 tests, TypeScript, lint and production/browser checks validate local behavior; live Redis/Supabase remains pending.
+
+
+## Final phase — staging verification preparation
+
+Do not equate another local/in-memory pass with live verification. This session has no staging origin, required Redis/Supabase settings, environment file or linked Vercel project. Live verification and release sign-off remain blocked on configuration; the phase is not complete.
+
+Added a separate staging Playwright config that requires a dedicated HTTPS origin and all service settings, disables the local webServer fixture and includes live Redis/Supabase probes plus the existing browser scenario. No deployment signing key is required by the runner. The operator must confirm the deployment uses these services and prove different application instances through routing/log evidence.
+
+Probe data is isolated: unique expiring Redis keys, temporary realtime channels and cleanup of the browser test's own memberships. No credentials are printed. Added three configuration/discovery checks; 95 regressions pass. No live tests or deployment were performed.

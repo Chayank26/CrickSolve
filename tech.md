@@ -244,3 +244,12 @@ PATCH `action: leave` is authenticated and round-bound. Lobby members are remove
 Public presence includes a server-computed reconnect countdown. Client leave separates server acknowledgement from local teardown, retains credentials on transient failures, and persists replacement host tokens. Forfeit/abandonment result/share text avoids fabricated solve times or solved status. Invite handling consumes each invite once per mount so leave returns to solo.
 
 Validation: 92 deterministic tests, TypeScript, lint (six existing warnings), webpack production build and expanded browser integration. Timeout policy, slot release and host transfer are now implemented; live Redis/Supabase and deployed multi-instance verification remain open.
+
+
+## Final phase — staging runner
+
+`playwright.staging.config.ts` reuses browser settings but explicitly removes webServer, selects both the browser and service suites, and requires STAGING_BASE_URL plus Redis/Supabase credentials. `tests/staging/services.spec.ts` checks actual cross-client Redis reads/NX locks/token-checked commits and Supabase broadcast delivery on an isolated temporary channel. Redis keys have TTLs and scoped cleanup; the browser flow attempts authenticated leave for its own sessions.
+
+`tests/staging-configuration.test.mjs` validates fail-closed configuration, suite discovery without contacting placeholder hosts, and rejection of credential-bearing URLs. The full 95-test local regression suite passes, alongside TypeScript and new-tooling lint. These are preparation results, not live service validation.
+
+The session lacks staging URL/configuration and a deployment link. Live checks and multi-instance evidence remain blocked. Shared service probes alone do not demonstrate that deployed app instances share those services; deployment configuration/log/routing verification remains required. No deployment was performed.

@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "node --test tests/*.test.mjs",
     "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit --incremental false"
+    "typecheck": "tsc --noEmit --incremental false",
+    "test:staging": "playwright test --config=playwright.staging.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

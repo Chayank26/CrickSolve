@@ -70,7 +70,7 @@ The store tests isolate network and timer behavior; they do not replace two-brow
 
 Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
 
-Current checks: 92 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis and deployed multi-instance verification remain pending; local two-browser integration and webpack production build pass. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
+Current checks: 95 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis and deployed multi-instance verification remain pending; local two-browser integration and webpack production build pass. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
 
 
 ## Phase 3 API and configuration notes
@@ -154,3 +154,10 @@ Explicit Leave is now a server action. Leaving an active duel forfeits immediate
 A promoted guest receives a host credential during authenticated sync, with the original expiry retained. Refresh restores it. Leave waits for server acknowledgement; transient failures keep credentials so it can be retried. Forfeit/abandoned results, shares and reconnect messages describe the actual outcome without claiming an unsolved puzzle was solved.
 
 Validation: 92 regressions, TypeScript, lint (zero errors/six existing warnings), webpack production build and the expanded two-browser flow. Seven guesses, the fourth-guess bonus and no eighth attempt remain unchanged. Remaining release work is live Redis/Supabase and deployed multi-instance verification; no deployment was performed.
+
+
+## Final phase — staging verification pending access
+
+Added `npm run test:staging` for an existing HTTPS staging deployment. It runs the two-browser lifecycle flow and real Redis/Supabase probes; missing settings fail immediately with no in-memory fallback. Local configuration validation passes, and all 95 regression tests pass.
+
+**This final phase is not complete:** the current checkout/session has no staging URL, service credentials, environment files or linked deployment. Live shared-service and deployed multi-instance checks have not run. Provide a dedicated staging URL and the configuration file/location to continue. See [the release checklist](docs/multiplayer-release-checklist.md) for required variables and exact commands. No deployment occurred.

@@ -577,3 +577,12 @@ Leaderboard requests are scheduled on opening/date change; closing cancels the s
 6. UI distinguishes wins by solve, forfeit and abandonment. Rematches are unavailable after explicit departure. Existing seven-guess/fourth-guess-hint rules stay intact.
 
 Local verification: 92 regression tests plus extended two-browser lifecycle flow. Staging shared-service behavior remains to be verified.
+
+
+## Final phase — staging verification gate
+
+1. Provide the dedicated staging origin and Redis/Supabase configuration through the environment or an ignored local file.
+2. Run `npm run test:staging`. The config refuses missing settings and credential-bearing target URLs; it cannot start the local fallback server.
+3. The suite exercises two browsers on the deployment, shared Redis visibility/atomic ownership and independent Supabase broadcast delivery. It cleans up its own probe keys/channels/memberships where reachable.
+4. Confirm the test services match deployment settings and complete multi-instance/rate-limit/realtime-failure/mobile checks with routing/log evidence.
+5. Record results before release sign-off. Current status: blocked at step 1; 95 local regressions pass, live tests remain unexecuted.

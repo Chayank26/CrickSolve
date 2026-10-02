@@ -108,5 +108,24 @@ test('two browser contexts create, play, recover, finish and mutually rematch', 
     expect((await snapshot(guest)).room.finishReason).toBe('forfeit');
     await expect(guest.getByRole('button', { name: 'Request rematch', exact: true })).toHaveCount(0);
 
-  } finally { await hostContext.close(); await guestContext.close(); }
+  } finally {
+    // Release only this test's memberships, including when run on staging.
+    // If the service is unreachable, normal reconnect/room TTL rules are the fallback.
+    for (const page of [host, guest]) {
+      try {
+        const saved = await session(page);
+        if (!saved) continue;
+        const response = await page.request.get(`/api/multiplayer/room?code=${saved.roomCode}`, {
+          headers: { Authorization: `Bearer ${saved.membershipToken}` }, timeout: 5000,
+        });
+        if (!response.ok()) continue;
+        const data = await response.json();
+        await page.request.patch('/api/multiplayer/room', {
+          headers: { Authorization: `Bearer ${data.membershipToken || saved.membershipToken}` },
+          data: { action: 'leave', roomCode: saved.roomCode, roundId: data.room.roundId }, timeout: 5000,
+        });
+      } catch { /* Preserve the original test result if cleanup cannot reach the room. */ }
+    }
+    await hostContext.close(); await guestContext.close();
+  }
 });
