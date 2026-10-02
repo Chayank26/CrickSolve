@@ -209,3 +209,16 @@ PATCH room accepts `action: rematch` and `rematchAction: request | accept | canc
 The shared RematchControls component provides pending/disabled, request, waiting, cancel, accept and decline states in the result modal and HUD. New-round reconciliation opens the lobby without repeatedly reopening it on polls. ResultModal includes the two-player scorecard and local leave action.
 
 Validation: 74 regression tests and TypeScript pass. Changed-file lint has no errors and one pre-existing image warning. Redis/two-browser/deployment verification and unresolved disconnect policies remain pending.
+
+
+## Multiplayer Completion Phase 7 — Test tooling and evidence
+
+- Added `@playwright/test`, `playwright.config.ts` and `tests/e2e/multiplayer.spec.ts`. `npm run test:e2e` starts the built Next server on 127.0.0.1:3107 with a test-only key and isolated memory storage. It refuses to reuse an existing server.
+- Added `npm test` and `npm run typecheck`; ignored Playwright output/report directories.
+- Browser execution uses installed macOS Chrome when available or E2E_CHROME_PATH; otherwise install the standard Playwright Chromium browser.
+- Verified 74 deterministic regressions, TypeScript, one two-context integration scenario, and a production webpack build. New tooling lint passes; full-project lint still reports 10 pre-existing errors and 8 warnings.
+- Turbopack failed on an internal port-binding environment restriction. `npm run build -- --webpack` succeeded; the default build script remains unchanged.
+- Live Redis/Supabase, deployment proxy limits and multi-instance behavior are unverified without staging configuration. The in-memory browser test is not evidence of shared-service correctness.
+- Dependency installation reported three high and one critical advisory; review and resolve applicable findings before release rather than applying unchecked force-upgrades.
+
+See `docs/multiplayer-release-checklist.md` for configuration, commands and remaining blockers. Phase 7 local verification is complete; deployed verification and deferred disconnect/leave/host-transfer policies remain open.

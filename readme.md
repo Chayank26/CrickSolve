@@ -49,7 +49,7 @@ Multiplayer is under phased development. Completion Phase 1 stabilizes round ini
 | 4 | Dedicated multiplayer rules/UI, bonus hint after guess four, progress isolation | Implemented; regression checks pass |
 | 5 | Disconnect detection and recovery | Recovery implemented; forfeit/host-transfer policies deferred |
 | 6 | Rematch lifecycle and result polish | Implemented; mutual consent and regression checks pass |
-| 7 | Integration tests and deployment verification | Planned |
+| 7 | Integration tests and deployment verification | Local production/browser checks pass; live staging verification blocked by missing configuration |
 
 Confirmed rules: **seven guesses**, a **daily-style bonus hint after the fourth guess**, and **no eighth guess**. Phase 2 enforces the seven-guess cap and removes the multiplayer eighth-attempt flow. The fourth-guess bonus hint is implemented in Phase 4: choose one still-locked attribute without consuming a guess.
 
@@ -68,7 +68,7 @@ The store tests isolate network and timer behavior; they do not replace two-brow
 
 Phase 2 also makes guess validation and winner selection atomic, rejects stale rounds and repeated player guesses, validates countdown transitions, and guards Redis commits against expired locks. If both players exhaust seven guesses, the round finishes without a winner and reveals the cricketer. Multiplayer guesses no longer update solo statistics.
 
-Current checks: 74 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis, two-browser integration and production build verification remain pending. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
+Current checks: 74 regression tests and TypeScript pass; changed files have no lint errors (one existing image warning). Live Redis and deployed multi-instance verification remain pending; local two-browser integration and webpack production build pass. Phase 3 closes anonymous identity reuse and enforces stored participant roles. Multiplayer is not release-ready yet.
 
 
 ## Phase 3 API and configuration notes
@@ -113,3 +113,20 @@ Validation: 67 regression tests, TypeScript and changed-file lint pass. Live two
 - Result screens show both players' attempts and solve times, rematch controls, sharing and return-to-solo. Finished results can be reopened from the HUD, including draws.
 
 Validation: 74 tests and TypeScript pass. Changed-file lint has no errors (one existing image warning). Phase 7 live integration/deployment checks remain pending, along with deferred disconnect adjudication and server-side leave/host-transfer decisions. No lightning emojis were reintroduced.
+
+
+## Multiplayer integration verification — Completion Phase 7
+
+Added Playwright integration testing with two isolated browser contexts against a local production server. The test covers UI create/join, readiness/countdown, guesses, seven-guess completion or an early solve, private snapshots, refresh/offline recovery, result synchronization, rematch decline/accept and fresh round state. Random early solves can skip the browser's fourth-guess recovery branch; deterministic unit tests cover those rules.
+
+Verified locally:
+
+- `npm test`: 74 tests pass.
+- `npm run typecheck`: passes.
+- `npm run build -- --webpack`: production build passes.
+- `npm run test:e2e`: one two-browser integration scenario passes.
+- Lint for new test/config files passes. Full-project lint remains at 10 pre-existing errors and 8 warnings.
+
+The default Turbopack build failed on this environment's internal port-binding restriction; the supported webpack build passed. Browser testing used installed headless Chrome and an isolated in-memory room store, not live Redis/Supabase. No deployment was performed.
+
+See [the release checklist](docs/multiplayer-release-checklist.md) for repeatable commands, staging configuration and launch blockers. Live shared-service verification, unresolved disconnect/server-leave/host-transfer policies and dependency audit review remain required before release. Phase 7's local verification is complete; deployment verification remains open.

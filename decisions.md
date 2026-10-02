@@ -675,3 +675,14 @@ Replaced unilateral rematch reset with request/accept/cancel/decline. The reques
 Each invitation has a server-generated ID bound to the finished round. All changes run under the existing room mutation lock and membership validation. Acceptance rotates the round/target once, clears private guesses/hints and public results, and restores host-ready/guest-not-ready lobby state. Tokens retain their existing expiry; rematches do not extend membership validity.
 
 Result/HUD controls work for wins and draws. Both player score lines are displayed; solo leaderboard behavior remains separate. Disconnect forfeits, host transfer and server-side leave remain deferred. Validation: 74 tests, TypeScript, zero changed-file lint errors (existing image warning). Phase 7 not started.
+
+
+## Multiplayer Completion Phase 7 — Integration and release verification
+
+Added Playwright as a development dependency and a two-browser production-server smoke test. Browser contexts use distinct real memberships and the UI for creating/joining, readiness, guesses and mutual rematches. The test server has an isolated test-only signing key and explicitly disables Redis configuration; it never reuses an existing server or touches production. Browser artifacts are ignored by Git.
+
+The target remains random with no test backdoor. An early correct guess is valid and may skip browser hint/recovery checks; deterministic regressions cover these paths separately. Installed macOS Chrome is used when available, an explicit E2E_CHROME_PATH can override it, and other environments can install Playwright Chromium.
+
+Results: 74 regressions, TypeScript, one real two-browser scenario and the webpack production build pass. New test/config lint passes. Existing full-project lint failures remain unchanged. Turbopack could not bind an internal port in this environment; webpack was used without changing the default build command.
+
+No staging configuration was available, so real Redis/Supabase and deployed multi-instance behavior remain unverified. No deployment occurred. Disconnect penalties, server leave and host transfer remain deferred product decisions. Local Phase 7 checks are complete; release approval should wait for these outstanding items and dependency audit review.

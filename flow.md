@@ -547,3 +547,12 @@ Checks: 67 automated regressions, TypeScript and changed-file lint pass; two-bro
 5. Both clients reconcile, clear their old guesses/hint/result and open the lobby once. The guest becomes ready, then the host starts the usual countdown. A fresh round again permits seven guesses and one bonus after guess four.
 
 Refresh recovers invitation state from the server. The HUD can reopen dismissed results. Tests cover retries, authorization, stale IDs, concurrent acceptance, draws and lobby transitions; live integration remains Phase 7.
+
+
+## Multiplayer Completion Phase 7 — Verification flow
+
+Run `npm test`, `npm run typecheck`, then build production with `npm run build -- --webpack`. Install Playwright Chromium if an installed Chrome is unavailable, then run `npm run test:e2e`.
+
+The browser suite owns a local production server on port 3107, opens two isolated contexts, dismisses first-run help, creates a room and joins through its invite URL. It exercises readiness/countdown and actual guess requests. When the target remains unsolved after four guesses, it checks the bonus hint, refresh identity/history restoration and offline/online recovery. A solve or both players reaching seven ends the round. Both clients see results, decline the first invitation, accept a new one and return to a clean lobby.
+
+This local scenario passes along with 74 deterministic regression tests and TypeScript. Public deployment still requires the live-service checklist in `docs/multiplayer-release-checklist.md`; no staging credentials or deployment were available during this phase.
